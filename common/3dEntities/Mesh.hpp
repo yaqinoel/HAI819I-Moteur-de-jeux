@@ -26,8 +26,6 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <string>
-#include <algorithm>
-#include <fstream>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -95,7 +93,6 @@ struct Vertex {
 
 class Mesh : public Node3d{
 public:
-    GLuint shaderPID;
     inline Mesh () {}
     inline Mesh (const std::vector<Vertex> & v) : vertices (v) {}
     inline Mesh (const std::vector<Vertex> & v,
@@ -111,7 +108,7 @@ public:
     std::vector<Triangle> & getTriangles () { return triangles; }
     const std::vector<Triangle> & getTriangles () const { return triangles; }
     void openOFF(const std::string &filename, unsigned int normWeight = 1);
-    void render(const Camera &camera) const;
+    void render(const Camera* camera) const override;
     void setShader(std::string vertex_shader, std::string fragment_shader);
     void clear ();
     void clearGeometry ();
@@ -138,6 +135,7 @@ protected:
     mutable GLuint _TANGENTS;
     mutable GLuint _BITANGENTS;
 
+    mutable GLuint shaderPID;
     mutable GLuint viewUniform;
     mutable GLuint modelMatrixUniform;
     mutable GLuint viewMatrixUniform;

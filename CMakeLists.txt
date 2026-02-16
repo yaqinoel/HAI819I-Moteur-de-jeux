@@ -80,6 +80,7 @@ add_executable(Main
         Shaders/fragment_shader_Terrain.glsl
         
         external/stb_image/stb_image.h external/stb_image/stb_image.cpp
+        common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp
 )
 target_link_libraries(Main
         ${ALL_LIBS}

@@ -22,6 +22,7 @@
    
 #include "Mesh.hpp"
 #include <glm/gtx/string_cast.hpp>
+#include <fstream>
 
 using namespace std;
 
@@ -179,8 +180,7 @@ void Mesh::setShader(std::string vertex_shader, std::string fragment_shader){
     viewUniform = glGetUniformLocation(shaderPID, "viewVector");
 }
 
-void Mesh::render(const Camera &camera) const{
-
+void Mesh::render(const Camera* camera) const{
     if (vertices.empty()) return;
     if (!_synchronized){
         synchronize();
@@ -192,20 +192,22 @@ void Mesh::render(const Camera &camera) const{
 
 
     material.render(shaderPID);
-    glm::mat4 model = modelMatrix();
+    glm::mat4 model = globalMatrix();
     glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(model));
 
-    glm::mat4 View = camera.getViewMatrix();
+    glm::mat4 View = camera->getViewMatrix();
     glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(View));
 
-    glm::mat4 Projection = camera.getProjectionMatrix();
+    glm::mat4 Projection = camera->getProjectionMatrix();
     glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(Projection));
 
-    glUniform3fv(viewUniform, 1, glm::value_ptr(camera.forward()));
+    glUniform3fv(viewUniform, 1, glm::value_ptr(camera->forward()));
 
     glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, (void*)0 );
 
     glUseProgram(0);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    for(Node * c : children)c->render(camera);
 }

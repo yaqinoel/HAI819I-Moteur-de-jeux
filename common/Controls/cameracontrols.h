@@ -15,10 +15,10 @@ class CameraControls : public Camera
 public:
     CameraControls(float width, float height, glm::vec3 position);
     CameraControls(float width, float height, float fov, float nearPlane, float farPlane, glm::vec3 position);
-    void inputs(GLFWwindow *window, float deltaTime);
+    void process(float deltaTime) override;
     float speed = 5.0f;
     float sensitivity = 100.0f;
     bool orbital = false;
-    glm::vec3 orbitalPos = glm::vec3(0, 9, -5);
+    glm::vec3 orbitalPos = glm::vec3(0, 9, -10);
     float timer = 1;
 };

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef NODE3D
+#define NODE3D
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -32,9 +33,9 @@ public:
     glm::vec3 down() const{return rotation*DOWN;}
     glm::vec3 right() const{return rotation*RIGHT;}
     glm::vec3 left() const{return rotation*LEFT;}
-    glm::mat4 modelMatrix() const{return glm::translate(glm::mat4(1.0f), position)*glm::mat4_cast(rotation)*glm::scale(glm::mat4(1.0f), scale);}
-    void Rotate(const glm::vec3& axis, float angleRadians) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); rotation = glm::normalize(rotation * delta);}
-    void SetRotation(glm::vec3 eulerRotation){rotation = glm::normalize(glm::quat(glm::radians(eulerRotation)));}
+    glm::mat4 localMatrix() const{return glm::translate(glm::mat4(1.0f), position)*glm::mat4_cast(rotation)*glm::scale(glm::mat4(1.0f), scale);}
+    void Rotate(const float angleRadians, const glm::vec3& axis) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); rotation = glm::normalize(rotation * delta);}
+    void SetRotation(const glm::vec3 eulerRotation){rotation = glm::normalize(glm::quat(glm::radians(eulerRotation)));}
     void SetForward(const glm::vec3& forward)
     {
         glm::vec3 f = glm::normalize(forward);
@@ -44,4 +45,7 @@ public:
         glm::mat3 rotMatrix(r, glm::cross(f, r), f);
         rotation = glm::normalize(glm::quat_cast(rotMatrix));
     }
+    glm::mat4 globalMatrix() const override;
+    void Translate(const glm::vec3 translation){position += translation;}
 };
+#endif

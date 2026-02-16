@@ -4,7 +4,8 @@ CameraControls::CameraControls(float width, float height, glm::vec3 position) : 
 CameraControls::CameraControls(float width, float height, float fov, float nearPlane, float farPlane, glm::vec3 position):
     Camera(width, height, fov, nearPlane, farPlane, position){}
 
-void CameraControls::inputs(GLFWwindow *window, float deltaTime){
+void CameraControls::process(float deltaTime){
+    GLFWwindow* window = glfwGetCurrentContext();
     timer -= deltaTime;
     if(!orbital){
         float trueSpeed = speed * deltaTime;

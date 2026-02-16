@@ -1,5 +1,17 @@
 #include "proceduralterrain.h"
 
+ProceduralTerrain::ProceduralTerrain(){
+    InitMesh(resX, resY, 10, 10);
+    std::string texname = "../Resources/Textures/Environement/heightmap-1024x1024.png";
+    ApplyHeightMap(texname);
+    setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain.glsl");
+    Material mat = Material(glm::vec3(1, 0, 0));
+    mat.addTexture("texture0", Texture("../Resources/Textures/Environement/grass.png"));
+    mat.addTexture("texture1", Texture("../Resources/Textures/Environement/rock.png"));
+    mat.addTexture("texture2", Texture("../Resources/Textures/Environement/snowrocks.png"));
+    setMaterial(mat);
+}
+
 void ProceduralTerrain::InitMesh(int resX, int resY , float sizeX , float sizeY, float sizeZ){
     glm::vec3 center = glm::vec3(sizeX/2.0, 0.0f, sizeY/2.0);
     this->resX = resX;

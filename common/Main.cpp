@@ -14,6 +14,7 @@ GLFWwindow* window;
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glut.h>
@@ -27,6 +28,7 @@ GLFWwindow* window;
 #include <common/3dEntities/Meshes/proceduralterrain.h>
 #include <common/Controls/cameracontrols.h>
 #include <common/Materials/material.h>
+#include <common/3dEntities/Meshes/planet.h>
 
 void processInput(GLFWwindow *window);
 
@@ -34,7 +36,7 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-CameraControls cam = CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0.0f, 0.0f, 4.0f));
+CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0.0f, 0.0f, -4.0f));
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -43,8 +45,7 @@ float lastFrame = 0.0f;
 float angle = 0.;
 float zoom = 1.;
 
-ProceduralTerrain mesh;
-Material mat;
+Node* scene;
 int resX = 4;
 int resY = 4;
 float rotSpeed = 1;
@@ -99,41 +100,33 @@ int main( void )
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-    // Cull triangles which normal is not towards the camera
-    //glEnable(GL_CULL_FACE);
 
-    GLuint VertexArrayID;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-    // Create and compile our GLSL program from the shaders
+    std::string filename("../Resources/Models/Off/suzanne.off");
+    Planet* Sun = new Planet();
+    Sun->openOFF(filename);
+    Sun->setRotSpeed(1.0);
+    Sun->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+    Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+    Sun->setMaterial(mat);
 
-    /*****************TODO***********************/
-    // Get a handle for our "Model View Projection" matrices uniforms
+    Planet* Earth = new Planet();
+    Earth->openOFF(filename);
+    //Earth->setRotSpeed(1.0);
+    Earth->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+    Material mat2 = Material(glm::vec3(0.5, 0.5, 0.5));
+    Earth->setMaterial(mat2);
+    Earth->Translate(glm::vec3(2, 0, 0));
+    Sun->addChild(Earth);
 
-    /****************************************/
 
-    //Chargement du fichier de maillage
-    mesh = ProceduralTerrain();
-//    std::string filename("../Resources/Models/Off/suzanne.off");
-//    mesh.openOFF(filename, 1);
-    mesh.InitMesh(resX, resY, 10, 10);
-    std::string texname = "../Resources/Textures/Environement/heightmap-1024x1024.png";
-    mesh.ApplyHeightMap(texname);
-
-    //vec3(0.250000, 0.000000, 0.000000) vec3(0.250000, 0.500000, 0.000000) vec3(0.200000, 0.500000, 0.000000)
-
-    mesh.setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain.glsl");
-    mat = Material(glm::vec3(1, 0, 0));
-    mat.addTexture("texture0", Texture("../Resources/Textures/Environement/grass.png"));
-    mat.addTexture("texture1", Texture("../Resources/Textures/Environement/rock.png"));
-    mat.addTexture("texture2", Texture("../Resources/Textures/Environement/snowrocks.png"));
-    mesh.setMaterial(mat);
+    scene = Sun;
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
     do{
-
+        std::cout << "frame start" << std::endl;
+        std::cout << glm::to_string(Earth->globalMatrix()) << std::endl;
         // Measure speed
         // per-frame time logic
         // --------------------
@@ -144,12 +137,13 @@ int main( void )
         // input
         // -----
         processInput(window);
+        scene->process(deltaTime);
 
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        mesh.render(cam);
+        scene->render(cam);
         // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -157,8 +151,6 @@ int main( void )
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
-
-    glDeleteVertexArrays(1, &VertexArrayID);
 
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
@@ -174,29 +166,7 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    cam.inputs(window, deltaTime);
-    mesh.Rotate(mesh.up(), rotSpeed*deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS){
-        resX += 1; resY += 1;
-        mesh.InitMesh(resX, resY, 10, 10);
-        std::string texname = "../Resources/Textures/Environement/heightmap-1024x1024.png";
-        mesh.ApplyHeightMap(texname);
-    }
-    if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS){
-        resX -= 1; resY -= 1;
-        mesh.InitMesh(resX, resY, 10, 10);
-        std::string texname = "../Resources/Textures/Environement/heightmap-1024x1024.png";
-        mesh.ApplyHeightMap(texname);
-    }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-        rotSpeed += 0.1f;
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-        rotSpeed = std::max(0.0f, (float)rotSpeed - 0.1f);
-    }
-
-
-
+    cam->process(deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
