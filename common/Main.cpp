@@ -36,7 +36,7 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0.0f, 0.0f, -4.0f));
+CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 9, -10));
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -49,6 +49,7 @@ Node* scene;
 int resX = 4;
 int resY = 4;
 float rotSpeed = 1;
+
 int main( void )
 {
     // Initialise GLFW
@@ -93,40 +94,134 @@ int main( void )
     glfwSetCursorPos(window, 1024/2, 768/2);
 
     // Dark blue background
-    glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
+    scene = new Node3d();
+    std::string filename("../Resources/Models/obj/Planet.obj");
+    Planet* Sun = new Planet(scene);{
+        Sun->openOBJ(filename);
+        Sun->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/2k_sun.jpg");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(0);
+        Sun->setMaterial(mat);
+        Sun->daySpeed = 1.0;
+        Sun->scale = glm::vec3(1.8);
+    }
 
-    std::string filename("../Resources/Models/Off/suzanne.off");
-    Planet* Sun = new Planet();
-    Sun->openOFF(filename);
-    Sun->setRotSpeed(1.0);
-    Sun->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
-    Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
-    Sun->setMaterial(mat);
-
-    Planet* Earth = new Planet();
-    Earth->openOFF(filename);
-    //Earth->setRotSpeed(1.0);
-    Earth->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
-    Material mat2 = Material(glm::vec3(0.5, 0.5, 0.5));
-    Earth->setMaterial(mat2);
-    Earth->Translate(glm::vec3(2, 0, 0));
-    Sun->addChild(Earth);
+    Planet* Earth = new Planet(Sun, scene);{
+        Earth->openOBJ(filename);
+        Earth->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/Earth_Diffuse_6K.jpg");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(1);
+        Earth->setMaterial(mat);
+        Earth->setParentDistance(3);
+        Earth->daySpeed = 2.0;
+        Earth->yearSpeed = 0.2;
+        Earth->scale = glm::vec3(0.6);
+        Sun->SetRotation(glm::vec3(0, 0, 23.44));
+    }
 
 
-    scene = Sun;
+    Planet* Moon = new Planet(Earth, scene);{
+        Moon->openOBJ(filename);
+        Moon->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/2k_moon.jpg");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(1);
+        Moon->setMaterial(mat);
+        Moon->setParentDistance(0.6);
+        Moon->daySpeed = 2.0;
+        Moon->yearSpeed = 2.0;
+        Moon->scale = glm::vec3(0.3);
+        Moon->SetRotation(glm::vec3(0, 0, 6.68));
+    }
+
+
+    Planet* Mars = new Planet(Sun, scene);{
+        Mars->openOBJ(filename);
+        Mars->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/2k_mars.jpg");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(1);
+        Mars->setMaterial(mat);
+        Mars->setParentDistance(6);
+        Mars->daySpeed = 2.0;
+        Mars->yearSpeed = 0.15;
+        Mars->scale = glm::vec3(0.6);
+    }
+
+
+    Planet* Phobos = new Planet(Mars, scene);{
+        Phobos->openOBJ(filename);
+        Phobos->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/2k_moon.jpg");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(1);
+        Phobos->setMaterial(mat);
+        Phobos->setParentDistance(0.5);
+        Phobos->daySpeed = 2.0;
+        Phobos->yearSpeed = 2.2;
+        Phobos->scale = glm::vec3(0.25);
+    }
+
+    Planet* Deimos = new Planet(Mars, scene);{
+        Deimos->openOBJ(filename);
+        Deimos->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/2k_moon.jpg");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(1);
+        Deimos->setMaterial(mat);
+        Deimos->setParentDistance(0.8);
+        Deimos->daySpeed = 2.0;
+        Deimos->yearSpeed = 1.8;
+        Deimos->scale = glm::vec3(0.35);
+    }
+
+    Planet* Saturn = new Planet(Sun, scene);{
+        Saturn->openOBJ(filename);
+        Saturn->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/2k_saturn.jpg");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(1);
+        Saturn->setMaterial(mat);
+        Saturn->setParentDistance(10);
+        Saturn->daySpeed = 2.0;
+        Saturn->yearSpeed = 0.15;
+        Saturn->scale = glm::vec3(1.2);
+    }
+    Planet* Rings = new Planet(Saturn, scene);{
+        Rings->openOBJ("../Resources/Models/obj/Rings.obj");
+        Rings->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        Texture tex = Texture("../Resources/Textures/Planets/2k_saturn_ring_alpha.png");
+        Material mat = Material(glm::vec3(0.5, 0.5, 0.5));
+        mat.addTexture("texture0", tex);
+        mat.setLit(1);
+        Rings->setMaterial(mat);
+        Rings->setParentDistance(0);
+        Rings->scale = glm::vec3(1);
+    }
+    cam->setParent(scene);
+
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
     do{
-        std::cout << "frame start" << std::endl;
-        std::cout << glm::to_string(Earth->globalMatrix()) << std::endl;
+        //std::cout << "frame start" << std::endl;
         // Measure speed
         // per-frame time logic
         // --------------------
@@ -136,7 +231,6 @@ int main( void )
 
         // input
         // -----
-        processInput(window);
         scene->process(deltaTime);
 
 
@@ -152,22 +246,14 @@ int main( void )
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
 
+    delete(scene);
+    scene = nullptr;
     // Close OpenGL window and terminate GLFW
     glfwTerminate();
-
     return 0;
 }
 
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    cam->process(deltaTime);
-}
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------

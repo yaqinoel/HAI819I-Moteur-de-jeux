@@ -25,7 +25,12 @@ void Material::setShader(GLuint shaderPID) const{
     diffuseUniform = glGetUniformLocation(shaderPID, "material.diffuse");
     specularUniform = glGetUniformLocation(shaderPID, "material.specular");
     shininessUniform = glGetUniformLocation(shaderPID, "material.shininess");
+    litUniform = glGetUniformLocation(shaderPID, "lit");
     shaderSet = true;
+}
+
+void Material::setLit(int l) {
+    lit = l;
 }
 
 void Material::render(GLuint shaderPID) const{
@@ -41,6 +46,7 @@ void Material::render(GLuint shaderPID) const{
     if(!shaderSet){
         setShader(shaderPID);
     }
+    glUniform1i(litUniform, lit);
     glUniform3fv(albedoUniform,1, glm::value_ptr(albedo));
     glUniform1f(ambientUniform, ambient);
     glUniform1f(diffuseUniform, diffuse);

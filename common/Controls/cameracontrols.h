@@ -17,8 +17,11 @@ public:
     CameraControls(float width, float height, float fov, float nearPlane, float farPlane, glm::vec3 position);
     void process(float deltaTime) override;
     float speed = 5.0f;
-    float sensitivity = 100.0f;
+    float sensitivity = 15.0f;
     bool orbital = false;
     glm::vec3 orbitalPos = glm::vec3(0, 9, -10);
     float timer = 1;
+
+    double lastX = 0.0;
+    double lastY = 0.0;
 };

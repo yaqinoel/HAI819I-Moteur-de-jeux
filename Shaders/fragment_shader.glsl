@@ -8,6 +8,7 @@ in vec2 vertices_texCoord_fragment;
 
 uniform sampler2D texture0;
 uniform int hasTexture;
+uniform int lit;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -22,46 +23,41 @@ struct Material {
 
 uniform Material material;
 
+const vec3 light_position = vec3(0.0, 0.0, 0.0);
+const vec4 light_color_power = vec4(1.0, 1.0, 1.0, 10.0);
 
-vec3 light_positions[5] = vec3[](
-    vec3(0.0, 100, 1.0),
-    vec3(0.0, 100, 20.0),
-    vec3(0.0, 100, 40.0),
-    vec3(0.0, 100, 70.0),
-    vec3(0.0, 100, 100.0)
-);
-const vec4 light_color_power = vec4(1, 1, 1.0, 2000);
-
-void main(){
-
+void main()
+{
     vec3 N = normalize(vertices_normals_fragment);
+
+    // Camera position from inverse view matrix
     vec3 cameraPos = vec3(inverse(view)[3]);
     vec3 V = normalize(cameraPos - vertices_position_fragment);
+
+    // Ambient term
     vec3 ambient = material.ambient * material.albedo;
 
-    vec3 baseColor = ambient;
+    // Diffuse and specular
+    vec3 L = normalize(light_position - vertices_position_fragment);
+    float distance = sqrt(length(light_position - vertices_position_fragment));
 
-    for(int i = 0; i < 5; i ++){
-        vec3 L = light_positions[i] - vertices_position_fragment;
-        float distance = length(L);
-        L = normalize(L);
+    // Diffuse
+    float NdotL = max(dot(N, L), 0.0);
+    vec3 diffuse = material.diffuse * NdotL * material.albedo;
 
-        //diffuse
-        float NdotL = max(dot(N, L), 0.0);
-        vec3 diffuse = material.diffuse * NdotL * material.albedo;
+    // Specular
+    vec3 H = normalize(L + V);
+    float NdotH = max(dot(N, H), 0.0);
+    float spec = pow(NdotH, material.shininess);
+    vec3 specular = material.specular * spec * light_color_power.rgb;
 
-        //specular
-        vec3 H = normalize(L + V);
-        float NdotH = max(dot(N, H), 0.0);
-        float spec = pow(NdotH, material.shininess);
-        vec3 specular = material.specular * spec * light_color_power.rgb;
+    // Attenuation
+    float attenuation = light_color_power.a / (distance * distance);
 
-        float attenuation = light_color_power.a / (distance * distance);
+    vec3 litColor = ambient + (diffuse + specular) * light_color_power.rgb * attenuation;
 
-        baseColor += (diffuse + specular) * light_color_power.rgb * attenuation;
-
-    }
-
-    if(hasTexture == 0) color = vec4(baseColor, 1);
-    else color = texture(texture0, vertices_texCoord_fragment);
+    // Combine with texture
+    vec4 textureColor = hasTexture != 0 ? texture(texture0, vertices_texCoord_fragment) : vec4(1.0);
+    if(lit == 1) color = vec4(litColor * textureColor.rgb, textureColor.a);
+    else color = textureColor;
 }

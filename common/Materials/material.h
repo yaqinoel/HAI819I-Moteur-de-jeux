@@ -18,6 +18,7 @@ public:
     float diffuse;
     float specular;
     float shininess;
+    int lit = 1;
     std::map<std::string, Texture> texmap;
 
 
@@ -25,12 +26,14 @@ public:
     void addTexture(const std::string & name, const Texture & texture);
     void render(GLuint shaderPID) const;
     void setShader(GLuint shaderPID) const;
+    void setLit(int lit);
 private:
     mutable GLuint albedoUniform;
     mutable GLuint ambientUniform;
     mutable GLuint diffuseUniform;
     mutable GLuint specularUniform;
     mutable GLuint shininessUniform;
+    mutable GLuint litUniform;
     mutable bool shaderSet = false;
 };
 

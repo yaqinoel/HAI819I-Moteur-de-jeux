@@ -18,8 +18,8 @@ out vec2 vertices_texCoord_fragment;
 
 void main(){
 
-        vertices_position_fragment = vertices_position_modelspace;
-        vertices_normals_fragment = vertices_normals;
+        vertices_position_fragment = vec3(model * vec4(vertices_position_modelspace, 1.0));
+        vertices_normals_fragment = mat3(transpose(inverse(model))) * vertices_normals;
         vertices_texCoord_fragment = vertices_texCoord;
 
         // TODO : Output position of the vertex, in clip space : MVP * position

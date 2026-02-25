@@ -4,6 +4,7 @@
 
 #include <set>
 #include <glm/glm.hpp>
+#include <iostream>
 
 class Camera;
 
@@ -12,6 +13,7 @@ class Node
 public:
     Node();
     Node(Node* parent);
+    virtual ~Node(){for(Node * c : children) if(c != nullptr) delete(c);}
     std::set<Node*> getChildren() const;
     void addChild(Node* c);
     void addChildren(std::set<Node*> c);

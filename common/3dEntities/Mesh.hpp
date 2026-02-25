@@ -93,11 +93,10 @@ struct Vertex {
 
 class Mesh : public Node3d{
 public:
-    inline Mesh () {}
-    inline Mesh (const std::vector<Vertex> & v) : vertices (v) {}
-    inline Mesh (const std::vector<Vertex> & v,
-                 const std::vector<Triangle> & t) : vertices (v), triangles (t)  {}
-    inline Mesh (const Mesh & mesh) : vertices (mesh.vertices), triangles (mesh.triangles) {}
+    inline Mesh () : Node3d() {}
+    inline Mesh (const std::vector<Vertex> & v) : vertices (v), Node3d(){}
+    inline Mesh (const std::vector<Vertex> & v, const std::vector<Triangle> & t) : vertices (v), triangles (t), Node3d() {}
+    inline Mesh (const Mesh & mesh) : vertices (mesh.vertices), triangles (mesh.triangles), Node3d() {}
     ~Mesh(){
         if (_synchronized){
             unsynchronize();
@@ -108,6 +107,7 @@ public:
     std::vector<Triangle> & getTriangles () { return triangles; }
     const std::vector<Triangle> & getTriangles () const { return triangles; }
     void openOFF(const std::string &filename, unsigned int normWeight = 1);
+    void openOBJ(const std::string &filename);
     void render(const Camera* camera) const override;
     void setShader(std::string vertex_shader, std::string fragment_shader);
     void clear ();

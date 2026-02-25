@@ -23,6 +23,7 @@
 #include "Mesh.hpp"
 #include <glm/gtx/string_cast.hpp>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -40,6 +41,7 @@ void Mesh::clearTopology () {
 }
 
 void Mesh::openOFF(const std::string &filename, unsigned int normWeight) {
+    _synchronized = false;
     vertices = std::vector<Vertex>() ;
     triangles = std::vector<Triangle>() ;
 
@@ -80,6 +82,92 @@ void Mesh::openOFF(const std::string &filename, unsigned int normWeight) {
     float radius;
     //Vertex::scaleToUnitBox (vertices, center, radius);
     recomputeSmoothVertexNormals (normWeight);
+}
+
+void Mesh::openOBJ(const std::string &filename)
+{
+    _synchronized = false;
+    vertices = std::vector<Vertex>();
+    triangles = std::vector<Triangle>();
+
+    std::ifstream in(filename.c_str());
+    if (!in)
+        exit(EXIT_FAILURE);
+
+    std::vector<glm::vec3> temp_positions;
+    std::vector<glm::vec3> temp_normals;
+    std::vector<glm::vec2> temp_uvs;
+
+    // Map to avoid duplicating identical vertices
+    std::map<std::tuple<int,int,int>, unsigned int> vertexMap;
+
+
+    std::string line;
+    while (std::getline(in, line))
+    {
+        std::stringstream ss(line);
+        std::string type;
+        ss >> type;
+
+        // Vertex position
+        if (type == "v")
+        {
+            glm::vec3 pos;
+            ss >> pos.x >> pos.y >> pos.z;
+            temp_positions.push_back(pos);
+        }
+        // Texture coordinate
+        else if (type == "vt")
+        {
+            glm::vec2 uv;
+            ss >> uv.x >> uv.y;
+            temp_uvs.push_back(uv);
+        }
+        // Normal
+        else if (type == "vn")
+        {
+            glm::vec3 normal;
+            ss >> normal.x >> normal.y >> normal.z;
+            temp_normals.push_back(normal);
+        }
+        // Face
+        else if (type == "f")
+        {
+            std::vector<unsigned int> faceIndices;
+
+            for (int i = 0; i < 3; ++i) // assuming triangles
+            {
+                std::string vertexString;
+                ss >> vertexString;
+                int vIndex = -1, vtIndex = -1, vnIndex = -1;
+                sscanf(vertexString.c_str(), "%d/%d/%d", &vIndex, &vtIndex, &vnIndex);
+                // OBJ indices start at 1
+                vIndex--;
+                vtIndex--;
+                vnIndex--;
+                auto key = std::make_tuple(vIndex, vtIndex, vnIndex);
+                if (vertexMap.find(key) == vertexMap.end())
+                {
+                    Vertex vert;
+                    vert.position = temp_positions[vIndex];
+                    vert.texCoord = (vtIndex >= 0 && vtIndex < temp_uvs.size()) ? temp_uvs[vtIndex] : glm::vec2(0.0f);
+                    vert.normal   = (vnIndex >= 0 && vnIndex < temp_normals.size()) ? temp_normals[vnIndex] : glm::vec3(0.0f);
+
+                    vertices.push_back(vert);
+                    unsigned int newIndex = vertices.size() - 1;
+                    vertexMap[key] = newIndex;
+                    faceIndices.push_back(newIndex);
+                }
+                else
+                {
+                    faceIndices.push_back(vertexMap[key]);
+                }
+            }
+
+            triangles.push_back(Triangle(faceIndices[0], faceIndices[1], faceIndices[2]));
+        }
+    }
+    in.close();
 }
 
 void Mesh::computeTriangleNormals (vector<glm::vec3> & triangleNormals) {
@@ -181,7 +269,7 @@ void Mesh::setShader(std::string vertex_shader, std::string fragment_shader){
 }
 
 void Mesh::render(const Camera* camera) const{
-    if (vertices.empty()) return;
+    if (vertices.empty()) {_synchronized = true ; return;}
     if (!_synchronized){
         synchronize();
     }

@@ -19,7 +19,7 @@ std::set<Node*> Node::getChildren() const{
 
 void Node::addChild(Node* c){
     children.insert(c);
-    c->setParent(this);
+    if(c->getParent() != this) c->setParent(this);
 }
 
 void Node::addChildren(std::set<Node*> c){
@@ -37,6 +37,7 @@ void Node::setParent(Node* p){
     Node* self = this;
     if(parent != nullptr) parent->removeChild(self);
     parent = p;
+    parent->addChild(self);
 }
 
 void Node::removeChild(Node* c){
