@@ -71,16 +71,29 @@ add_executable(Main
 
         common/3dEntities/node3d.h common/3dEntities/node3d.cpp
         common/3dEntities/camera.h common/3dEntities/camera.cpp
-        common/3dEntities/Mesh.cpp common/3dEntities/Mesh.hpp
+        common/3dEntities/Mesh.hpp
 
         common/3dEntities/Meshes/proceduralterrain.h common/3dEntities/Meshes/proceduralterrain.cpp
 
         Shaders/vertex_shader.glsl
         Shaders/fragment_shader.glsl
-        Shaders/fragment_shader_Terrain.glsl
+        Shaders/fragment_shader_Terrain_HeightMap.glsl
+        Shaders/fragment_shader_Terrain_Noise.glsl
         
         external/stb_image/stb_image.h external/stb_image/stb_image.cpp
         common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp
+
+        common/3dEntities/Mesh.cpp
+        common/Utilities/rayintersection.h
+        Scenes/SolarSystem.h
+        Scenes/InfiniteTerrain.h
+        common/3dEntities/terrainmanager.h common/3dEntities/terrainmanager.cpp
+        common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
+        common/Utilities/PerlinNoise.h
+
+
+
+
 )
 target_link_libraries(Main
         ${ALL_LIBS}

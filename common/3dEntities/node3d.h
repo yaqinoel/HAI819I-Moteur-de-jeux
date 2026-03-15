@@ -22,11 +22,11 @@ class Node3d : public Node
 {
 public:
     Node3d();
+    virtual ~Node3d(){};
     glm::vec3 position = glm::vec3(0);
     glm::vec3 globalPosition() const {return glm::vec3(globalMatrix()[3]);}
     glm::vec3 scale = glm::vec3(1);
     glm::quat rotation = glm::quat();
-    bool visibility = true;
     glm::vec3 eulerAngles() const{return glm::eulerAngles(rotation);}
     glm::vec3 forward() const{return rotation*FORWARD;}
     glm::vec3 backwards() const{return rotation*BACKWARDS;}

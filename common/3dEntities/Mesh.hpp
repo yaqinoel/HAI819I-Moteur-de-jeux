@@ -30,6 +30,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <common/shader.hpp>
+#include "common/Utilities/rayintersection.h"
 
 #include "../Materials/material.h"
 #include "camera.h"
@@ -91,13 +92,14 @@ struct Vertex {
     }
 };
 
+
 class Mesh : public Node3d{
 public:
     inline Mesh () : Node3d() {}
     inline Mesh (const std::vector<Vertex> & v) : vertices (v), Node3d(){}
     inline Mesh (const std::vector<Vertex> & v, const std::vector<Triangle> & t) : vertices (v), triangles (t), Node3d() {}
     inline Mesh (const Mesh & mesh) : vertices (mesh.vertices), triangles (mesh.triangles), Node3d() {}
-    ~Mesh(){
+    virtual ~Mesh(){
         if (_synchronized){
             unsynchronize();
         }
@@ -115,31 +117,33 @@ public:
     void clearTopology ();
     void recomputeSmoothVertexNormals (unsigned int weight);
     void computeTriangleNormals (std::vector<glm::vec3> & triangleNormals);
-    void setMaterial(Material material);
+    void setMaterial(Material* material);
+    virtual void setUniforms() const {}
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
-    Material material;
+    Material* material;
     std::map<std::string, Texture> mymap;
+
+    RayIntersection intersect( glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length);
+    RayIntersection intersectTriangle(int const &triangleIndex, glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length);
 
 
 protected:
     void unsynchronize() const;
     void synchronize() const;
+    int LOD = 0;
 
     mutable bool _synchronized = false;
     mutable GLuint _VBO;
     mutable GLuint _VAO;
     mutable GLuint _EBO;
-    mutable GLuint _UV;
-    mutable GLuint _NORMALS;
-    mutable GLuint _TANGENTS;
-    mutable GLuint _BITANGENTS;
 
     mutable GLuint shaderPID;
     mutable GLuint viewUniform;
     mutable GLuint modelMatrixUniform;
     mutable GLuint viewMatrixUniform;
     mutable GLuint projectionMatrixUniform;
+
 };
 
 // Some Emacs-Hints -- please don't remove:

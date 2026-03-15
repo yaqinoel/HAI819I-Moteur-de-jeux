@@ -210,11 +210,8 @@ void Mesh::recomputeSmoothVertexNormals (unsigned int normWeight) {
         vertices[i].normal = glm::normalize(vertices[i].normal);
     }
 }
-void Mesh::synchronize() const {
 
-    if (_synchronized){
-        unsynchronize();
-    }
+void Mesh::synchronize() const {
 
     glGenVertexArrays(1, &_VAO);
     glBindVertexArray(_VAO);
@@ -247,16 +244,12 @@ void Mesh::synchronize() const {
 void Mesh::unsynchronize() const {
     glDeleteBuffers(1, &_VBO);
     glDeleteBuffers(1, &_EBO);
-    glDeleteBuffers(1, &_UV);
-    glDeleteBuffers(1, &_NORMALS);
-    glDeleteProgram(shaderPID);
     glDeleteVertexArrays(1, &_VAO);
-
     _synchronized = false;
 }
 
 
-void Mesh::setMaterial(Material material) {
+void Mesh::setMaterial(Material* material) {
     this->material = material;
 }
 
@@ -269,7 +262,13 @@ void Mesh::setShader(std::string vertex_shader, std::string fragment_shader){
 }
 
 void Mesh::render(const Camera* camera) const{
-    if (vertices.empty()) {_synchronized = true ; return;}
+    if (vertices.empty()) {
+        _synchronized = true ;
+        for(Node * c : children){
+            c->render(camera);
+        }
+        return;
+    }
     if (!_synchronized){
         synchronize();
     }
@@ -279,7 +278,7 @@ void Mesh::render(const Camera* camera) const{
     glBindVertexArray(_VAO);
 
 
-    material.render(shaderPID);
+    material->render(shaderPID);
     glm::mat4 model = globalMatrix();
     glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(model));
 
@@ -291,11 +290,71 @@ void Mesh::render(const Camera* camera) const{
 
     glUniform3fv(viewUniform, 1, glm::value_ptr(camera->forward()));
 
-    glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, (void*)0 );
+    if(visible)
+        glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, (void*)0 );
+
+    setUniforms();
 
     glUseProgram(0);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
 
-    for(Node * c : children)c->render(camera);
+RayIntersection Mesh::intersect(glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length ) {
+    RayIntersection closestIntersection;
+    closestIntersection.t = FLT_MAX;
+    closestIntersection.intersectionExists = false;
+    for(int i = 0; i < (int)triangles.size(); i ++){
+        RayIntersection newIntersection = intersectTriangle(i, origin, direction, length);
+        if (newIntersection.intersectionExists && newIntersection.t < closestIntersection.t){
+            closestIntersection = newIntersection;
+
+        }
+    }
+    return closestIntersection;
+}
+
+RayIntersection Mesh::intersectTriangle(int const &triangleIndex, glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length) {
+    RayIntersection intersection;
+    intersection.intersectionExists = false;
+
+    Vertex v0 = vertices[triangles[triangleIndex][0]];
+    Vertex v1 = vertices[triangles[triangleIndex][1]];
+    Vertex v2 = vertices[triangles[triangleIndex][2]];
+
+    glm::vec3 edge1 = v1.position-v0.position;
+    glm::vec3 edge2 = v2.position-v0.position;
+
+    glm::vec3 ray_cross_e2 = glm::cross(direction, edge2);
+
+    double det = glm::dot(edge1, ray_cross_e2);
+    if (det == 0){
+        return intersection;
+    }
+
+    double inv_det = 1.0 / det;
+    glm::vec3 s = origin -v0.position;
+    double U = inv_det * glm::dot(s, ray_cross_e2);
+    if ((U < 0 && abs(U) > 0) || (U > 1 && abs(U-1) > 0)){
+        return intersection;
+    }
+
+    glm::vec3 s_cross_e1 = glm::cross(s, edge1);
+    double V = inv_det * glm::dot(direction, s_cross_e1);
+
+    if ((V < 0 && abs(V) > 0) || (U + V > 1 && abs(U + V - 1) > 0)){
+        return intersection;
+    }
+
+    float t = inv_det * dot(edge2, s_cross_e1);
+    if (t > 0) // ray intersection
+    {
+        intersection.intersectionExists = true;
+        intersection.t = t;
+        intersection.point = origin + direction * t;
+        double W = 1-U-V;
+        intersection.normal = (float)W*v0.normal + (float)U*v1.normal + (float)V*v2.normal;
+        intersection.intersectedMesh = this;
+    }
+    return intersection;
 }

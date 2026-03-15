@@ -1,31 +1,46 @@
 #include "proceduralterrain.h"
+#include "common/Utilities/PerlinNoise.h"
+#include <glm/gtc/noise.hpp>
+
 
 ProceduralTerrain::ProceduralTerrain(){
-    InitMesh(resX, resY, 10, 10);
-    std::string texname = "../Resources/Textures/Environement/heightmap-1024x1024.png";
-    ApplyHeightMap(texname);
-    setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain.glsl");
-    Material mat = Material(glm::vec3(1, 0, 0));
-    mat.addTexture("texture0", Texture("../Resources/Textures/Environement/grass.png"));
-    mat.addTexture("texture1", Texture("../Resources/Textures/Environement/rock.png"));
-    mat.addTexture("texture2", Texture("../Resources/Textures/Environement/snowrocks.png"));
-    setMaterial(mat);
 }
 
-void ProceduralTerrain::InitMesh(int resX, int resY , float sizeX , float sizeY, float sizeZ){
+ProceduralTerrain::ProceduralTerrain(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ, float frequency) : ProceduralTerrain(){
+    InitMesh(posX, posY, resX, resY, sizeX, sizeY, sizeZ, frequency);
+}
+
+void ProceduralTerrain::setUniforms() const{
+    GLuint frequencyUniform = glGetUniformLocation(shaderPID, "frequency");
+    glUniform1f(frequencyUniform, frequency);
+}
+
+void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ, float frequency){
     glm::vec3 center = glm::vec3(sizeX/2.0, 0.0f, sizeY/2.0);
     this->resX = resX;
     this->resY = resY;
     this->sizeX = sizeX;
     this->sizeY = sizeY;
     this->sizeZ = sizeZ;
-
+    this->frequency = frequency;
+    position.x = posX;
+    position.z = posY;
     vertices = std::vector<Vertex>() ;
     triangles = std::vector<Triangle>();
     for(int i = 0; i < resX+1; i ++){
         for(int j = 0; j < resY+1; j++){
-            float height = static_cast <float> (rand()) / (static_cast <float> ((float)RAND_MAX/sizeZ));
-            Vertex v(glm::vec3(i*(sizeX/resX), height, j*(sizeY/resY))-center, glm::vec2(i*(sizeX/resX), j*(sizeY/resY)));
+
+            float x = i * (sizeX/resX);
+            float y = j * (sizeY/resY);
+
+            float worldX = x + posX;
+            float worldY = y + posY;
+
+            float noise = perlin2D(glm::vec2(worldX, worldY)*frequency);
+            noise = (noise + 1.0f) * 0.5f;
+            float height = noise * sizeZ;
+            Vertex v( glm::vec3(x, height, y) - center, glm::vec2(x, y) );
+
             vertices.push_back(v);
             if(i > 0 && j > 0){
                 int i0 = (i-1)*(resY+1)+j-1;
@@ -38,6 +53,7 @@ void ProceduralTerrain::InitMesh(int resX, int resY , float sizeX , float sizeY,
         }
     }
     recomputeSmoothVertexNormals(1);
+
     _synchronized = false;
 }
 

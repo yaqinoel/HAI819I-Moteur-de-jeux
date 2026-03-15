@@ -13,7 +13,14 @@ class Node
 public:
     Node();
     Node(Node* parent);
-    virtual ~Node(){for(Node * c : children) if(c != nullptr) delete(c);}
+    virtual ~Node(){
+        removeParent();
+        std::set<Node*>tempChildren = children;
+        for(Node * c : tempChildren)
+            if(c != nullptr) {
+                delete(c);
+            }
+    }
     std::set<Node*> getChildren() const;
     void addChild(Node* c);
     void addChildren(std::set<Node*> c);
@@ -24,6 +31,8 @@ public:
     virtual void process(float deltaTime) =0;
     virtual glm::mat4 globalMatrix() const=0;
     virtual void render(const Camera* camera) const=0;
+    bool visible = true;
+    std::string name;
 
 protected:
     std::set<Node*> children;
