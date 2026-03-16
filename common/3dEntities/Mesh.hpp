@@ -30,6 +30,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <common/shader.hpp>
+#include <embree4/rtcore.h>
 #include "common/Utilities/rayintersection.h"
 
 #include "../Materials/material.h"
@@ -99,10 +100,13 @@ public:
     inline Mesh (const std::vector<Vertex> & v) : vertices (v), Node3d(){}
     inline Mesh (const std::vector<Vertex> & v, const std::vector<Triangle> & t) : vertices (v), triangles (t), Node3d() {}
     inline Mesh (const Mesh & mesh) : vertices (mesh.vertices), triangles (mesh.triangles), Node3d() {}
+    inline Mesh (Node*p) {setParent(p);}
     virtual ~Mesh(){
         if (_synchronized){
             unsynchronize();
         }
+        if(scene) rtcReleaseScene(scene);
+        if(device) rtcReleaseDevice(device);
     }
     std::vector<Vertex> & getVertices () { return vertices; }
     const std::vector<Vertex> & getVertices () const { return vertices; }
@@ -118,14 +122,16 @@ public:
     void recomputeSmoothVertexNormals (unsigned int weight);
     void computeTriangleNormals (std::vector<glm::vec3> & triangleNormals);
     void setMaterial(Material* material);
+    void initTree();
     virtual void setUniforms() const {}
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
     Material* material;
     std::map<std::string, Texture> mymap;
+    glm::vec3 getBarycentre(const int triangleIndex);
 
-    RayIntersection intersect( glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length);
-    RayIntersection intersectTriangle(int const &triangleIndex, glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length);
+    RayIntersection intersect( glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
+    RayIntersection intersectTriangle(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
 
 
 protected:
@@ -143,6 +149,12 @@ protected:
     mutable GLuint modelMatrixUniform;
     mutable GLuint viewMatrixUniform;
     mutable GLuint projectionMatrixUniform;
+
+    std::vector<glm::vec3> verticesPosition;
+
+    RTCDevice device = nullptr;
+    RTCScene scene = nullptr;
+    RTCGeometry geometry = nullptr;
 
 };
 

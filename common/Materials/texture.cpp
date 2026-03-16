@@ -8,8 +8,8 @@ Color Texture::getPixel(size_t u, size_t v) const{
 }
 
 Color Texture::getPixelSafe(size_t u, size_t v) const{
-
-    // mirroir
+    u *= scale;
+    v *= scale;
     u = u % (width * 2 );
     v = v % (height * 2 );
 

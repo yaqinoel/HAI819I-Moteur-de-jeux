@@ -20,11 +20,12 @@ class LOD : public Mesh
 public:
     LOD();
     void process(float deltaTime) override;
-    void setCam(Camera* cam){this->cam = cam; camDistance = glm::l2Norm(cam->position-position);}
+    void setCam(Camera const * const cam){this->cam = cam; camDistance = glm::l2Norm(cam->position-position);}
     void addLOD(Mesh* me, float di, float ma=5);
+    RayIntersection intersect(glm::vec3 const &origin, glm::vec3 const &direction, float const &length );
 private:
     float camDistance;
-    Camera* cam;
+    Camera const* cam;
     float size;
     int currentLOD = 0;
     std::vector<mesh_distance> lod_meshes = std::vector<mesh_distance>();

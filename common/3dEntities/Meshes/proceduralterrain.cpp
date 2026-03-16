@@ -10,10 +10,6 @@ ProceduralTerrain::ProceduralTerrain(int posX, int posY , int resX, int resY, fl
     InitMesh(posX, posY, resX, resY, sizeX, sizeY, sizeZ, frequency);
 }
 
-void ProceduralTerrain::setUniforms() const{
-    GLuint frequencyUniform = glGetUniformLocation(shaderPID, "frequency");
-    glUniform1f(frequencyUniform, frequency);
-}
 
 void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ, float frequency){
     glm::vec3 center = glm::vec3(sizeX/2.0, 0.0f, sizeY/2.0);
@@ -36,12 +32,12 @@ void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float 
             float worldX = x + posX;
             float worldY = y + posY;
 
-            float noise = perlin2D(glm::vec2(worldX, worldY)*frequency);
+            float noise = glm::perlin(glm::vec2(worldX, worldY) * frequency);
             noise = (noise + 1.0f) * 0.5f;
             float height = noise * sizeZ;
             Vertex v( glm::vec3(x, height, y) - center, glm::vec2(x, y) );
-
             vertices.push_back(v);
+            verticesPosition.push_back(v.position);
             if(i > 0 && j > 0){
                 int i0 = (i-1)*(resY+1)+j-1;
                 int i1 = (i-1)*(resY+1)+j;

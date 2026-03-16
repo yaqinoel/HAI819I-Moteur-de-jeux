@@ -1,5 +1,4 @@
 #include "material.h"
-
 #include "texture.h"
 
 
@@ -25,9 +24,10 @@ void Material::setShader(GLuint shaderPID) const{
     diffuseUniform = glGetUniformLocation(shaderPID, "material.diffuse");
     specularUniform = glGetUniformLocation(shaderPID, "material.specular");
     shininessUniform = glGetUniformLocation(shaderPID, "material.shininess");
-    litUniform = glGetUniformLocation(shaderPID, "lit");
+    scaleUniform = glGetUniformLocation(shaderPID, "scale");
     shaderSet = true;
 }
+
 
 void Material::setLit(int l) {
     lit = l;
@@ -52,4 +52,5 @@ void Material::render(GLuint shaderPID) const{
     glUniform1f(diffuseUniform, diffuse);
     glUniform1f(specularUniform, specular);
     glUniform1f(shininessUniform, shininess);
+    glUniform1f(scaleUniform, scale);
 }

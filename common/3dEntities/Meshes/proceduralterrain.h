@@ -11,7 +11,6 @@ public:
     virtual ~ProceduralTerrain(){}
     void InitMesh(int posX, int posY, int resX = 128, int resY = 128, float sizeX = 16, float sizeY = 16, float sizeZ = 1, float frequency = 0.5);
     void ApplyHeightMap(std::string hmapName, float scale = 1);
-    void setUniforms() const override;
 private:
     int resX;
     int resY;

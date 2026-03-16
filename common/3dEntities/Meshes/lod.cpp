@@ -26,6 +26,10 @@ void LOD::process(float deltaTime){
     }
 }
 
+RayIntersection LOD::intersect(glm::vec3 const &origin, glm::vec3 const &direction, float const &length ) {
+    return lod_meshes[currentLOD].mesh->intersect(origin, direction, length);
+}
+
 void LOD::addLOD(Mesh* me, float di, float ma){
     int i = 0;
     while(i < lod_meshes.size() && lod_meshes[i].distance < di){

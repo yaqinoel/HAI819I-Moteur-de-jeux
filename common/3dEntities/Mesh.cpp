@@ -53,6 +53,7 @@ void Mesh::openOFF(const std::string &filename, unsigned int normWeight) {
     in >> offString >> sizeV >> sizeT >> tmp;
 
     vertices.resize(sizeV);
+    verticesPosition.resize(sizeV);
     for( int v = 0 ; v < sizeV ; ++v )
     {
         glm::vec3 vertex;
@@ -66,6 +67,7 @@ void Mesh::openOFF(const std::string &filename, unsigned int normWeight) {
         vertices[v].position = vertex;
         vertices[v].normal = vertex;
         vertices[v].texCoord = glm::vec2(0, 0);
+        verticesPosition[v] = vertex;
     }
     int s;
     for (unsigned int i = 0; i < sizeT; i++) {
@@ -150,10 +152,11 @@ void Mesh::openOBJ(const std::string &filename)
                 {
                     Vertex vert;
                     vert.position = temp_positions[vIndex];
-                    vert.texCoord = (vtIndex >= 0 && vtIndex < temp_uvs.size()) ? temp_uvs[vtIndex] : glm::vec2(0.0f);
+                    vert.texCoord = (vtIndex >= 0 && vtIndex < temp_uvs.size()) ? glm::vec2(temp_uvs[vtIndex].x, 1.0f-temp_uvs[vtIndex].y) : glm::vec2(0.0f);
                     vert.normal   = (vnIndex >= 0 && vnIndex < temp_normals.size()) ? temp_normals[vnIndex] : glm::vec3(0.0f);
 
                     vertices.push_back(vert);
+                    verticesPosition.push_back(vert.position);
                     unsigned int newIndex = vertices.size() - 1;
                     vertexMap[key] = newIndex;
                     faceIndices.push_back(newIndex);
@@ -300,61 +303,106 @@ void Mesh::render(const Camera* camera) const{
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-RayIntersection Mesh::intersect(glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length ) {
-    RayIntersection closestIntersection;
-    closestIntersection.t = FLT_MAX;
-    closestIntersection.intersectionExists = false;
-    for(int i = 0; i < (int)triangles.size(); i ++){
-        RayIntersection newIntersection = intersectTriangle(i, origin, direction, length);
-        if (newIntersection.intersectionExists && newIntersection.t < closestIntersection.t){
-            closestIntersection = newIntersection;
+RayIntersection Mesh::intersect(glm::vec3 const &origin, glm::vec3 const &direction, float const &length ) {
+    return intersectTriangle(origin, direction, length);
+}
+void Mesh::initTree(){
 
-        }
+    device = rtcNewDevice(nullptr);
+    scene  = rtcNewScene(device);
+
+    geometry = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
+
+    struct EmbreeVertex {
+        float x, y, z;
+    };
+
+    struct EmbreeTriangle {
+        unsigned int v0, v1, v2;
+    };
+
+    EmbreeVertex* verts = (EmbreeVertex*) rtcSetNewGeometryBuffer(
+        geometry,
+        RTC_BUFFER_TYPE_VERTEX,
+        0,
+        RTC_FORMAT_FLOAT3,
+        sizeof(EmbreeVertex),
+        verticesPosition.size()
+        );
+
+    for (size_t i = 0; i < verticesPosition.size(); i++) {
+        verts[i].x = verticesPosition[i].x;
+        verts[i].y = verticesPosition[i].y;
+        verts[i].z = verticesPosition[i].z;
     }
-    return closestIntersection;
+
+    EmbreeTriangle* tris = (EmbreeTriangle*) rtcSetNewGeometryBuffer(
+        geometry,
+        RTC_BUFFER_TYPE_INDEX,
+        0,
+        RTC_FORMAT_UINT3,
+        sizeof(EmbreeTriangle),
+        triangles.size()
+        );
+
+    for (size_t i = 0; i < triangles.size(); i++) {
+        tris[i].v0 = triangles[i][0];
+        tris[i].v1 = triangles[i][1];
+        tris[i].v2 = triangles[i][2];
+    }
+
+    rtcCommitGeometry(geometry);
+    rtcAttachGeometry(scene, geometry);
+    rtcReleaseGeometry(geometry);
+
+    rtcCommitScene(scene);
 }
 
-RayIntersection Mesh::intersectTriangle(int const &triangleIndex, glm::vec3 const &origin, glm::vec3 const &direction, glm::vec3 const &length) {
+RayIntersection Mesh::intersectTriangle(
+    glm::vec3 const &origin,
+    glm::vec3 const &direction,
+    float const &length)
+{
     RayIntersection intersection;
     intersection.intersectionExists = false;
 
-    Vertex v0 = vertices[triangles[triangleIndex][0]];
-    Vertex v1 = vertices[triangles[triangleIndex][1]];
-    Vertex v2 = vertices[triangles[triangleIndex][2]];
+    RTCRayHit rayhit{};
 
-    glm::vec3 edge1 = v1.position-v0.position;
-    glm::vec3 edge2 = v2.position-v0.position;
+    glm::vec3 dir = glm::normalize(direction);
 
-    glm::vec3 ray_cross_e2 = glm::cross(direction, edge2);
+    rayhit.ray.org_x = origin.x - position.x;
+    rayhit.ray.org_y = origin.y - position.y;
+    rayhit.ray.org_z = origin.z - position.z;
 
-    double det = glm::dot(edge1, ray_cross_e2);
-    if (det == 0){
-        return intersection;
-    }
+    rayhit.ray.dir_x = dir.x;
+    rayhit.ray.dir_y = dir.y;
+    rayhit.ray.dir_z = dir.z;
 
-    double inv_det = 1.0 / det;
-    glm::vec3 s = origin -v0.position;
-    double U = inv_det * glm::dot(s, ray_cross_e2);
-    if ((U < 0 && abs(U) > 0) || (U > 1 && abs(U-1) > 0)){
-        return intersection;
-    }
+    rayhit.ray.tnear = 0.0f;
+    rayhit.ray.tfar  = length;
 
-    glm::vec3 s_cross_e1 = glm::cross(s, edge1);
-    double V = inv_det * glm::dot(direction, s_cross_e1);
+    rayhit.ray.time = 0.0f;
+    rayhit.ray.mask = 0xFFFFFFFF;
+    rayhit.ray.flags = 0;
 
-    if ((V < 0 && abs(V) > 0) || (U + V > 1 && abs(U + V - 1) > 0)){
-        return intersection;
-    }
+    rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+    rtcIntersect1(scene, &rayhit);
 
-    float t = inv_det * dot(edge2, s_cross_e1);
-    if (t > 0) // ray intersection
+    if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
     {
         intersection.intersectionExists = true;
-        intersection.t = t;
-        intersection.point = origin + direction * t;
-        double W = 1-U-V;
-        intersection.normal = (float)W*v0.normal + (float)U*v1.normal + (float)V*v2.normal;
+        intersection.t = rayhit.ray.tfar;
+
+        intersection.point = origin + dir * intersection.t;
+
+        intersection.normal = glm::normalize(glm::vec3(
+            rayhit.hit.Ng_x,
+            rayhit.hit.Ng_y,
+            rayhit.hit.Ng_z
+            ));
+
         intersection.intersectedMesh = this;
     }
+
     return intersection;
 }

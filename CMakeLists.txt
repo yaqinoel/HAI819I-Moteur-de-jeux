@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.0)
 project (Moteur)
 
 find_package(OpenGL REQUIRED)
-
+find_package(embree 4 REQUIRED)
 
 if( CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR )
     message( FATAL_ERROR "Please select another Build Directory ! (and give it a clever name, like bin_Visual2012_64bits/)" )
@@ -39,10 +39,13 @@ include_directories(
         .
 )
 
+include_directories(${EMBREE_INCLUDE_DIRS})
+
 set(ALL_LIBS
         ${OPENGL_LIBRARY}
         glfw
         GLEW_1130
+        embree
 )
 
 add_definitions(
@@ -58,8 +61,6 @@ add_executable(Main
         common/Main.cpp
         common/shader.cpp
         common/shader.hpp
-        common/vboindexer.cpp
-        common/vboindexer.hpp
         common/Edge.hpp
         common/node.h common/node.cpp
         
@@ -91,12 +92,15 @@ add_executable(Main
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
         common/Utilities/PerlinNoise.h
 
+        common/Controls/charactercontroller.cpp common/Controls/charactercontroller.h
+        common/Materials/terrainmaterial.h common/Materials/terrainmaterial.cpp
 
 
 
 )
 target_link_libraries(Main
         ${ALL_LIBS}
+        embree
 )
 # Xcode and Visual working directories
 set_target_properties(Main PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Main/")

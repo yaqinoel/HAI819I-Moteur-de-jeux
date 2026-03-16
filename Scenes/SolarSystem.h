@@ -26,8 +26,8 @@ Node* makeSolarSystem(){
     Planet* Earth = new Planet(Sun, scene);{
         Earth->openOBJ(filename);
         Earth->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
-        Texture tex = Texture("../Resources/Textures/Planets/Earth_Diffuse_6K.jpg");
         Material* mat = new Material(glm::vec3(0.5, 0.5, 0.5));
+        Texture tex = Texture("../Resources/Textures/Planets/Earth_Diffuse_6K.jpg");
         mat->addTexture("texture0", tex);
         mat->setLit(1);
         Earth->setMaterial(mat);

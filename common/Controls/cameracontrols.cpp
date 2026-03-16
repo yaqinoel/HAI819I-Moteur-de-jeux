@@ -6,6 +6,7 @@ CameraControls::CameraControls(float width, float height, float fov, float nearP
     SetForward(glm::vec3(0, -1, 1));}
 
 void CameraControls::process(float deltaTime){
+    Camera::process(deltaTime);
     GLFWwindow* window = glfwGetCurrentContext();
     timer -= deltaTime;
     if(!orbital){
@@ -39,20 +40,7 @@ void CameraControls::process(float deltaTime){
         glm::quat pitch = glm::angleAxis(glm::radians(yoffset), pitchAxis);
         glm::quat newRot = glm::normalize(pitch * yaw);
         SetForward(newRot * forward());
-
-        float trueSpeed = speed * deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            position += trueSpeed * forward();
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            position -= trueSpeed * forward();
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            position += trueSpeed * right();
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            position -= trueSpeed * right();
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-            position += trueSpeed * up();
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            position -= trueSpeed * up();
+        position = pivot->up()+ pivot->position +pivotDistance*(rotation*BACKWARDS);
 
 
     }
@@ -68,4 +56,25 @@ void CameraControls::process(float deltaTime){
         }
     }
 
+}
+
+void CameraControls::CameraMovement(float deltaTime){
+    GLFWwindow* window = glfwGetCurrentContext();
+    //rotation
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    float trueSpeed = speed * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        position += trueSpeed * forward();
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        position -= trueSpeed * forward();
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        position += trueSpeed * right();
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        position -= trueSpeed * right();
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        position += trueSpeed * up();
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        position -= trueSpeed * up();
 }
