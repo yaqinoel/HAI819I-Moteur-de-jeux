@@ -370,9 +370,10 @@ RayIntersection Mesh::intersectTriangle(
 
     glm::vec3 dir = glm::normalize(direction);
 
-    rayhit.ray.org_x = origin.x - position.x;
-    rayhit.ray.org_y = origin.y - position.y;
-    rayhit.ray.org_z = origin.z - position.z;
+    glm::vec3 globalPos = globalPosition();
+    rayhit.ray.org_x = origin.x - globalPos.x;
+    rayhit.ray.org_y = origin.y - globalPos.y;
+    rayhit.ray.org_z = origin.z - globalPos.z;
 
     rayhit.ray.dir_x = dir.x;
     rayhit.ray.dir_y = dir.y;

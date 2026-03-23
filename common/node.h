@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <glm/gtx/string_cast.hpp>
 
 class Camera;
 
@@ -28,14 +29,14 @@ public:
         //std::cout <<name << " destroyed"<<std::endl;
     }
     std::vector<Node*>& getChildren();
-    void addChild(Node* c);
+    virtual void addChild(Node* c);
     void addChildren(std::vector<Node*> c);
     void removeChild(Node* c);
     void removeParent();
     bool hasChild(Node* node);
     bool hasParent();
     Node* getParent() const;
-    void setParent(Node* p);
+    virtual void setParent(Node* p);
     virtual void process(float deltaTime) =0;
     virtual glm::mat4 globalMatrix() const=0;
     virtual void render(const Camera* camera) const=0;

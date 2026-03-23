@@ -6,12 +6,13 @@ LOD* MakeChunk(int x, int y, int size, Camera const * const cam, Material* const
     LOD* lod = new LOD();
     lod->setCam(cam);
     lod->name = "terrain("+std::to_string(x) + ","+std::to_string(y)+")";
+    lod->position = glm::vec3(x*size, 0, y*size);
     for(int i = 0; i < 5; i ++){
         ProceduralTerrain* terrain = new ProceduralTerrain(x*size, y*size, 64/pow(2, i), 64/pow(2, i), size, size, 20, 0.05);
         terrain->setMaterial(terrainMat);
         terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain_HeightMap.glsl");
         terrain->initTree();
-        lod->addLOD(terrain, 20*i);
+        lod->addLOD(terrain, 40*i);
         terrain->name = "lod "+std::to_string(i);
     }
     return lod;
@@ -70,6 +71,7 @@ RayIntersection TerrainManager::intersect(glm::vec3 const &origin, glm::vec3 con
 }
 
 void TerrainManager::process(float deltaTime){
+    Node3d::process(deltaTime);
     glm::ivec2 newCamPosition = glm::ivec2((roundf(cam->position.x/chunkSize)), (roundf(cam->position.z/chunkSize)));
     if(newCamPosition != prevCamPosition){
         UpdateTerrain(newCamPosition);

@@ -10,8 +10,9 @@ public:
     CharacterController();
     void process(float deltaTime) override;
     Camera* cam;
-    TerrainManager* terrainManager;
+    void setTerrain(TerrainManager * terrain);
 private:
     float speed = 5.0f;
+    TerrainManager* terrainManager;
 };
 

@@ -40,7 +40,7 @@ Node* makeInfiniteTerrain(CameraControls* cam){
         knight->setMaterial(mat);
         cam->pivot = knight;
         knight->cam = cam;
-        knight->terrainManager = tm;
+        knight->setTerrain(tm);
         scene->addChild(knight);
     }
 
