@@ -8,6 +8,8 @@
 #include <vector>
 #include <algorithm>
 #include <glm/gtx/string_cast.hpp>
+#include "scene.h"
+
 
 class Camera;
 
@@ -16,18 +18,7 @@ class Node
 public:
     Node();
     Node(Node* parent);
-    virtual ~Node(){
-        //std::cout <<name << " start destruction with " <<children.size() << " children" <<std::endl;
-        removeParent();
-        std::vector<Node*>tempChildren = children;
-        for(Node * c : tempChildren){
-            //std::cout <<name << " destroy children " << c->name<<std::endl;
-            if(c != nullptr) {
-                delete(c);
-            }
-        }
-        //std::cout <<name << " destroyed"<<std::endl;
-    }
+    virtual ~Node(){}
     std::vector<Node*>& getChildren();
     virtual void addChild(Node* c);
     void addChildren(std::vector<Node*> c);
@@ -37,11 +28,12 @@ public:
     bool hasParent();
     Node* getParent() const;
     virtual void setParent(Node* p);
-    virtual void process(float deltaTime) =0;
+    virtual void process(float deltaTime){};
     virtual glm::mat4 globalMatrix() const=0;
-    virtual void render(const Camera* camera) const=0;
     bool visible = true;
     std::string name;
+    inline static Scene* scene;
+    void instantiate(Node* node, Node* parent);
 
 protected:
     std::vector<Node*> children;

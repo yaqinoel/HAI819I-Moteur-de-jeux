@@ -12,7 +12,6 @@ public:
     Camera(float width, float height, float fov, float nearPlane, float farPlane, glm::vec3 position);
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix() const;
-    void render(const Camera* camera) const override {}
 
     float fov;
     float nearPlane;

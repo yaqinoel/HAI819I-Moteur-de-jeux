@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include "common/Materials/material.h"
 
+class CollisionShape3D;
+
 class Mesh;
 
 class RayIntersection
@@ -10,7 +12,7 @@ class RayIntersection
 public:
     bool intersectionExists;
     unsigned int typeOfIntersectedObject;
-    Mesh* intersectedMesh;
+    CollisionShape3D* collider;
     float t;
     Material material;
     glm::vec3 point;

@@ -34,7 +34,7 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 9, -10));
+//CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 9, -10));
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
@@ -43,7 +43,7 @@ float lastFrame = 0.0f;
 float angle = 0.;
 float zoom = 1.;
 
-Node* scene;
+Scene* scene;
 int resX = 4;
 int resY = 4;
 float rotSpeed = 1;
@@ -98,9 +98,9 @@ int main( void )
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
-    cam->name = "camera";
-    scene = makeInfiniteTerrain(cam);
-    cam->setParent(scene);
+//    cam->name = "camera";
+    scene = makeInfiniteTerrain();
+//    cam->setParent(scene);
 
     // For speed computation
     double lastTime = glfwGetTime();
@@ -123,7 +123,7 @@ int main( void )
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        scene->render(cam);
+        scene->render();
 
         // Swap buffers
         glfwSwapBuffers(window);

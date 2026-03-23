@@ -32,66 +32,10 @@
 #include <common/shader.hpp>
 #include <embree4/rtcore.h>
 #include "common/Utilities/rayintersection.h"
+#include "../Utilities/Geometry.h"
 
 #include "../Materials/material.h"
 #include "camera.h"
-
-struct Triangle {
-    inline Triangle () {
-        v[0] = v[1] = v[2] = 0;
-    }
-    inline Triangle (const Triangle & t) {
-        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];
-    }
-    inline Triangle (unsigned int v0, unsigned int v1, unsigned int v2) {
-        v[0] = v0;   v[1] = v1;   v[2] = v2;
-    }
-    unsigned int & operator [] (unsigned int iv) { return v[iv]; }
-    unsigned int operator [] (unsigned int iv) const { return v[iv]; }
-    inline Triangle & operator = (const Triangle & t) {
-        v[0] = t.v[0];   v[1] = t.v[1];   v[2] = t.v[2];
-        return (*this);
-    }
-    // membres :
-    std::array<unsigned int, 3> v;
-};
-
-struct Vertex {
-    glm::vec3 position;
-    glm::vec3 normal;
-    glm::vec2 texCoord;
-
-    inline Vertex () {
-        position = glm::vec3(0);
-        normal = glm::vec3(0);
-        texCoord = glm::vec2(0);
-    }
-    inline Vertex (const Vertex & v) {
-        position = v.position;
-        normal = v.normal;
-        texCoord = v.texCoord;
-    }
-    inline Vertex (glm::vec3 p, glm::vec3 n, glm::vec2 tc) {
-        position = p;
-        normal = glm::normalize(n);
-        texCoord = tc;
-    }
-    inline Vertex (glm::vec3 p, glm::vec2 tc) {
-        position = p;
-        normal = glm::normalize(p);
-        texCoord = tc;
-    }
-    inline Vertex (glm::vec3 p, glm::vec3 n) {
-        position = p;
-        normal = n;
-        texCoord = glm::vec2(0);
-    }
-    inline Vertex (glm::vec3 p) {
-        position = p;
-        normal = glm::normalize(p);
-        texCoord = glm::vec2(0);
-    }
-};
 
 
 class Mesh : public Node3d{
@@ -105,8 +49,6 @@ public:
         if (_synchronized){
             unsynchronize();
         }
-        if(scene) rtcReleaseScene(scene);
-        if(device) rtcReleaseDevice(device);
     }
     std::vector<Vertex> & getVertices () { return vertices; }
     const std::vector<Vertex> & getVertices () const { return vertices; }
@@ -114,7 +56,7 @@ public:
     const std::vector<Triangle> & getTriangles () const { return triangles; }
     void openOFF(const std::string &filename, unsigned int normWeight = 1);
     void openOBJ(const std::string &filename);
-    void render(const Camera* camera) const override;
+    void render(const Camera* camera) const;
     void setShader(std::string vertex_shader, std::string fragment_shader);
     void clear ();
     void clearGeometry ();
@@ -122,7 +64,6 @@ public:
     void recomputeSmoothVertexNormals (unsigned int weight);
     void computeTriangleNormals (std::vector<glm::vec3> & triangleNormals);
     void setMaterial(Material* material);
-    void initTree();
     virtual void setUniforms() const {}
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
@@ -149,12 +90,6 @@ protected:
     mutable GLuint modelMatrixUniform;
     mutable GLuint viewMatrixUniform;
     mutable GLuint projectionMatrixUniform;
-
-    std::vector<glm::vec3> verticesPosition;
-
-    RTCDevice device = nullptr;
-    RTCScene scene = nullptr;
-    RTCGeometry geometry = nullptr;
 
 };
 

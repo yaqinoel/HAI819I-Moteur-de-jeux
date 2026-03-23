@@ -8,11 +8,17 @@
 #include <common/3dEntities/Meshes/proceduralterrain.h>
 #include <common/Controls/cameracontrols.h>
 #include <common/Materials/terrainmaterial.h>
+#include <common/scene.h>
 
 
-Node* makeInfiniteTerrain(CameraControls* cam){
-    Node* scene = new Node3d();
-    scene->name = "scene";
+Scene* makeInfiniteTerrain(){
+    Node* root = new Node3d();
+    Scene* scene = new Scene(root);
+    CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 9, -10));
+    cam->name = "camera";
+    scene->instantiate(cam);
+
+    root->name = "scene root";
     TerrainMaterial* mat = new TerrainMaterial(glm::vec3(1, 0, 0));
     mat->addTexture("texture0", Texture("../Resources/Textures/Environement/grass.png"));
     mat->addTexture("texture1", Texture("../Resources/Textures/Environement/rock.png"));
@@ -26,7 +32,7 @@ Node* makeInfiniteTerrain(CameraControls* cam){
         tm->setCam(cam);
         tm->name = "terrain manager";
         tm->initTerrain();
-        scene->addChild(tm);
+        scene->instantiate(tm);
     }
 
     CharacterController* knight = new CharacterController();{
@@ -41,7 +47,7 @@ Node* makeInfiniteTerrain(CameraControls* cam){
         cam->pivot = knight;
         knight->cam = cam;
         knight->setTerrain(tm);
-        scene->addChild(knight);
+        scene->instantiate(knight);
     }
 
     return scene;

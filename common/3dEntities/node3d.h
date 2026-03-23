@@ -36,8 +36,6 @@ public:
     glm::vec3 left() const{return rotation*LEFT;}
     void setParent(Node* p) override;
     void addChild(Node* c) override;
-    void process(float deltaTime) override {for(Node * c : children)c->process(deltaTime);}
-    void render(const Camera* camera) const override {for(Node * c : children)c->render(camera);}
     glm::mat4 localMatrix() const{return glm::translate(glm::mat4(1.0f), position)*glm::mat4_cast(rotation)*glm::scale(glm::mat4(1.0f), scale);}
     void Rotate(const float angleRadians, const glm::vec3& axis) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); rotation = glm::normalize(rotation * delta);}
     void SetRotation(const glm::vec3 eulerRotation){rotation = glm::normalize(glm::quat(glm::radians(eulerRotation)));}

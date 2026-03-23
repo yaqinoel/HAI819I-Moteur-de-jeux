@@ -1,5 +1,5 @@
 #include "node.h"
-
+#include "scene.h"
 
 Node::Node()
 {
@@ -44,6 +44,7 @@ void Node::addChildren(std::vector<Node*> c){
 Node* Node::getParent() const{
     return parent;
 }
+void instantiate(Node* node);
 
 void Node::setParent(Node* p){
     // std::cout << p->name << " has as a child " << name << std::endl;
@@ -70,4 +71,7 @@ void Node::removeParent(){
     temp_parent->removeChild(this);
 }
 
-void Node::process(float deltaTime){for(Node* n : children)n->process(deltaTime);};
+
+void Node::instantiate(Node* node, Node* parent){
+    scene->instantiate(node, parent);
+}

@@ -1,4 +1,5 @@
 #include "terrainmanager.h"
+#include "../scene.h"
 
 #include <common/3dEntities/Meshes/lod.h>
 
@@ -11,7 +12,6 @@ LOD* MakeChunk(int x, int y, int size, Camera const * const cam, Material* const
         ProceduralTerrain* terrain = new ProceduralTerrain(x*size, y*size, 64/pow(2, i), 64/pow(2, i), size, size, 20, 0.05);
         terrain->setMaterial(terrainMat);
         terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain_HeightMap.glsl");
-        terrain->initTree();
         lod->addLOD(terrain, 40*i);
         terrain->name = "lod "+std::to_string(i);
     }
@@ -24,7 +24,7 @@ TerrainManager::TerrainManager() {
 
 
 void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
-
+    std::cout << "a" << std::endl;
     for(int i = -chunkRenderDistance; i <= chunkRenderDistance; i ++){
         for(int j = -chunkRenderDistance; j <= chunkRenderDistance; j++){
             glm::ivec2 chunkPos = newCamPosition + glm::ivec2(i, j);
@@ -32,7 +32,7 @@ void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
             float chunkDistance = glm::length(chunkWorldPos-glm::vec2(cam->position.x, cam->position.z))-chunkSize;
             if(chunkDistance < chunkSize * chunkRenderDistance && chunks.find(chunkPos) == chunks.end()){
                 LOD * chunk = MakeChunk(chunkPos.x, chunkPos.y, chunkSize, cam, terrainMat);
-                addChild(chunk);
+                instantiate(chunk, this);
                 chunks.insert({chunkPos, chunk});
             }
         }
@@ -43,9 +43,7 @@ void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
 
         if (glm::length(chunkWorldPos - glm::vec2(cam->position.x, cam->position.z)) > chunkSize * (chunkRenderDistance + 1))
         {
-            removeChild(it->second);
-            delete it->second;
-
+            scene->remove(it->second);
             it = chunks.erase(it);
         }
         else
@@ -55,20 +53,6 @@ void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
     }
 }
 
-RayIntersection TerrainManager::intersect(glm::vec3 const &origin, glm::vec3 const &direction, float const &length ) {
-    RayIntersection closestIntersection;
-    closestIntersection.t = FLT_MAX;
-    closestIntersection.intersectionExists = false;
-    for (auto it = chunks.begin(); it != chunks.end(); )
-    {
-        RayIntersection newIntersection = chunks[it->first]->intersect(origin, direction, length);
-        if (newIntersection.intersectionExists && newIntersection.t < closestIntersection.t){
-            closestIntersection = newIntersection;
-        }
-        ++it;
-    }
-    return closestIntersection;
-}
 
 void TerrainManager::process(float deltaTime){
     Node3d::process(deltaTime);
@@ -90,7 +74,7 @@ void TerrainManager::initTerrain(){
         for(int y = -chunkRenderDistance; y <= chunkRenderDistance; y ++){
             glm::vec2 chunkPos = prevCamPosition + glm::ivec2(x, y);
             LOD * chunk = MakeChunk(prevCamPosition.x+x, prevCamPosition.y+y, chunkSize, cam, terrainMat);
-            addChild(chunk);
+            instantiate(chunk, this);
             chunks.insert({chunkPos, chunk});
         }
     }

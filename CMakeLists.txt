@@ -85,17 +85,24 @@ add_executable(Main
         common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp
 
         common/3dEntities/Mesh.cpp
-        common/Utilities/rayintersection.h
-        Scenes/SolarSystem.h
-        Scenes/InfiniteTerrain.h
+        common/3dEntities/rigidbody3d.h common/3dEntities/rigidbody3d.cpp
+        common/3dEntities/collisionshape3d.h common/3dEntities/collisionshape3d.cpp
         common/3dEntities/terrainmanager.h common/3dEntities/terrainmanager.cpp
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
+        common/Utilities/rayintersection.h
         common/Utilities/PerlinNoise.h
+        common/Utilities/Geometry.h
 
         common/Controls/charactercontroller.cpp common/Controls/charactercontroller.h
         common/Materials/terrainmaterial.h common/Materials/terrainmaterial.cpp
+        common/scene.h common/scene.cpp
 
+        common/Shapes/shape.h common/Shapes/shape.cpp
+        common/Shapes/terrainshape.h common/Shapes/terrainshape.cpp
+        common/Shapes/convexshape.h common/Shapes/convexshape.cpp
 
+        Scenes/SolarSystem.h
+        Scenes/InfiniteTerrain.h
 
 )
 target_link_libraries(Main

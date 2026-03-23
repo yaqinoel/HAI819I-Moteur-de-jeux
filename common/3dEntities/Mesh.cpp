@@ -53,7 +53,6 @@ void Mesh::openOFF(const std::string &filename, unsigned int normWeight) {
     in >> offString >> sizeV >> sizeT >> tmp;
 
     vertices.resize(sizeV);
-    verticesPosition.resize(sizeV);
     for( int v = 0 ; v < sizeV ; ++v )
     {
         glm::vec3 vertex;
@@ -67,7 +66,6 @@ void Mesh::openOFF(const std::string &filename, unsigned int normWeight) {
         vertices[v].position = vertex;
         vertices[v].normal = vertex;
         vertices[v].texCoord = glm::vec2(0, 0);
-        verticesPosition[v] = vertex;
     }
     int s;
     for (unsigned int i = 0; i < sizeT; i++) {
@@ -156,7 +154,6 @@ void Mesh::openOBJ(const std::string &filename)
                     vert.normal   = (vnIndex >= 0 && vnIndex < temp_normals.size()) ? temp_normals[vnIndex] : glm::vec3(0.0f);
 
                     vertices.push_back(vert);
-                    verticesPosition.push_back(vert.position);
                     unsigned int newIndex = vertices.size() - 1;
                     vertexMap[key] = newIndex;
                     faceIndices.push_back(newIndex);
@@ -267,9 +264,6 @@ void Mesh::setShader(std::string vertex_shader, std::string fragment_shader){
 void Mesh::render(const Camera* camera) const{
     if (vertices.empty()) {
         _synchronized = true ;
-        for(Node * c : children){
-            c->render(camera);
-        }
         return;
     }
     if (!_synchronized){
@@ -301,109 +295,4 @@ void Mesh::render(const Camera* camera) const{
     glUseProgram(0);
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-RayIntersection Mesh::intersect(glm::vec3 const &origin, glm::vec3 const &direction, float const &length ) {
-    return intersectTriangle(origin, direction, length);
-}
-void Mesh::initTree(){
-
-    device = rtcNewDevice(nullptr);
-    scene  = rtcNewScene(device);
-
-    geometry = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_TRIANGLE);
-
-    struct EmbreeVertex {
-        float x, y, z;
-    };
-
-    struct EmbreeTriangle {
-        unsigned int v0, v1, v2;
-    };
-
-    EmbreeVertex* verts = (EmbreeVertex*) rtcSetNewGeometryBuffer(
-        geometry,
-        RTC_BUFFER_TYPE_VERTEX,
-        0,
-        RTC_FORMAT_FLOAT3,
-        sizeof(EmbreeVertex),
-        verticesPosition.size()
-        );
-
-    for (size_t i = 0; i < verticesPosition.size(); i++) {
-        verts[i].x = verticesPosition[i].x;
-        verts[i].y = verticesPosition[i].y;
-        verts[i].z = verticesPosition[i].z;
-    }
-
-    EmbreeTriangle* tris = (EmbreeTriangle*) rtcSetNewGeometryBuffer(
-        geometry,
-        RTC_BUFFER_TYPE_INDEX,
-        0,
-        RTC_FORMAT_UINT3,
-        sizeof(EmbreeTriangle),
-        triangles.size()
-        );
-
-    for (size_t i = 0; i < triangles.size(); i++) {
-        tris[i].v0 = triangles[i][0];
-        tris[i].v1 = triangles[i][1];
-        tris[i].v2 = triangles[i][2];
-    }
-
-    rtcCommitGeometry(geometry);
-    rtcAttachGeometry(scene, geometry);
-    rtcReleaseGeometry(geometry);
-
-    rtcCommitScene(scene);
-}
-
-RayIntersection Mesh::intersectTriangle(
-    glm::vec3 const &origin,
-    glm::vec3 const &direction,
-    float const &length)
-{
-    RayIntersection intersection;
-    intersection.intersectionExists = false;
-
-    RTCRayHit rayhit{};
-
-    glm::vec3 dir = glm::normalize(direction);
-
-    glm::vec3 globalPos = globalPosition();
-    rayhit.ray.org_x = origin.x - globalPos.x;
-    rayhit.ray.org_y = origin.y - globalPos.y;
-    rayhit.ray.org_z = origin.z - globalPos.z;
-
-    rayhit.ray.dir_x = dir.x;
-    rayhit.ray.dir_y = dir.y;
-    rayhit.ray.dir_z = dir.z;
-
-    rayhit.ray.tnear = 0.0f;
-    rayhit.ray.tfar  = length;
-
-    rayhit.ray.time = 0.0f;
-    rayhit.ray.mask = 0xFFFFFFFF;
-    rayhit.ray.flags = 0;
-
-    rayhit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
-    rtcIntersect1(scene, &rayhit);
-
-    if(rayhit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
-    {
-        intersection.intersectionExists = true;
-        intersection.t = rayhit.ray.tfar;
-
-        intersection.point = origin + dir * intersection.t;
-
-        intersection.normal = glm::normalize(glm::vec3(
-            rayhit.hit.Ng_x,
-            rayhit.hit.Ng_y,
-            rayhit.hit.Ng_z
-            ));
-
-        intersection.intersectedMesh = this;
-    }
-
-    return intersection;
 }

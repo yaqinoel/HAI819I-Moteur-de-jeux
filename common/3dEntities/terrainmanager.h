@@ -25,7 +25,6 @@ public:
     void initTerrain();
     //Node* MakeChunk(int x, int y, int indexX, int indexY);
     int chunkRenderDistance = 4;
-    RayIntersection intersect(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
     float chunkSize = 40;
     Material* terrainMat;
 private:

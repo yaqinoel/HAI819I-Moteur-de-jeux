@@ -2,6 +2,7 @@
 
 #include "../Mesh.hpp"
 #include <string>
+#include "../collisionshape3d.h"
 
 class ProceduralTerrain : public Mesh
 {
@@ -19,4 +20,5 @@ private:
     float sizeZ;
     float frequency;
     std::string hmapName;
+    CollisionShape3D* collision = nullptr;
 };

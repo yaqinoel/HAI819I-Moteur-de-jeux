@@ -4,7 +4,7 @@ CharacterController::CharacterController() {}
 
 void CharacterController::setTerrain(TerrainManager * terrain){
     terrainManager = terrain;
-    RayIntersection intersection = terrainManager->intersect(position+UP*30.0f, DOWN, 100);
+    RayIntersection intersection = scene->raycast(position+UP*30.0f, DOWN, 100);
     if(intersection.intersectionExists) position = intersection.point;
 }
 
@@ -43,7 +43,7 @@ void CharacterController::process(float deltaTime){
     if(moved){
         glm::vec3 cameraForward = glm::normalize(glm::vec3(cam->forward().x, 0, cam->forward().z));
         SetForward(cameraForward);
-        RayIntersection intersection = terrainManager->intersect(position+UP*30.0f, DOWN, 100);
+        RayIntersection intersection = scene->raycast(position+UP*30.0f, DOWN, 100);
         if(intersection.intersectionExists) position = intersection.point;
     }
 

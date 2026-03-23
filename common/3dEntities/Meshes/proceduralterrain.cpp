@@ -1,9 +1,12 @@
 #include "proceduralterrain.h"
 #include "common/Utilities/PerlinNoise.h"
 #include <glm/gtc/noise.hpp>
+#include "../../Shapes/terrainshape.h"
 
 
 ProceduralTerrain::ProceduralTerrain(){
+    collision = new CollisionShape3D();
+    instantiate(collision, this);
 }
 
 ProceduralTerrain::ProceduralTerrain(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ, float frequency) : ProceduralTerrain(){
@@ -37,7 +40,6 @@ void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float 
             float height = noise * sizeZ;
             Vertex v( glm::vec3(x, height, y) - center, glm::vec2(x, y) );
             vertices.push_back(v);
-            verticesPosition.push_back(v.position);
             if(i > 0 && j > 0){
                 int i0 = (i-1)*(resY+1)+j-1;
                 int i1 = (i-1)*(resY+1)+j;
@@ -50,6 +52,10 @@ void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float 
     }
     recomputeSmoothVertexNormals(1);
 
+    TerrainShape* shape = new TerrainShape();
+    shape->ConvexShape::InitMesh(vertices, triangles);
+    collision->SetShape(shape);
+
     _synchronized = false;
 }
 
@@ -60,5 +66,12 @@ void ProceduralTerrain::ApplyHeightMap(std::string hmapName, float scale){
         Color c = hmap.getPixelSafe(vertices[i].position[0]/sizeX, vertices[i].position[2]/sizeY);
         vertices[i].position[1] = ((float)c.g/255.0) * scale;
     }
+
     recomputeSmoothVertexNormals(1);
+
+    TerrainShape* shape = new TerrainShape();
+    shape->ConvexShape::InitMesh(vertices, triangles);
+    collision->SetShape(shape);
+
+    _synchronized = false;
 }
