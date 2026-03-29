@@ -42,7 +42,7 @@ void Scene::instantiate(Node* node){
 
 void Scene::process(float deltaTime){
     for(Node* n : nodes){
-        if(n != nullptr && n->visible){
+        if(n != nullptr && n->getVisible()){
             n->process(deltaTime);
         }
     }
@@ -51,7 +51,7 @@ void Scene::render(){
     if(cameras.size() > 0){
         if(mainCamera == nullptr) mainCamera = *cameras.begin();
         for(Mesh* m: meshes){
-            if(m != nullptr && m->visible){
+            if(m != nullptr && m->getVisible()){
                 m->render(mainCamera);
             }
         }
@@ -90,7 +90,7 @@ RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &directi
     closestIntersection.intersectionExists = false;
     for (CollisionShape3D* c: colliders)
     {
-        if(c != nullptr && c->visible){
+        if(c != nullptr && c->getVisible()){
             RayIntersection newIntersection = c->raycast(origin, direction, length);
             if (newIntersection.intersectionExists && newIntersection.t < closestIntersection.t){
                 closestIntersection = newIntersection;

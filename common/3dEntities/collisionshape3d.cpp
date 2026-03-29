@@ -1,14 +1,12 @@
 #include "collisionshape3d.h"
+#include "../3dEntities/Mesh.hpp"
 
 CollisionShape3D::CollisionShape3D()
 {
-
 }
 RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length){
     if(shape != nullptr){
-        std::cout << "a" << std::endl;
         return shape->raycast(origin, direction, length);
-        std::cout << "b" << std::endl;
     }
     else{
         std::cerr << "Error no shape associated with the CollisionShape" << std::endl;
@@ -22,4 +20,19 @@ RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 con
 void CollisionShape3D::SetShape(Shape* s){
     shape = s;
     s->collider = this;
+}
+
+void CollisionShape3D::setDebug(bool b) {
+    debug = b;
+    if(debugMesh != nullptr){
+        debugMesh->setVisible(b);
+    }
+    else if(b == true){
+        debugMesh = new Mesh(shape->getVertices(), shape->getTriangles());
+        debugMesh->name = "debug mesh";
+        Material* mat = new Material();
+        debugMesh->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_shape.glsl");
+        debugMesh->setMaterial(mat);
+        instantiate(debugMesh, this);
+    }
 }

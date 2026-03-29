@@ -12,17 +12,17 @@ void LOD::process(float deltaTime){
     if(currentLOD != newLOD){
         if(newLOD < lod_meshes.size()){
             if(currentLOD < lod_meshes.size()) {
-                lod_meshes[currentLOD].mesh->visible = false;
+                lod_meshes[currentLOD].mesh->setVisible(false);
             }
-            lod_meshes[newLOD].mesh->visible = true;
+            lod_meshes[newLOD].mesh->setVisible(true);
         }
         else{
-            if(currentLOD < lod_meshes.size()) lod_meshes[currentLOD].mesh->visible = false;
+            if(currentLOD < lod_meshes.size()) lod_meshes[currentLOD].mesh->setVisible(false);
         }
         currentLOD = newLOD;
     }
     else if(currentLOD < lod_meshes.size()){
-        lod_meshes[currentLOD].mesh->visible = true;
+        lod_meshes[currentLOD].mesh->setVisible(true);
     }
 }
 
@@ -32,7 +32,7 @@ void LOD::addLOD(Mesh* me, float di, float ma){
         i++;
     }
     if(lod_meshes.size() > 0) {
-        me->visible = false;
+        me->setVisible(false);
     }
     lod_meshes.insert(lod_meshes.begin()+i, mesh_distance(me, di, ma));
     instantiate(me, this);

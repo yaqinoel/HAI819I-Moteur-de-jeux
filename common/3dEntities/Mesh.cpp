@@ -170,6 +170,19 @@ void Mesh::openOBJ(const std::string &filename)
     in.close();
 }
 
+Mesh::Mesh(const std::vector<glm::vec3> & v, const std::vector<glm::ivec3> & t){
+    vertices.clear();
+    triangles.clear();
+    for(glm::vec3 vec : v){
+        Vertex newvec = Vertex(vec);
+        vertices.push_back(newvec);
+    }
+    for(glm::ivec3 tri : t){
+        Triangle newtri = Triangle(tri);
+        triangles.push_back(newtri);
+    }
+}
+
 void Mesh::computeTriangleNormals (vector<glm::vec3> & triangleNormals) {
     for(Triangle it : triangles){
         glm::vec3 e01 (vertices[it[1]].position - vertices[it[0]].position);
@@ -262,6 +275,7 @@ void Mesh::setShader(std::string vertex_shader, std::string fragment_shader){
 }
 
 void Mesh::render(const Camera* camera) const{
+
     if (vertices.empty()) {
         _synchronized = true ;
         return;
@@ -287,7 +301,7 @@ void Mesh::render(const Camera* camera) const{
 
     glUniform3fv(viewUniform, 1, glm::value_ptr(camera->forward()));
 
-    if(visible)
+    if(getVisible())
         glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, (void*)0 );
 
     setUniforms();

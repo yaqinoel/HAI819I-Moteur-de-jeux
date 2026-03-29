@@ -43,6 +43,7 @@ public:
     inline Mesh () : Node3d() {}
     inline Mesh (const std::vector<Vertex> & v) : vertices (v), Node3d(){}
     inline Mesh (const std::vector<Vertex> & v, const std::vector<Triangle> & t) : vertices (v), triangles (t), Node3d() {}
+    Mesh (const std::vector<glm::vec3> & v, const std::vector<glm::ivec3> & t);
     inline Mesh (const Mesh & mesh) : vertices (mesh.vertices), triangles (mesh.triangles), Node3d() {}
     inline Mesh (Node*p) {setParent(p);}
     virtual ~Mesh(){

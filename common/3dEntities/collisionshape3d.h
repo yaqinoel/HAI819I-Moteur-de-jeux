@@ -10,7 +10,10 @@ public:
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
     bool active = true;
     void SetShape(Shape* s);
+    void setDebug(bool b);
 private:
     Shape *shape = nullptr;
+    bool debug = false;
+    Mesh *debugMesh = nullptr;
 };
 

@@ -9,6 +9,7 @@
 #include <common/Controls/cameracontrols.h>
 #include <common/Materials/terrainmaterial.h>
 #include <common/scene.h>
+#include "Ball.h"
 
 
 Scene* makeInfiniteTerrain(){
@@ -49,6 +50,7 @@ Scene* makeInfiniteTerrain(){
         knight->setTerrain(tm);
         scene->instantiate(knight);
     }
+    scene->instantiate(makeBall());
 
     return scene;
 }

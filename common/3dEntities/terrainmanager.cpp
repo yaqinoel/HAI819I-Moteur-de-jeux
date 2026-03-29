@@ -24,7 +24,6 @@ TerrainManager::TerrainManager() {
 
 
 void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
-    std::cout << "a" << std::endl;
     for(int i = -chunkRenderDistance; i <= chunkRenderDistance; i ++){
         for(int j = -chunkRenderDistance; j <= chunkRenderDistance; j++){
             glm::ivec2 chunkPos = newCamPosition + glm::ivec2(i, j);

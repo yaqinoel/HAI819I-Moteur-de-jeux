@@ -16,8 +16,6 @@ public:
     void InitMesh(std::vector<Vertex> vertices, std::vector<Triangle> triangles);
 
     void initTree();
-    std::vector<glm::vec3> vertices = std::vector<glm::vec3>() ;
-    std::vector<glm::ivec3>triangles = std::vector<glm::ivec3>();
     virtual RayIntersection raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length) override ;
 private:
     RTCDevice device = nullptr;

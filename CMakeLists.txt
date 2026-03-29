@@ -78,6 +78,8 @@ add_executable(Main
 
         Shaders/vertex_shader.glsl
         Shaders/fragment_shader.glsl
+        Shaders/fragment_shader_shape.glsl
+        Shaders/fragment_shader_lit.glsl
         Shaders/fragment_shader_Terrain_HeightMap.glsl
         Shaders/fragment_shader_Terrain_Noise.glsl
         
@@ -100,9 +102,12 @@ add_executable(Main
         common/Shapes/shape.h common/Shapes/shape.cpp
         common/Shapes/terrainshape.h common/Shapes/terrainshape.cpp
         common/Shapes/convexshape.h common/Shapes/convexshape.cpp
+        common/Shapes/sphere.h common/Shapes/sphere.cpp
 
         Scenes/SolarSystem.h
         Scenes/InfiniteTerrain.h
+        Scenes/Ball.h
+
 
 )
 target_link_libraries(Main

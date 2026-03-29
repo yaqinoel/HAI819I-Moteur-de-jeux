@@ -15,6 +15,9 @@ struct Triangle {
     inline Triangle (unsigned int v0, unsigned int v1, unsigned int v2) {
         v[0] = v0;   v[1] = v1;   v[2] = v2;
     }
+    inline Triangle (glm::ivec3 vec) {
+        v[0] = vec[0];   v[1] = vec[1];   v[2] = vec[2];
+    }
     unsigned int & operator [] (unsigned int iv) { return v[iv]; }
     unsigned int operator [] (unsigned int iv) const { return v[iv]; }
     inline Triangle & operator = (const Triangle & t) {

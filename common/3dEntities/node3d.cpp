@@ -13,7 +13,7 @@ glm::mat4 Node3d::globalMatrix() const{
 
 void Node3d::setParent(Node* p){
     Node::setParent(p);
-    position -= ((Node3d*)p)->position;
+    position -= ((Node3d*)p)->globalPosition();
     //std::cout << glm::to_string(position) << std::endl;
 }
 
