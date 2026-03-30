@@ -15,7 +15,7 @@ if( CMAKE_BINARY_DIR MATCHES " " )
         message( "Your Build Directory contains spaces. If you experience problems when compiling, this can be the cause." )
 endif()
 
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Compile external dependencies
 add_subdirectory (external)
@@ -103,10 +103,12 @@ add_executable(Main
         common/Shapes/terrainshape.h common/Shapes/terrainshape.cpp
         common/Shapes/convexshape.h common/Shapes/convexshape.cpp
         common/Shapes/sphere.h common/Shapes/sphere.cpp
+        common/Shapes/cube.h common/Shapes/cube.cpp
 
         Scenes/SolarSystem.h
         Scenes/InfiniteTerrain.h
         Scenes/Ball.h
+        Scenes/Cube.h
 
 
 )
