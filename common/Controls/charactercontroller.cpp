@@ -44,7 +44,7 @@ void CharacterController::process(float deltaTime){
         glm::vec3 cameraForward = glm::normalize(glm::vec3(cam->forward().x, 0, cam->forward().z));
         SetForward(cameraForward);
         RayIntersection intersection = scene->raycast(globalPosition()+UP*30.0f, DOWN, 100);
-        if(intersection.intersectionExists) position = intersection.point;
+        if(intersection.intersectionExists) position = intersection.point+UP*0.08f;
     }
 
 }

@@ -55,6 +55,8 @@ public:
     const std::vector<Vertex> & getVertices () const { return vertices; }
     std::vector<Triangle> & getTriangles () { return triangles; }
     const std::vector<Triangle> & getTriangles () const { return triangles; }
+    void setVertices(std::vector<glm::vec3> vec);
+    void setTriangles(std::vector<glm::ivec3> vec);
     void openOFF(const std::string &filename, unsigned int normWeight = 1);
     void openOBJ(const std::string &filename);
     void render(const Camera* camera) const;

@@ -37,25 +37,61 @@ Cube::Cube(float size_x, float size_y, float size_z){
 RayIntersection Cube::raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length){
     RayIntersection intersection;
     intersection.intersectionExists = false;
-    for(int i = 0; i < 12; i += 2){
-        glm::vec3 pointA = vertices[triangles[i][0]];
-        glm::vec3 pointB = vertices[triangles[i][1]];
-        glm::vec3 pointC = vertices[triangles[i][2]];
-        glm::vec3 normal = glm::cross(pointB-pointA, pointC-pointA);
-        double denominator = glm::dot(direction, normal);
-        if(denominator < 0){
-            float t = (glm::dot(pointA-origin, normal))/denominator;
-            glm::vec3 point = origin + direction * t;
-            float distance1 = glm::dot(point - pointA, pointB)/glm::length2(pointB);
-            float distance2 = glm::dot(point - pointA, pointC)/glm::length2(pointC);
-            float distance = (point-origin).length();
-            if(distance1 > 0. && distance1 < 1. && distance2 > 0. && distance2 < 1. && distance <= length && distance < intersection.t){
-                intersection.intersectionExists = true;
-                intersection.t = distance;
-                intersection.point = point;
-                intersection.normal = normal;
-            }
-        }
-    }
+
+    glm::mat4 model = collider->globalMatrix();
+    glm::mat4 invertedModel = glm::inverse(model);
+
+    glm::vec3 localOrigin = glm::vec3(invertedModel * glm::vec4(origin, 1.0f));
+    glm::vec3 localDir    = glm::normalize(glm::vec3(invertedModel * glm::vec4(direction, 0.0f)));
+
+    glm::vec3 minB = vertices[2];
+    glm::vec3 maxB = vertices[5];
+
+    glm::vec3 invDir = 1.0f / localDir;
+
+    glm::vec3 t0 = (minB - localOrigin) * invDir;
+    glm::vec3 t1 = (maxB - localOrigin) * invDir;
+
+    glm::vec3 tmin = glm::min(t0, t1);
+    glm::vec3 tmax = glm::max(t0, t1);
+
+    float tEnter = std::max(std::max(tmin.x, tmin.y), tmin.z);
+    float tExit  = std::min(std::min(tmax.x, tmax.y), tmax.z);
+
+    if (tEnter > tExit || tExit < 0.0f)
+        return intersection;
+
+    float tLocal = (tEnter >= 0.0f) ? tEnter : tExit;
+
+    if (tLocal < 0.0f)
+        return intersection;
+
+    glm::vec3 localPoint = localOrigin + tLocal * localDir;
+
+    glm::vec3 localNormal(0.0f);
+    const float eps = 1e-4f;
+
+    if (fabs(localPoint.x - minB.x) < eps) localNormal = glm::vec3(-1, 0, 0);
+    else if (fabs(localPoint.x - maxB.x) < eps) localNormal = glm::vec3(1, 0, 0);
+    else if (fabs(localPoint.y - minB.y) < eps) localNormal = glm::vec3(0, -1, 0);
+    else if (fabs(localPoint.y - maxB.y) < eps) localNormal = glm::vec3(0, 1, 0);
+    else if (fabs(localPoint.z - minB.z) < eps) localNormal = glm::vec3(0, 0, -1);
+    else if (fabs(localPoint.z - maxB.z) < eps) localNormal = glm::vec3(0, 0, 1);
+
+    glm::vec3 worldPoint = glm::vec3(model * glm::vec4(localPoint, 1.0f));
+
+    glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
+    glm::vec3 worldNormal = glm::normalize(normalMatrix * localNormal);
+
+    float tWorld = glm::length(worldPoint - origin);
+
+    if (tWorld > length)
+        return intersection;
+
+    intersection.intersectionExists = true;
+    intersection.t = tWorld;
+    intersection.point = worldPoint;
+    intersection.normal = worldNormal;
+
     return intersection;
 }

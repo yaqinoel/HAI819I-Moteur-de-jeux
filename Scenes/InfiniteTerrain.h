@@ -10,6 +10,7 @@
 #include <common/Materials/terrainmaterial.h>
 #include <common/scene.h>
 #include "Ball.h"
+#include "Cube.h"
 
 
 Scene* makeInfiniteTerrain(){
@@ -51,6 +52,7 @@ Scene* makeInfiniteTerrain(){
         scene->instantiate(knight);
     }
     scene->instantiate(makeBall());
+    scene->instantiate(makeCube());
 
     return scene;
 }

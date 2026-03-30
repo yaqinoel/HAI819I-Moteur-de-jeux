@@ -40,6 +40,22 @@ void Mesh::clearTopology () {
     triangles.clear ();
 }
 
+void Mesh::setVertices(std::vector<glm::vec3> vec){
+    vertices.resize(vec.size());
+    for(int i = 0; i < vec.size(); i ++){
+        vertices[i].position = vec[i];
+    }
+}
+
+void Mesh::setTriangles(std::vector<glm::ivec3> vec){
+    triangles.resize(vec.size());
+    for(int i = 0; i < vec.size(); i ++){
+        triangles[i][0] = vec[i][0];
+        triangles[i][1] = vec[i][1];
+        triangles[i][2] = vec[i][2];
+    }
+}
+
 void Mesh::openOFF(const std::string &filename, unsigned int normWeight) {
     _synchronized = false;
     vertices = std::vector<Vertex>() ;
