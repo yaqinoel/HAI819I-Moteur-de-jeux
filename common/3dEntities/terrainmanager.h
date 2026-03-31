@@ -8,10 +8,11 @@
 
 #include <future>
 
-struct ivec2Compare {
-    bool operator()(const glm::ivec2& a, const glm::ivec2& b) const {
+struct ivec3Compare {
+    bool operator()(const glm::ivec3& a, const glm::ivec3& b) const {
         if (a.x != b.x) return a.x < b.x;
-        return a.y < b.y;
+        if (a.y != b.y) return a.y < b.y;
+        return a.z < b.z;
     }
 };
 
@@ -27,10 +28,10 @@ public:
     float chunkSize = 10;
     Material* terrainMat;
 private:
-    glm::ivec2 prevCamPosition;
+    glm::ivec3 prevCamPosition;
     Camera* cam;
     //std::vector<std::vector<Mesh*>> chunks = std::vector<std::vector<Mesh*>>();
     void printchunks();
     std::mutex terrainMutex;
-    std::map<glm::ivec2, Mesh*, ivec2Compare> chunks = std::map<glm::ivec2, Mesh*, ivec2Compare>();
+    std::map<glm::ivec3, Mesh*, ivec3Compare> chunks = std::map<glm::ivec3, Mesh*, ivec3Compare>();
 };

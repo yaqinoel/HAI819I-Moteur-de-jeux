@@ -1,5 +1,10 @@
 #include "cube.h"
 
+
+Cube::Cube(float size_x, float size_y, float size_z, std::vector<Vertex>& ver, std::vector<Triangle>& tri) : Cube(size_x, size_y, size_z) {
+    setMesh(ver, tri);
+}
+
 Cube::Cube(float size_x, float size_y, float size_z){
     this->size_x = size_x;
     this->size_y = size_y;
@@ -31,37 +36,32 @@ Cube::Cube(float size_x, float size_y, float size_z){
     triangles[11] = glm::ivec3(4, 0, 1);
 }
 
-Cube::Cube(float size_x, float size_y, float size_z, std::vector<Vertex> &ver, std::vector<Triangle> &tri) : Cube(size_x, size_y, size_z){
-    setMesh(ver, tri);
-}
-
-
 void Cube::setMesh(std::vector<Vertex> &ver, std::vector<Triangle> &tri){
     ver.resize(24);
-    ver[0] = Vertex(vertices[0], glm::vec3(-0.0000, 1.0000, -0.0000), glm::vec2(0.625000, 0.500000));
-    ver[1] = Vertex(vertices[0], glm::vec3(1.0000, -0.0000, -0.0000), glm::vec2(0.625000, 0.500000));
-    ver[2] = Vertex(vertices[0], glm::vec3(-0.0000, -0.0000, -1.0000), glm::vec2(0.625000, 0.500000));
-    ver[3] = Vertex(vertices[1], glm::vec3(-0.0000, -1.0000, -0.0000), glm::vec2(0.375000, 0.500000));
-    ver[4] = Vertex(vertices[1], glm::vec3(1.0000, -0.0000, -0.0000), glm::vec2(0.375000, 0.500000));
-    ver[5] = Vertex(vertices[1], glm::vec3(-0.0000, -0.0000, -1.0000), glm::vec2(0.375000, 0.500000));
-    ver[6] = Vertex(vertices[2], glm::vec3(-0.0000, 1.0000, -0.0000), glm::vec2(0.625000, 0.750000));
-    ver[7] = Vertex(vertices[2], glm::vec3(-0.0000, -0.0000, 1.0000), glm::vec2(0.625000, 0.750000));
-    ver[8] = Vertex(vertices[2], glm::vec3(1.0000, -0.0000, -0.0000), glm::vec2(0.625000, 0.750000));
-    ver[9] = Vertex(vertices[3], glm::vec3(-0.0000, -0.0000, 1.0000), glm::vec2(0.375000, 0.750000));
-    ver[10] = Vertex(vertices[3], glm::vec3(-0.0000, -1.0000, -0.0000), glm::vec2(0.375000, 0.750000));
-    ver[11] = Vertex(vertices[3], glm::vec3(1.0000, -0.0000, -0.0000), glm::vec2(0.375000, 0.750000));
-    ver[12] = Vertex(vertices[4], glm::vec3(-0.0000, 1.0000, -0.0000), glm::vec2(0.875000, 0.500000));
-    ver[13] = Vertex(vertices[4], glm::vec3(-0.0000, -0.0000, -1.0000), glm::vec2(0.625000, 0.250000));
-    ver[14] = Vertex(vertices[4], glm::vec3(-1.0000, -0.0000, -0.0000), glm::vec2(0.625000, 0.250000));
-    ver[15] = Vertex(vertices[5], glm::vec3(-1.0000, -0.0000, -0.0000), glm::vec2(0.375000, 0.250000));
-    ver[16] = Vertex(vertices[5], glm::vec3(-0.0000, -0.0000, -1.0000), glm::vec2(0.375000, 0.250000));
-    ver[17] = Vertex(vertices[5], glm::vec3(-0.0000, -1.0000, -0.0000), glm::vec2(0.125000, 0.500000));
-    ver[18] = Vertex(vertices[6], glm::vec3(-1.0000, -0.0000, -0.0000), glm::vec2(0.625000, 0.000000));
-    ver[19] = Vertex(vertices[6], glm::vec3(-0.0000, 1.0000, -0.0000), glm::vec2(0.875000, 0.750000));
-    ver[20] = Vertex(vertices[6], glm::vec3(-0.0000, -0.0000, 1.0000), glm::vec2(0.625000, 1.000000));
-    ver[21] = Vertex(vertices[7], glm::vec3(-0.0000, -0.0000, 1.0000), glm::vec2(0.375000, 1.000000));
-    ver[22] = Vertex(vertices[7], glm::vec3(-1.0000, -0.0000, -0.0000), glm::vec2(0.375000, 0.000000));
-    ver[23] = Vertex(vertices[7], glm::vec3(-0.0000, -1.0000, -0.0000), glm::vec2(0.125000, 0.750000));
+    ver[0] = Vertex(vertices[0], glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.625, 0.5));
+    ver[6] = Vertex(vertices[2], glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.625, 0.75));
+    ver[12] = Vertex(vertices[4], glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.875, 0.5));
+    ver[19] = Vertex(vertices[6], glm::vec3(0.0, 1.0, 0.0), glm::vec2(0.875, 0.75));
+    ver[3] = Vertex(vertices[1], glm::vec3(0.0, -1.0, 0.0), glm::vec2(0.375, 0.5));
+    ver[10] = Vertex(vertices[3], glm::vec3(0.0, -1.0, 0.0), glm::vec2(0.375, 0.75));
+    ver[17] = Vertex(vertices[5], glm::vec3(0.0, -1.0, 0.0), glm::vec2(0.125, 0.5));
+    ver[23] = Vertex(vertices[7], glm::vec3(0.0, -1.0, 0.0), glm::vec2(0.125, 0.75));
+    ver[1] = Vertex(vertices[0], glm::vec3(1.0, 0.0, 0.0), glm::vec2(0.625, 0.5));
+    ver[8] = Vertex(vertices[2], glm::vec3(1.0, 0.0, 0.0), glm::vec2(0.625, 0.75));
+    ver[11] = Vertex(vertices[3], glm::vec3(1.0, 0.0, 0.0), glm::vec2(0.375, 0.75));
+    ver[4] = Vertex(vertices[1], glm::vec3(1.0, 0.0, 0.0), glm::vec2(0.375, 0.5));
+    ver[14] = Vertex(vertices[4], glm::vec3(-1.0, 0.0, 0.0), glm::vec2(0.625, 0.25));
+    ver[15] = Vertex(vertices[5], glm::vec3(-1.0, 0.0, 0.0), glm::vec2(0.375, 0.25));
+    ver[18] = Vertex(vertices[6], glm::vec3(-1.0, 0.0, 0.0), glm::vec2(0.625, 0.0));
+    ver[22] = Vertex(vertices[7], glm::vec3(-1.0, 0.0, 0.0), glm::vec2(0.375, 0.0));
+    ver[20] = Vertex(vertices[6], glm::vec3(0.0, 0.0, 1.0), glm::vec2(0.625, 1.0));
+    ver[21] = Vertex(vertices[7], glm::vec3(0.0, 0.0, 1.0), glm::vec2(0.375, 1.0));
+    ver[7] = Vertex(vertices[2], glm::vec3(0.0, 0.0, 1.0), glm::vec2(0.625, 0.75));
+    ver[9] = Vertex(vertices[3], glm::vec3(0.0, 0.0, 1.0), glm::vec2(0.375, 0.75));
+    ver[13] = Vertex(vertices[4], glm::vec3(0.0, 0.0, -1.0), glm::vec2(0.625, 0.25));
+    ver[16] = Vertex(vertices[5], glm::vec3(0.0, 0.0, -1.0), glm::vec2(0.375, 0.25));
+    ver[2] = Vertex(vertices[0], glm::vec3(0.0, 0.0, -1.0), glm::vec2(0.625, 0.5));
+    ver[5] = Vertex(vertices[1], glm::vec3(0.0, 0.0, -1.0), glm::vec2(0.375, 0.5));
 
     tri.resize(12);
     tri[0] = Triangle(12, 6, 0);

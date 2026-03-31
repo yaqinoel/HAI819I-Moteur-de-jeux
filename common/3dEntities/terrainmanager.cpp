@@ -32,8 +32,8 @@ TerrainManager::TerrainManager() {
 void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
     for(int i = -chunkRenderDistance; i <= chunkRenderDistance; i ++){
         for(int j = -chunkRenderDistance; j <= chunkRenderDistance; j++){
-            glm::ivec2 chunkPos = newCamPosition + glm::ivec2(i, j);
-            glm::vec2 chunkWorldPos = (glm::vec2)chunkPos*chunkSize;
+            glm::ivec3 chunkPos = glm::ivec3(newCamPosition.x, 0, newCamPosition.y) + glm::ivec3(i, 0, j);
+            glm::vec3 chunkWorldPos = (glm::vec3)chunkPos*chunkSize;
             float chunkDistance = glm::length(chunkWorldPos-glm::vec2(cam->position.x, cam->position.z))-chunkSize;
             if(chunkDistance < chunkSize * chunkRenderDistance && chunks.find(chunkPos) == chunks.end()){
                 Mesh * chunk = MakeVoxelChunk(chunkPos.x, chunkPos.y, chunkSize, terrainMat);
@@ -44,9 +44,9 @@ void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
     }
     for (auto it = chunks.begin(); it != chunks.end(); )
     {
-        glm::vec2 chunkWorldPos = glm::vec2(it->first) * chunkSize;
+        glm::vec3 chunkWorldPos = glm::vec3(it->first) * chunkSize;
 
-        if (glm::length(chunkWorldPos - glm::vec2(cam->position.x, cam->position.z)) > chunkSize * (chunkRenderDistance + 1))
+        if (glm::length(chunkWorldPos - glm::vec3(cam->position.x, cam->position.z)) > chunkSize * (chunkRenderDistance + 1))
         {
             scene->remove(it->second);
             it = chunks.erase(it);
@@ -63,7 +63,7 @@ void TerrainManager::process(float deltaTime){
     Node3d::process(deltaTime);
     cam = scene->mainCamera;
     if(cam != nullptr){
-        glm::ivec2 newCamPosition = glm::ivec2((roundf(cam->position.x/chunkSize)), (roundf(cam->position.z/chunkSize)));
+        glm::ivec3 newCamPosition = glm::ivec3((roundf(cam->position.x/chunkSize)), (roundf(cam->position.y / chunkSize)), (roundf(cam->position.z/chunkSize)));
         if(newCamPosition != prevCamPosition){
             UpdateTerrain(newCamPosition);
             prevCamPosition = newCamPosition;
@@ -75,8 +75,8 @@ void TerrainManager::process(float deltaTime){
 void TerrainManager::initTerrain(){
     for(int x = -chunkRenderDistance; x <= chunkRenderDistance; x ++){
         for(int y = -chunkRenderDistance; y <= chunkRenderDistance; y ++){
-            glm::vec2 chunkPos = prevCamPosition + glm::ivec2(x, y);
-            Mesh * chunk = MakeVoxelChunk(prevCamPosition.x+x, prevCamPosition.y+y, chunkSize, terrainMat);
+            glm::vec3 chunkPos = prevCamPosition + glm::ivec3(x,0, y);
+            Mesh * chunk = MakeVoxelChunk(prevCamPosition.x+x, prevCamPosition.z+y, chunkSize, terrainMat);
             instantiate(chunk, this);
             chunks.insert({chunkPos, chunk});
         }
