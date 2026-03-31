@@ -1,7 +1,7 @@
 #pragma once
 
 #include "common/3dEntities/Meshes/lod.h"
-#include "common/3dEntities/Meshes/proceduralterrain.h"
+#include "common/3dEntities/Meshes/Terrain/proceduralterrain.h"
 #include "node3d.h"
 #include "camera.h"
 #include <map>
@@ -20,12 +20,11 @@ class TerrainManager : public Node3d
 public:
     TerrainManager();
     void process(float deltaTime) override;
-    void setCam(Camera* cam);
     void UpdateTerrain(glm::ivec2 newCamPosition);
     void initTerrain();
     //Node* MakeChunk(int x, int y, int indexX, int indexY);
-    int chunkRenderDistance = 4;
-    float chunkSize = 40;
+    int chunkRenderDistance = 2;
+    float chunkSize = 10;
     Material* terrainMat;
 private:
     glm::ivec2 prevCamPosition;
@@ -33,5 +32,5 @@ private:
     //std::vector<std::vector<Mesh*>> chunks = std::vector<std::vector<Mesh*>>();
     void printchunks();
     std::mutex terrainMutex;
-    std::map<glm::ivec2, LOD*, ivec2Compare> chunks = std::map<glm::ivec2, LOD*, ivec2Compare>();
+    std::map<glm::ivec2, Mesh*, ivec2Compare> chunks = std::map<glm::ivec2, Mesh*, ivec2Compare>();
 };

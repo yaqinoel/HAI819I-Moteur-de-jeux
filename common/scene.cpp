@@ -4,11 +4,18 @@
 #include "3dEntities/camera.h"
 #include "3dEntities/rigidbody3d.h"
 #include "3dEntities/collisionshape3d.h"
+#include <ctime>
 
-Scene::Scene(Node* rootNode)
+Scene::Scene(Node* node)
 {
-    root = rootNode;
-    root->scene = this;
+    if(root == nullptr){
+        root = node;
+        root->scene = this;
+        addToTree(root);
+    }
+    else{
+        root->addChild(node);
+    }
 }
 
 void Scene::instantiate(Node* node, Node* parent){
@@ -47,6 +54,20 @@ void Scene::process(float deltaTime){
         }
     }
 }
+
+void Scene::physicsProcess(float fixedDeltaTime){
+    for(RigidBody3D* rb : rigidBodies){
+        if(rb != nullptr && rb->getVisible()){
+            rb->physicsProcess(fixedDeltaTime);
+        }
+    }
+    for(RigidBody3D* rb : rigidBodies){
+        if(rb != nullptr && rb->getVisible()){
+            rb->postPhysicsProcess(fixedDeltaTime);
+        }
+    }
+}
+
 void Scene::render(){
     if(cameras.size() > 0){
         if(mainCamera == nullptr) mainCamera = *cameras.begin();
@@ -85,6 +106,7 @@ void Scene::remove(Node * node){
 }
 
 RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length ) {
+    std::clock_t start = std::clock();
     RayIntersection closestIntersection;
     closestIntersection.t = FLT_MAX;
     closestIntersection.intersectionExists = false;
@@ -97,5 +119,6 @@ RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &directi
             }
         }
     }
+    //std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
     return closestIntersection;
 }

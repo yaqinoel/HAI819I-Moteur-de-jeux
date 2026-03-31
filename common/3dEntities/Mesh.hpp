@@ -76,6 +76,7 @@ public:
 
     RayIntersection intersect( glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
     RayIntersection intersectTriangle(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
+    //virtual void process(float deltaTime) override {if(name == "knight mesh"){std::cout << glm::to_string(globalPosition()) << std::endl;}}
 
 
 protected:

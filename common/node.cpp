@@ -44,7 +44,7 @@ void Node::addChildren(std::vector<Node*> c){
 Node* Node::getParent() const{
     return parent;
 }
-void instantiate(Node* node);
+
 
 void Node::setParent(Node* p){
     // std::cout << p->name << " has as a child " << name << std::endl;
@@ -72,6 +72,9 @@ void Node::removeParent(){
 }
 
 
+void Node::instantiate(Node* node){
+    scene->instantiate(node);
+}
 void Node::instantiate(Node* node, Node* parent){
     scene->instantiate(node, parent);
 }

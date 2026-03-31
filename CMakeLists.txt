@@ -74,7 +74,10 @@ add_executable(Main
         common/3dEntities/camera.h common/3dEntities/camera.cpp
         common/3dEntities/Mesh.hpp
 
-        common/3dEntities/Meshes/proceduralterrain.h common/3dEntities/Meshes/proceduralterrain.cpp
+        common/3dEntities/Meshes/Terrain/proceduralterrain.h common/3dEntities/Meshes/Terrain/proceduralterrain.cpp
+        common/3dEntities/Meshes/Terrain/heightmapterrain.h common/3dEntities/Meshes/Terrain/heightmapterrain.cpp
+        common/3dEntities/Meshes/Terrain/terrain.h common/3dEntities/Meshes/Terrain/terrain.cpp
+        common/3dEntities/Meshes/Terrain/proceduralvoxelterrain.h common/3dEntities/Meshes/Terrain/proceduralvoxelterrain.cpp
 
         Shaders/vertex_shader.glsl
         Shaders/fragment_shader.glsl
@@ -109,6 +112,7 @@ add_executable(Main
         Scenes/InfiniteTerrain.h
         Scenes/Ball.h
         Scenes/Cube.h
+        Scenes/MainCharacter.h
 
 
 )
@@ -124,6 +128,7 @@ create_target_launcher(Main WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Main/
 
 
 SOURCE_GROUP(common REGULAR_EXPRESSION ".*/common/.*" )
+SOURCE_GROUP(scenes REGULAR_EXPRESSION ".*/Scenes/.*" )
 SOURCE_GROUP(shaders REGULAR_EXPRESSION ".*/.*shader$" )
 
 

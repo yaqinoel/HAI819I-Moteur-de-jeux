@@ -20,10 +20,12 @@ public:
     void instantiate(Node* node, Node* parent);
     void instantiate(Node* node);
     void process(float deltaTime);
+    void physicsProcess(float fixedDeltaTime);
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
     void render();
     void ping(){std::cout << "scene ping" << std::endl;}
     void remove(Node * node);
+    Camera* mainCamera = nullptr;
 private:
     std::set<Mesh*> meshes = std::set<Mesh*>();
     std::set<Node*> nodes = std::set<Node*>();
@@ -32,6 +34,5 @@ private:
     std::set<Camera*> cameras = std::set<Camera*>();
     void addToTree(Node* node);
     void removeFromTree(Node* node);
-    Camera* mainCamera = nullptr;
     Node* root;
 };

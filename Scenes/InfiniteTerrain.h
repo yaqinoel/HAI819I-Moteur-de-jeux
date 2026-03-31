@@ -5,12 +5,12 @@
 #include <common/3dEntities/node3d.h>
 #include <common/3dEntities/terrainmanager.h>
 #include <common/3dEntities/Meshes/lod.h>
-#include <common/3dEntities/Meshes/proceduralterrain.h>
 #include <common/Controls/cameracontrols.h>
 #include <common/Materials/terrainmaterial.h>
 #include <common/scene.h>
 #include "Ball.h"
 #include "Cube.h"
+#include "MainCharacter.h"
 
 
 Scene* makeInfiniteTerrain(){
@@ -31,28 +31,15 @@ Scene* makeInfiniteTerrain(){
     TerrainManager* tm = new TerrainManager();
     {
         tm->terrainMat = mat;
-        tm->setCam(cam);
         tm->name = "terrain manager";
         tm->initTerrain();
         scene->instantiate(tm);
     }
 
-    CharacterController* knight = new CharacterController();{
-        knight->openOBJ("../Resources/Models/obj/Knight.obj");
-        knight->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
-        Material* mat = new Material(glm::vec3(0.5, 0.5, 0.5));
-        Texture tex = Texture("../Resources/Textures/Characters/LightTextureKnight.png");
-        mat->addTexture("texture0", tex);
-        mat->setLit(0);
-        knight->Translate(glm::vec3(0, 0, 0));
-        knight->setMaterial(mat);
-        cam->pivot = knight;
-        knight->cam = cam;
-        knight->setTerrain(tm);
-        scene->instantiate(knight);
-    }
-    scene->instantiate(makeBall());
-    scene->instantiate(makeCube());
+    CharacterController* knight = makeKnight();
+    cam->pivot = knight;
+    knight->cam = cam;
+    scene->instantiate(knight);
 
     return scene;
 }

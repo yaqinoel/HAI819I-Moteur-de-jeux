@@ -25,6 +25,7 @@ void Material::setShader(GLuint shaderPID) const{
     specularUniform = glGetUniformLocation(shaderPID, "material.specular");
     shininessUniform = glGetUniformLocation(shaderPID, "material.shininess");
     scaleUniform = glGetUniformLocation(shaderPID, "scale");
+    litUniform = glGetUniformLocation(shaderPID, "lit");
     shaderSet = true;
 }
 

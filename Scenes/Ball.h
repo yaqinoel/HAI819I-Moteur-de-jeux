@@ -7,7 +7,7 @@
 #include <iostream>
 
 
-Node* makeBall(){
+Mesh* makeBall(){
     Mesh* ball = new Mesh();
 
     ball->openOBJ("../Resources/Models/obj/sphere.obj");

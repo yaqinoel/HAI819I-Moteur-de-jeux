@@ -20,12 +20,11 @@ public:
     void process(float deltaTime) override;
     float speed = 5.0f;
     float sensitivity = 15.0f;
-    bool orbital = false;
-    glm::vec3 orbitalPos = glm::vec3(0, 9, -10);
-    float timer = 1;
+
+    Node3d* targetNode = nullptr;
 
     double lastX = 0.0;
     double lastY = 0.0;
     float pivotDistance = 5;
-    Mesh* pivot;
+    Node3d* pivot;
 };

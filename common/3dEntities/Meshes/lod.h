@@ -20,11 +20,9 @@ class LOD : public Mesh
 public:
     LOD();
     void process(float deltaTime) override;
-    void setCam(Camera const * const cam){this->cam = cam; camDistance = glm::l2Norm(cam->position-position);}
     void addLOD(Mesh* me, float di, float ma=5);
 private:
     float camDistance;
-    Camera const* cam;
     float size;
     int currentLOD = 0;
     std::vector<mesh_distance> lod_meshes = std::vector<mesh_distance>();

@@ -7,25 +7,23 @@
 #include <iostream>
 
 
-Node* makeCube(){
+inline Mesh* makeCube(){
     Mesh* cube = new Mesh();
 
-    Shape* shape = new Cube(1.1, 1.1, 1.1);
-    cube->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_lit.glsl");
-    Material* cubeMat = new Material(glm::vec3(1, 0, 0));
+    Shape* shape = new Cube(1, 1, 1, cube->vertices, cube->triangles);
+    cube->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+    Material* cubeMat = new Material(glm::vec3(1, 1, 1));
+    cubeMat->setLit(false);
     cube->material = cubeMat;
-    cube->setVertices(shape->getVertices());
-    cube->setTriangles(shape->getTriangles());
+    Texture tex = Texture("../Resources/Textures/Environement/grassCubeTexSharp.png");
+    tex.setPixelArt(true);
+    cubeMat->addTexture("texture0", tex);
 
     CollisionShape3D* collider = new CollisionShape3D();
     cube->addChild(collider);
     collider->SetShape(shape);
-    //collider->setDebug(true);
     collider->name = "cube collider";
     cube->name = "cube";
-    cube->position = glm::vec3(0, 11, 3);
-    cube->scale = glm::vec3(1, 2, 1);
-    cube->Rotate(12, glm::vec3(1, 2, 4));
 
     return cube;
 }

@@ -298,6 +298,7 @@ void Mesh::render(const Camera* camera) const{
     }
     if (!_synchronized){
         synchronize();
+        return;
     }
     else{
         glUseProgram(shaderPID);

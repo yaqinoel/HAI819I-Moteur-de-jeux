@@ -1,61 +1,51 @@
 #include "cameracontrols.h"
 
-CameraControls::CameraControls(float width, float height, glm::vec3 position) : Camera(width, height, position){}
-CameraControls::CameraControls(float width, float height, float fov, float nearPlane, float farPlane, glm::vec3 position):
-    Camera(width, height, fov, nearPlane, farPlane, position){
-    SetForward(glm::vec3(0, -1, 1));}
+CameraControls::CameraControls(float width, float height, glm::vec3 position) : Camera(width, height, position){
+    targetNode = new Node3d();
+    instantiate(targetNode);
+}
+CameraControls::CameraControls(float width, float height, float fov, float nearPlane, float farPlane, glm::vec3 position): Camera(width, height, fov, nearPlane, farPlane, position){
+    targetNode = new Node3d();
+    instantiate(targetNode);
+    SetForward(glm::vec3(0, -1, 1));
+}
 
 void CameraControls::process(float deltaTime){
     Camera::process(deltaTime);
     GLFWwindow* window = glfwGetCurrentContext();
-    timer -= deltaTime;
-    if(!orbital){
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        //rotation
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+    //rotation
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
 
-        static bool firstMouse = true;
-        if(firstMouse){
-            lastX = xpos;
-            lastY = ypos;
-            firstMouse = false;
-        }
-
-        float xoffset = float(lastX - xpos);
-        float yoffset = float(lastY - ypos);
-
+    static bool firstMouse = true;
+    if(firstMouse){
         lastX = xpos;
         lastY = ypos;
-
-        float sensitivityFactor = sensitivity * deltaTime;
-        xoffset *= sensitivityFactor;
-        yoffset *= sensitivityFactor;
-
-        glm::vec3 f = forward();
-        glm::vec3 flatForward = glm::normalize(glm::vec3(f.x, 0, f.z));
-        glm::quat yaw = glm::angleAxis(glm::radians(xoffset), UP);
-        glm::vec3 pitchAxis = glm::normalize(glm::cross(flatForward, UP));
-        glm::quat pitch = glm::angleAxis(glm::radians(yoffset), pitchAxis);
-        glm::quat newRot = glm::normalize(pitch * yaw);
-        SetForward(newRot * forward());
-        position = pivot->up()+ pivot->position +pivotDistance*(rotation*BACKWARDS);
-
-
-    }
-    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && timer < 0){
-        timer = 1;
-        if(orbital){
-            orbital = false;
-        }
-        else{
-            orbital = !orbital;
-            position = orbitalPos;
-            SetForward(glm::vec3(0, -1, 1));
-        }
+        firstMouse = false;
     }
 
+    float xoffset = float(lastX - xpos);
+    float yoffset = float(lastY - ypos);
+
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivityFactor = sensitivity * deltaTime;
+    xoffset *= sensitivityFactor;
+    yoffset *= sensitivityFactor;
+
+    glm::vec3 f = forward();
+    glm::vec3 flatForward = glm::normalize(glm::vec3(f.x, 0, f.z));
+    glm::quat yaw = glm::angleAxis(glm::radians(xoffset), UP);
+    glm::vec3 pitchAxis = glm::normalize(glm::cross(flatForward, UP));
+    glm::quat pitch = glm::angleAxis(glm::radians(yoffset), pitchAxis);
+    glm::quat newRot = glm::normalize(pitch * yaw);
+    targetNode->SetForward(newRot * forward());
+    targetNode->position = pivot->up()+ pivot->position +pivotDistance*(targetNode->rotation*BACKWARDS);
+    position = glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
+    rotation = glm::mix(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));
 }
 
 void CameraControls::CameraMovement(float deltaTime){

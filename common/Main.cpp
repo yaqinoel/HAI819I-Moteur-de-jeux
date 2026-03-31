@@ -18,12 +18,12 @@ GLFWwindow* window;
 #include <glm/gtc/type_ptr.hpp>
 #include <GL/glut.h>
 #include <glm/gtx/string_cast.hpp>
+#include <chrono>
 
 #include <string>
 #include <common/shader.hpp>
 #include <common/vboindexer.hpp>
 #include <common/3dEntities/Mesh.hpp>
-#include <common/3dEntities/Meshes/proceduralterrain.h>
 #include <common/Controls/cameracontrols.h>
 #include <common/Materials/material.h>
 #include <common/3dEntities/Meshes/planet.h>
@@ -101,25 +101,31 @@ int main( void )
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-//    cam->name = "camera";
     scene = makeInfiniteTerrain();
-//    cam->setParent(scene);
 
     // For speed computation
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
+    float physicsStep = 0.03;
+    auto previousTime = std::chrono::high_resolution_clock::now();
+    double accumulator = 0.0;
     do{
-        //std::cout << "frame start" << std::endl;
-        // Measure speed
-        // per-frame time logic
-        // --------------------
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> delta = currentTime - previousTime;
+        previousTime = currentTime;
+
+        accumulator += delta.count();
+
+        // Run physics at fixed intervals
+        while (accumulator >= physicsStep) {
+            scene->physicsProcess(physicsStep);
+            accumulator -= physicsStep;
+        }
+
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
-        // input
-        // -----
         scene->process(deltaTime);
 
 
@@ -135,6 +141,7 @@ int main( void )
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
+
 
     delete(scene);
     scene = nullptr;

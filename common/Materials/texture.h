@@ -95,7 +95,6 @@ public:
 
     void setPixelArt(bool p){
         sharp = p;
-        std::cout<< sharp << std::endl;
     }
 
     static Texture createFlatColorTexture(const Color & val){

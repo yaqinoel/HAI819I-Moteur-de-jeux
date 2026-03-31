@@ -4,25 +4,32 @@ LOD::LOD() {}
 
 void LOD::process(float deltaTime){
     Node::process(deltaTime);
-    camDistance = glm::l2Norm(cam->position-position);
-    int newLOD = 0;
-    while(newLOD < lod_meshes.size() && lod_meshes[newLOD].distance < camDistance){
-        newLOD++;
-    }
-    if(currentLOD != newLOD){
-        if(newLOD < lod_meshes.size()){
-            if(currentLOD < lod_meshes.size()) {
-                lod_meshes[currentLOD].mesh->setVisible(false);
+    if(scene->mainCamera != nullptr){
+        camDistance = glm::l2Norm(scene->mainCamera->position-position);
+        int newLOD = 0;
+        while(newLOD < lod_meshes.size() && lod_meshes[newLOD].distance < camDistance){
+            newLOD++;
+        }
+        if(currentLOD != newLOD){
+            if(newLOD < lod_meshes.size()){
+                if(currentLOD < lod_meshes.size()) {
+                    lod_meshes[currentLOD].mesh->setVisible(false);
+                }
+                lod_meshes[newLOD].mesh->setVisible(true);
             }
-            lod_meshes[newLOD].mesh->setVisible(true);
+            else{
+                if(currentLOD < lod_meshes.size()) lod_meshes[currentLOD].mesh->setVisible(false);
+            }
+            currentLOD = newLOD;
         }
-        else{
-            if(currentLOD < lod_meshes.size()) lod_meshes[currentLOD].mesh->setVisible(false);
+        else if(currentLOD < lod_meshes.size()){
+            lod_meshes[currentLOD].mesh->setVisible(true);
         }
-        currentLOD = newLOD;
     }
-    else if(currentLOD < lod_meshes.size()){
-        lod_meshes[currentLOD].mesh->setVisible(true);
+    else{
+        for(mesh_distance md : lod_meshes){
+            md.mesh->setVisible(false);
+        }
     }
 }
 

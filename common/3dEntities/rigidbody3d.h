@@ -7,5 +7,10 @@ class RigidBody3D: public Node3d
 {
 public:
     RigidBody3D();
+    glm::vec3 gravity = glm::vec3(0);
+    virtual void process(float deltaTime) override {};
+    virtual void physicsProcess(float fixedDeltaTime);
+    virtual void postPhysicsProcess(float fixedDeltaTime);
+    glm::vec3 velocity = glm::vec3(0);
 };
 

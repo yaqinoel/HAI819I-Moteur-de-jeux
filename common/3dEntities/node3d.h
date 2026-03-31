@@ -38,6 +38,7 @@ public:
     void addChild(Node* c) override;
     glm::mat4 localMatrix() const{return glm::translate(glm::mat4(1.0f), position)*glm::mat4_cast(rotation)*glm::scale(glm::mat4(1.0f), scale);}
     void Rotate(const float angleRadians, const glm::vec3& axis) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); rotation = glm::normalize(rotation * delta);}
+    void setGlobalPosition(glm::vec3  globPos){position = globPos-globalPosition();}
     void SetRotation(const glm::vec3 eulerRotation){rotation = glm::normalize(glm::quat(glm::radians(eulerRotation)));}
     void SetForward(const glm::vec3& forward)
     {

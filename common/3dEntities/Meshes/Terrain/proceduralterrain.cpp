@@ -1,7 +1,6 @@
 #include "proceduralterrain.h"
 #include "common/Utilities/PerlinNoise.h"
 #include <glm/gtc/noise.hpp>
-#include "../../Shapes/terrainshape.h"
 
 
 ProceduralTerrain::ProceduralTerrain(){
@@ -9,21 +8,15 @@ ProceduralTerrain::ProceduralTerrain(){
     instantiate(collision, this);
 }
 
-ProceduralTerrain::ProceduralTerrain(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ, float frequency) : ProceduralTerrain(){
-    InitMesh(posX, posY, resX, resY, sizeX, sizeY, sizeZ, frequency);
+ProceduralTerrain::ProceduralTerrain(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ) : ProceduralTerrain(){
+    InitMesh(posX, posY, resX, resY, sizeX, sizeY, sizeZ);
 }
 
 
-void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ, float frequency){
+void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float sizeX , float sizeY, float sizeZ){
+    Terrain::InitMesh(posX, posY, resX, resY, sizeX, sizeY, sizeZ);
     glm::vec3 center = glm::vec3(sizeX/2.0, 0.0f, sizeY/2.0);
-    this->resX = resX;
-    this->resY = resY;
-    this->sizeX = sizeX;
-    this->sizeY = sizeY;
-    this->sizeZ = sizeZ;
-    this->frequency = frequency;
-    position.x = posX;
-    position.z = posY;
+    frequency = 1/sizeZ;
     vertices = std::vector<Vertex>() ;
     triangles = std::vector<Triangle>();
     for(int i = 0; i < resX+1; i ++){
@@ -40,7 +33,7 @@ void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float 
             float height = noise * sizeZ;
             Vertex v( glm::vec3(x, height, y) - center, glm::vec2(x, y) );
             vertices.push_back(v);
-            if(i > 0 && j > 0){
+            if(i > 0 && j > 0){//you only add triangles when you're not on an edge, but you do add vertices on the edges
                 int i0 = (i-1)*(resY+1)+j-1;
                 int i1 = (i-1)*(resY+1)+j;
                 int i2 = (i)*(resY+1)+j;
@@ -50,23 +43,6 @@ void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float 
             }
         }
     }
-    recomputeSmoothVertexNormals(1);
-
-    TerrainShape* shape = new TerrainShape();
-    shape->ConvexShape::InitMesh(vertices, triangles);
-    collision->SetShape(shape);
-
-    _synchronized = false;
-}
-
-void ProceduralTerrain::ApplyHeightMap(std::string hmapName, float scale){
-    this->hmapName = hmapName;
-    Texture hmap = Texture(hmapName);
-    for(int i = 0; i < vertices.size(); i ++){
-        Color c = hmap.getPixelSafe(vertices[i].position[0]/sizeX, vertices[i].position[2]/sizeY);
-        vertices[i].position[1] = ((float)c.g/255.0) * scale;
-    }
-
     recomputeSmoothVertexNormals(1);
 
     TerrainShape* shape = new TerrainShape();
