@@ -128,6 +128,13 @@ create_target_launcher(Main WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Main/
 
 
 SOURCE_GROUP(common REGULAR_EXPRESSION ".*/common/.*" )
+SOURCE_GROUP(common/3dEntities REGULAR_EXPRESSION ".*/common/3dEntities/.*" )
+SOURCE_GROUP(common/3dEntities/Meshes/ REGULAR_EXPRESSION ".*/common/3dEntities/Meshes/.*" )
+SOURCE_GROUP(common/3dEntities/Meshes/Terrain REGULAR_EXPRESSION ".*/common/3dEntities/Meshes/Terrain.*" )
+SOURCE_GROUP(common/Controls REGULAR_EXPRESSION ".*/common/Controls/.*" )
+SOURCE_GROUP(common/Materials REGULAR_EXPRESSION ".*/common/Materials/.*" )
+SOURCE_GROUP(common/Shapes REGULAR_EXPRESSION ".*/common/Shapes/.*" )
+SOURCE_GROUP(common/Utilities REGULAR_EXPRESSION ".*/common/Utilities/.*" )
 SOURCE_GROUP(scenes REGULAR_EXPRESSION ".*/Scenes/.*" )
 SOURCE_GROUP(shaders REGULAR_EXPRESSION ".*/.*shader$" )
 

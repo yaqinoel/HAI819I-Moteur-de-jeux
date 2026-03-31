@@ -19,6 +19,6 @@ private:
     void CreateBackSquare(int x, int y, int z);
     float frequency;
     std::vector<std::vector<std::vector<unsigned short int>>> chunkData = std::vector<std::vector<std::vector<unsigned short int>>>();
-    Mesh* mesh;
+    void printSlice(int z);
 };
 

@@ -21,10 +21,10 @@ class TerrainManager : public Node3d
 public:
     TerrainManager();
     void process(float deltaTime) override;
-    void UpdateTerrain(glm::ivec2 newCamPosition);
+    void UpdateTerrain(glm::ivec3 newCamPosition);
     void initTerrain();
     //Node* MakeChunk(int x, int y, int indexX, int indexY);
-    int chunkRenderDistance = 2;
+    int chunkRenderDistance = 0;
     float chunkSize = 10;
     Material* terrainMat;
 private:

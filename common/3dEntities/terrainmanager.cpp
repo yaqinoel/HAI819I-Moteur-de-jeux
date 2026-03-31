@@ -20,6 +20,12 @@ Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
 
 Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     Terrain* terrain = new ProceduralVoxelTerrain(x*size, y*size, size, size, size, size, 20);
+    terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+    Material* mat = new Material(glm::vec3(1, 0., 0.));
+    Texture tex = Texture("../Resources/Textures/Environement/grassCubeTexSharp.png");
+    mat->addTexture("texture0", tex);
+    mat->setLit(0);
+    terrain->setMaterial(mat);
     return terrain;
 }
 
@@ -29,12 +35,12 @@ TerrainManager::TerrainManager() {
 }
 
 
-void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
+void TerrainManager::UpdateTerrain(glm::ivec3 newCamPosition){
     for(int i = -chunkRenderDistance; i <= chunkRenderDistance; i ++){
         for(int j = -chunkRenderDistance; j <= chunkRenderDistance; j++){
-            glm::ivec3 chunkPos = glm::ivec3(newCamPosition.x, 0, newCamPosition.y) + glm::ivec3(i, 0, j);
+            glm::ivec3 chunkPos = glm::ivec3(newCamPosition.x, 0, newCamPosition.z) + glm::ivec3(i, 0, j);
             glm::vec3 chunkWorldPos = (glm::vec3)chunkPos*chunkSize;
-            float chunkDistance = glm::length(chunkWorldPos-glm::vec2(cam->position.x, cam->position.z))-chunkSize;
+            float chunkDistance = glm::length(chunkWorldPos-glm::vec3(cam->position.x,0, cam->position.z))-chunkSize;
             if(chunkDistance < chunkSize * chunkRenderDistance && chunks.find(chunkPos) == chunks.end()){
                 Mesh * chunk = MakeVoxelChunk(chunkPos.x, chunkPos.y, chunkSize, terrainMat);
                 instantiate(chunk, this);
@@ -46,7 +52,7 @@ void TerrainManager::UpdateTerrain(glm::ivec2 newCamPosition){
     {
         glm::vec3 chunkWorldPos = glm::vec3(it->first) * chunkSize;
 
-        if (glm::length(chunkWorldPos - glm::vec3(cam->position.x, cam->position.z)) > chunkSize * (chunkRenderDistance + 1))
+        if (glm::length(chunkWorldPos - glm::vec3(cam->position.x,0, cam->position.z)) > chunkSize * (chunkRenderDistance + 1))
         {
             scene->remove(it->second);
             it = chunks.erase(it);

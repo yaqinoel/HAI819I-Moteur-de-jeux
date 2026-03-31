@@ -5,7 +5,7 @@
 
 CharacterController* makeKnight(){
     CharacterController* knight = new CharacterController();
-    knight->gravity = glm::vec3(0, -20, 0);
+    //knight->gravity = glm::vec3(0, -20, 0);
     Mesh* mesh = new Mesh();
     mesh->openOBJ("../Resources/Models/obj/Knight.obj");
     mesh->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
@@ -17,6 +17,7 @@ CharacterController* makeKnight(){
     knight->addChild(mesh);
     mesh->name = "knight mesh";
     mesh->position = glm::vec3(0);
+    knight->Translate(glm::vec3(0, 20, 0));
 
 
     return knight;

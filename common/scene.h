@@ -34,5 +34,5 @@ private:
     std::set<Camera*> cameras = std::set<Camera*>();
     void addToTree(Node* node);
     void removeFromTree(Node* node);
-    Node* root;
+    Node* root = nullptr;
 };
