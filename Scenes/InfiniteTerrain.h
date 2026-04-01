@@ -16,7 +16,7 @@
 Scene* makeInfiniteTerrain(){
     Node* root = new Node3d();
     Scene* scene = new Scene(root);
-    CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 9, -10));
+    CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 1000.0f, glm::vec3(0, 9, -10));
     cam->name = "camera";
     scene->instantiate(cam);
 

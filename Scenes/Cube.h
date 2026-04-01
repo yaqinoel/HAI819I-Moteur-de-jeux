@@ -24,6 +24,7 @@ inline Mesh* makeCube(){
     collider->SetShape(shape);
     collider->name = "cube collider";
     cube->name = "cube";
+    cube->Translate(glm::vec3(1, 20, 0));
 
     return cube;
 }

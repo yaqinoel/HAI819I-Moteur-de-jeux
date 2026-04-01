@@ -22,7 +22,8 @@ Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     Terrain* terrain = new ProceduralVoxelTerrain(x*size, y*size, size, size, size, size, 20);
     terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
     Material* mat = new Material(glm::vec3(1, 0., 0.));
-    Texture tex = Texture("../Resources/Textures/Environement/grassCubeTexSharp.png");
+    Texture tex = Texture("../Resources/Textures/Environement/BlocTextures.png");
+    tex.setPixelArt(true);
     mat->addTexture("texture0", tex);
     mat->setLit(0);
     terrain->setMaterial(mat);
@@ -42,7 +43,7 @@ void TerrainManager::UpdateTerrain(glm::ivec3 newCamPosition){
             glm::vec3 chunkWorldPos = (glm::vec3)chunkPos*chunkSize;
             float chunkDistance = glm::length(chunkWorldPos-glm::vec3(cam->position.x,0, cam->position.z))-chunkSize;
             if(chunkDistance < chunkSize * chunkRenderDistance && chunks.find(chunkPos) == chunks.end()){
-                Mesh * chunk = MakeVoxelChunk(chunkPos.x, chunkPos.y, chunkSize, terrainMat);
+                Mesh * chunk = MakeVoxelChunk(chunkPos.x, chunkPos.z, chunkSize, terrainMat);
                 instantiate(chunk, this);
                 chunks.insert({chunkPos, chunk});
             }
