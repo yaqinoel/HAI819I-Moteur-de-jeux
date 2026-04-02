@@ -16,6 +16,6 @@ public:
     glm::vec3 currentPosition = glm::vec3(0);
     void postPhysicsProcess(float fixedDeltaTime);
     void Translate(const glm::vec3 translation) override;
-    void setPosition(const glm::vec3 translation) override;
+    void setGlobalPosition(const glm::vec3 &globPos) override;
 };
 

@@ -51,7 +51,7 @@ RayIntersection Sphere::raycast( glm::vec3 const &origin, glm::vec3 const &direc
     RayIntersection intersection;
     intersection.intersectionExists = false;
 
-    glm::vec3 oc = origin - collider->globalPosition();
+    glm::vec3 oc = origin - collider->getGlobalPosition();
 
     float a = glm::dot(direction, direction);
     float b = 2.0f * glm::dot(oc, direction);
@@ -78,7 +78,7 @@ RayIntersection Sphere::raycast( glm::vec3 const &origin, glm::vec3 const &direc
     intersection.intersectionExists = true;
     intersection.t = t;
     intersection.point = origin + t * direction;
-    intersection.normal = glm::normalize(intersection.point - collider->globalPosition());
+    intersection.normal = glm::normalize(intersection.point - collider->getGlobalPosition());
 
     return intersection;
 }

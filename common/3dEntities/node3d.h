@@ -27,8 +27,8 @@ public:
     glm::vec3 getGlobalPosition() const;
     glm::quat getGlobalRotation() const;
     glm::mat4 getLocalMatrix() const;
-    glm::vec3 getLocalPosition() const {return localPosition;}
-    glm::quat getLocalRotation() const {return localRotation;}
+    glm::vec3 getLocalPosition() const;
+    glm::quat getLocalRotation() const;
     glm::vec3 getScale() const {return scale;}
     glm::vec3 eulerAngles() const {return glm::eulerAngles(localRotation);}
     glm::vec3 forward() const {return getGlobalRotation()*FORWARD;}
@@ -41,13 +41,14 @@ public:
     void addChild(Node* c) override;
     void setParent(Node* p) override;
     void Rotate(const float angleRadians, const glm::vec3& axis) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); localRotation = glm::normalize(localRotation * delta);markDirty();}
-    void setGlobalPosition(const glm::vec3  &globPos);
+    virtual void setGlobalPosition(const glm::vec3  &globPos);
     void setGlobalRotation(const glm::quat  &globRot);
     virtual void setLocalPosition(const glm::vec3 pos) override {localPosition = pos; markDirty();};
     void SetLocalRotation(const glm::vec3 eulerRotation){localRotation = glm::normalize(glm::quat(glm::radians(eulerRotation))); markDirty();}
     void SetLocalRotation(const glm::quat rotation){localRotation = glm::normalize(rotation); markDirty();}
     void SetForward(const glm::vec3& forward);
     void SetRight(const glm::vec3& right);
+    void setScale(const glm::vec3& newScale){scale = newScale; markDirty();}
     virtual void Translate(const glm::vec3 translation){localPosition += translation; markDirty();}
 
     void unDirty() const override;
@@ -59,15 +60,6 @@ private:
     mutable glm::mat4 localMatrix = glm::mat4(1);
     mutable glm::mat4 globalMatrix = glm::mat4(1);
     glm::vec3 scale = glm::vec3(1);
-    glm::mat3 extractRotation(const glm::mat4& m) const
-    {
-        glm::mat3 rot;
-
-        rot[0] = glm::normalize(glm::vec3(m[0]));
-        rot[1] = glm::normalize(glm::vec3(m[1]));
-        rot[2] = glm::normalize(glm::vec3(m[2]));
-
-        return rot;
-    }
+    void decompose(const glm::mat4& m, glm::vec3& position, glm::quat& rotation, glm::vec3& scale);
 };
 #endif

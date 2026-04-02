@@ -43,9 +43,9 @@ void CameraControls::process(float deltaTime){
     glm::quat pitch = glm::angleAxis(glm::radians(yoffset), pitchAxis);
     glm::quat newRot = glm::normalize(pitch * yaw);
     targetNode->SetForward(newRot * forward());
-    targetNode->position = pivot->up()+ pivot->position +pivotDistance*(targetNode->rotation*BACKWARDS);
-    position = targetNode->position;//glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
-    rotation = targetNode->rotation;//glm::slerp(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));
+    targetNode->setGlobalPosition(pivot->up()+ pivot->getGlobalPosition() +pivotDistance*(targetNode->getGlobalRotation()*BACKWARDS));
+    setGlobalPosition(targetNode->getGlobalPosition());//glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
+    setGlobalRotation(targetNode->getGlobalRotation());//glm::slerp(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));
 }
 
 void CameraControls::CameraMovement(float deltaTime){
@@ -56,15 +56,15 @@ void CameraControls::CameraMovement(float deltaTime){
 
     float trueSpeed = speed * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        position += trueSpeed * forward();
+        Translate(trueSpeed * forward());
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        position -= trueSpeed * forward();
+        Translate(-trueSpeed * forward());
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        position += trueSpeed * right();
+        Translate(trueSpeed * right());
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        position -= trueSpeed * right();
+        Translate(-trueSpeed * right());
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        position += trueSpeed * up();
+        Translate(trueSpeed * up());
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        position -= trueSpeed * up();
+        Translate(-trueSpeed * up());
 }

@@ -77,7 +77,7 @@ RayIntersection ConvexShape::raycast( glm::vec3 const &origin, glm::vec3 const &
     RTCRayHit rayhit{};
 
     glm::vec3 dir = glm::normalize(direction);
-    glm::vec3 globalPos = collider->globalPosition();
+    glm::vec3 globalPos = collider->getGlobalPosition();
     rayhit.ray.org_x = origin.x - globalPos.x;
     rayhit.ray.org_y = origin.y - globalPos.y;
     rayhit.ray.org_z = origin.z - globalPos.z;

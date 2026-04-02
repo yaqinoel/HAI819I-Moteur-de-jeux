@@ -3,8 +3,8 @@
 #include <Scenes/Cube.h>
 
 CharacterController::CharacterController() {
-    RayIntersection intersection = scene->raycast(position+UP*30.0f, DOWN, 100);
-    if(intersection.intersectionExists) position = intersection.point;
+    RayIntersection intersection = scene->raycast(getGlobalPosition()+UP*30.0f, DOWN, 100);
+    if(intersection.intersectionExists) setGlobalPosition(intersection.point);
 }
 
 
@@ -18,38 +18,32 @@ void CharacterController::process(float deltaTime){
 
     axialInputs = glm::vec2(0);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
+    if (scene->inputHeld("forward")){
         axialInputs.x += 1;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
+    if (scene->inputHeld("backwards")){
         axialInputs.x -= 1;
     }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+    if (scene->inputHeld("right")){
         axialInputs.y += 1;
     }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+    if (scene->inputHeld("left")){
         axialInputs.y -= 1;
     }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS){
+    if (scene->inputPressed("jump")){
         if(velocity.y <= 0 && onground){
             velocity.y = jumpStrength;
         }
     }
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
+    if (scene->inputPressed("action1")){
         RigidBody3D* cube = makePhysicsCube();
-        cube->velocity = cam->forward()*20.0f;
-        cube->setPosition(globalPosition()+cam->forward()*2.0f);
-        // Node3d* cube = makeCube();
-        // cube->setGlobalPosition(globalPosition()+forward()*2.0f);
+        cube->velocity = cam->forward()*20.0f+UP*7.0f;
+        cube->setGlobalPosition(getGlobalPosition()+cam->forward()*2.0f+up());
+        cube->SetForward(forward());
         Node3d * child = static_cast<Node3d*>(cube->getChildren()[0]);
         Node3d * parent = static_cast<Node3d*>(child->getParent());
         instantiate(cube);
-        //std::cout << parent->name << " = " <<child->getParent()->name << " is the parent of " << child->name <<std::endl;
-        //std::cout << glm::to_string(cube->position) << " " << glm::to_string(cube->globalPosition()) << std::endl;
-        //std::cout << glm::to_string(child->position) << " " << glm::to_string(child->globalPosition()) << " " << glm::to_string(child->globalMatrix()) << std::endl;
-        //std::cout << glm::to_string(parent->globalMatrix()* child->localMatrix()) << std::endl; works as intended
-        //std::cout << glm::to_string(parent->position) << " " << glm::to_string(parent->globalPosition()) << std::endl;
 
     }
 

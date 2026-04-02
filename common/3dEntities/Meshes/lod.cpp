@@ -5,7 +5,7 @@ LOD::LOD() {}
 void LOD::process(float deltaTime){
     Node::process(deltaTime);
     if(scene->mainCamera != nullptr){
-        camDistance = glm::l2Norm(scene->mainCamera->position-position);
+        camDistance = glm::l2Norm(scene->mainCamera->getGlobalPosition()-getGlobalPosition());
         int newLOD = 0;
         while(newLOD < lod_meshes.size() && lod_meshes[newLOD].distance < camDistance){
             newLOD++;

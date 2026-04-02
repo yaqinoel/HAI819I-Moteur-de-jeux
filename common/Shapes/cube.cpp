@@ -92,7 +92,7 @@ RayIntersection Cube::raycast( glm::vec3 const &origin, glm::vec3 const &directi
     RayIntersection intersection;
     intersection.intersectionExists = false;
 
-    glm::mat4 model = collider->globalMatrix();
+    glm::mat4 model = collider->getGlobalMatrix();
     glm::mat4 invertedModel = glm::inverse(model);
 
     glm::vec3 localOrigin = glm::vec3(invertedModel * glm::vec4(origin, 1.0f));
@@ -154,11 +154,11 @@ RayIntersection Cube::raycast( glm::vec3 const &origin, glm::vec3 const &directi
 ColliderIntersection Cube::intersectCube(Cube* cube){
     ColliderIntersection intersection = ColliderIntersection();
     intersection.t = INFINITY;
-    glm::vec3 centerA = collider->globalPosition();
-    glm::vec3 centerB = cube->collider->globalPosition();
+    glm::vec3 centerA = collider->getGlobalPosition();
+    glm::vec3 centerB = cube->collider->getGlobalPosition();
     std::array<glm::vec3, 15> axes = std::array<glm::vec3, 15>();
-    glm::quat cubeArotation = collider->globalRotation();
-    glm::quat cubeBrotation = cube->collider->globalRotation();
+    glm::quat cubeArotation = collider->getGlobalRotation();
+    glm::quat cubeBrotation = cube->collider->getGlobalRotation();
     axes[0] = cubeArotation * RIGHT;
     axes[1] = cubeArotation * UP;
     axes[2] = cubeArotation * FORWARD;

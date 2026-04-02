@@ -11,6 +11,5 @@ void Terrain::InitMesh(int posX, int posY, int resX, int resY, float sizeX, floa
     this->sizeX = sizeX;
     this->sizeY = sizeY;
     this->sizeZ = sizeZ;
-    position.x = posX;
-    position.z = posY;
+    setLocalPosition(glm::vec3(posX, getLocalPosition().y, posY));
 }

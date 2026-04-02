@@ -28,13 +28,13 @@ Scene* makeInfiniteTerrain(){
     mat->maxHeight = 20.0;
     mat->scale = 10.0;
 
-    // TerrainManager* tm = new TerrainManager();
-    // {
-    //     tm->terrainMat = mat;
-    //     tm->name = "terrain manager";
-    //     tm->initTerrain();
-    //     scene->instantiate(tm);
-    // }
+    TerrainManager* tm = new TerrainManager();
+    {
+        tm->terrainMat = mat;
+        tm->name = "terrain manager";
+        tm->initTerrain();
+        scene->instantiate(tm);
+    }
 
     CharacterController* knight = makeKnight();
     cam->pivot = knight;

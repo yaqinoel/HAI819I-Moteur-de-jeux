@@ -20,7 +20,7 @@ Node* makeSolarSystem(){
         mat->setLit(0);
         Sun->setMaterial(mat);
         Sun->daySpeed = 1.0;
-        Sun->scale = glm::vec3(1.8);
+        Sun->setScale(glm::vec3(1.8));
     }
 
     Planet* Earth = new Planet(Sun, scene);{
@@ -34,8 +34,8 @@ Node* makeSolarSystem(){
         Earth->setParentDistance(3);
         Earth->daySpeed = 2.0;
         Earth->yearSpeed = 0.2;
-        Earth->scale = glm::vec3(0.6);
-        Sun->SetRotation(glm::vec3(0, 0, 23.44));
+        Earth->setScale(glm::vec3(0.6));
+        Earth->SetLocalRotation(glm::vec3(0, 0, 23.44));
     }
 
 
@@ -50,8 +50,8 @@ Node* makeSolarSystem(){
         Moon->setParentDistance(0.6);
         Moon->daySpeed = 2.0;
         Moon->yearSpeed = 2.0;
-        Moon->scale = glm::vec3(0.3);
-        Moon->SetRotation(glm::vec3(0, 0, 6.68));
+        Moon->setScale(glm::vec3(0.3));
+        Moon->SetLocalRotation(glm::vec3(0, 0, 6.68));
     }
 
 
@@ -66,7 +66,7 @@ Node* makeSolarSystem(){
         Mars->setParentDistance(6);
         Mars->daySpeed = 2.0;
         Mars->yearSpeed = 0.15;
-        Mars->scale = glm::vec3(0.6);
+        Mars->setScale(glm::vec3(0.6));
     }
 
 
@@ -81,7 +81,7 @@ Node* makeSolarSystem(){
         Phobos->setParentDistance(0.5);
         Phobos->daySpeed = 2.0;
         Phobos->yearSpeed = 2.2;
-        Phobos->scale = glm::vec3(0.25);
+        Phobos->setScale(glm::vec3(0.25));
     }
 
     Planet* Deimos = new Planet(Mars, scene);{
@@ -95,7 +95,7 @@ Node* makeSolarSystem(){
         Deimos->setParentDistance(0.8);
         Deimos->daySpeed = 2.0;
         Deimos->yearSpeed = 1.8;
-        Deimos->scale = glm::vec3(0.35);
+        Deimos->setScale(glm::vec3(0.35));
     }
 
     Planet* Saturn = new Planet(Sun, scene);{
@@ -109,7 +109,7 @@ Node* makeSolarSystem(){
         Saturn->setParentDistance(10);
         Saturn->daySpeed = 2.0;
         Saturn->yearSpeed = 0.15;
-        Saturn->scale = glm::vec3(1.2);
+        Saturn->setScale(glm::vec3(1.2));
     }
     Planet* Rings = new Planet(Saturn, scene);{
         Rings->openOBJ("../Resources/Models/obj/Rings.obj");
@@ -120,7 +120,7 @@ Node* makeSolarSystem(){
         mat->setLit(1);
         Rings->setMaterial(mat);
         Rings->setParentDistance(0);
-        Rings->scale = glm::vec3(1);
+        Rings->setScale(glm::vec3(1));
     }
     return scene;
 }

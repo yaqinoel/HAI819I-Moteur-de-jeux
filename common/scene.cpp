@@ -48,6 +48,7 @@ void Scene::instantiate(Node* node){
 }
 
 void Scene::process(float deltaTime){
+    inputManager->UpdateInputs();
     for(Node* n : nodes){
         if(n != nullptr && n->getVisible()){
             n->process(deltaTime);

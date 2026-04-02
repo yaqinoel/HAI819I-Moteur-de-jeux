@@ -16,6 +16,6 @@ void Planet::process(float deltaTime){
     Rotate(deltaTime*daySpeed, UP);
     if(parentEmpty != nullptr && parentPlanet != nullptr){
         parentEmpty->Rotate(yearSpeed*deltaTime, parentEmpty->up());
-        parentEmpty->position = parentPlanet->globalPosition();
+        parentEmpty->setLocalPosition(parentPlanet->getGlobalPosition());
     }
 }

@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
+#include <common/Utilities/InputManager.h>
 #include "Utilities/rayintersection.h"
 
 class Node;
@@ -26,6 +27,9 @@ public:
     void ping(){std::cout << "scene ping" << std::endl;}
     void remove(Node * node);
     Camera* mainCamera = nullptr;
+    InputManager* inputManager = new InputManager();
+    bool inputHeld(std::string input){return inputManager->inputs[input]->currentlyHeld;}
+    bool inputPressed(std::string input){return inputManager->inputs[input]->justPressed;}
 private:
     std::set<Mesh*> meshes = std::set<Mesh*>();
     std::set<Node*> nodes = std::set<Node*>();

@@ -115,6 +115,8 @@ add_executable(Main
         Scenes/MainCharacter.h
         common/Utilities/colliderIntersection.h
         Scenes/PhysicsCube.h
+        common/Utilities/InputManager.h
+
 
 
 )

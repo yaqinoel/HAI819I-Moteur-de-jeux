@@ -17,12 +17,14 @@ void RigidBody3D::postPhysicsProcess(float fixedDeltaTime){
 
 void RigidBody3D::interpolate(float alpha){
     //std::cout << glm::length(position - glm::mix(previousPosition, currentPosition, alpha)) << std::endl;
-    setGlobalPosition(glm::mix(previousPosition, currentPosition, std::min(1.0f,alpha)));
+    Node3d::setGlobalPosition(glm::mix(previousPosition, currentPosition, std::min(1.0f,alpha)));
 }
 void RigidBody3D::Translate(const glm::vec3 translation){
     currentPosition  += translation;
+    markDirty();
 }
 
-void RigidBody3D::setPosition(const glm::vec3 translation){
-    currentPosition  = translation;
+void RigidBody3D::setGlobalPosition(const glm::vec3 &globPos){
+    currentPosition  = globPos;
+    markDirty();
 }

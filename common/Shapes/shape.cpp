@@ -7,7 +7,7 @@ Shape::Shape()
 }
 
 ColliderIntersection Shape::intersect(Shape* shape){
-    if(glm::length(shape->collider->globalPosition()-collider->globalPosition()) < radius+shape->radius){
+    if(glm::length(shape->collider->getGlobalPosition()-collider->getGlobalPosition()) < radius+shape->radius){
         if(shape->type == CUBE){
             Cube* c = static_cast<Cube*>(shape);
             if(c){

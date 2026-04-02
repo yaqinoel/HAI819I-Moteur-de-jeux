@@ -22,8 +22,8 @@ Mesh* makeBall(){
     collider->setDebug(true);
     collider->name = "ball collider";
     ball->name = "ball";
-    ball->position = glm::vec3(0, 10, 1);
-    ball->scale = glm::vec3(1, 1, 1);
+    ball->setLocalPosition(glm::vec3(0, 10, 1));
+    ball->setScale(glm::vec3(1, 1, 1));
 
     return ball;
 }
