@@ -22,7 +22,7 @@ public:
     void process(float deltaTime);
     void physicsProcess(float fixedDeltaTime);
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
-    void render();
+    void render(float alpha);
     void ping(){std::cout << "scene ping" << std::endl;}
     void remove(Node * node);
     Camera* mainCamera = nullptr;

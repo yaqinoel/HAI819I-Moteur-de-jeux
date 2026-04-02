@@ -43,8 +43,8 @@ void ProceduralVoxelTerrain::CreateTopSquare(int x, int y, int z) {
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z + 0.5), UP, glm::vec2(0.625/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z - 0.5), UP, glm::vec2(0.875/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z + 0.5), UP, glm::vec2(0.875/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    triangles.push_back(Triangle(i + 2, i + 1, i));
-    triangles.push_back(Triangle(i + 2, i + 3 , i+1));
+    triangles.push_back(Triangle(i, i+2, i+1));
+    triangles.push_back(Triangle(i+1, i+2 , i+3));
 }
 void ProceduralVoxelTerrain::CreateBottomSquare(int x, int y, int z) {
     int i = vertices.size();
@@ -53,8 +53,8 @@ void ProceduralVoxelTerrain::CreateBottomSquare(int x, int y, int z) {
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z + 0.5), DOWN, glm::vec2(0.375/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z - 0.5), DOWN, glm::vec2(0.125/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z + 0.5), DOWN, glm::vec2(0.125/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    triangles.push_back(Triangle(i, i + 1, i+2));
-    triangles.push_back(Triangle(i, i + 2, i + 3));
+    triangles.push_back(Triangle(i, i+1, i+2));
+    triangles.push_back(Triangle(i+2, i+3, i+1));
 }
 void ProceduralVoxelTerrain::CreateRightSquare(int x, int y, int z) {
     int i = vertices.size();
@@ -63,8 +63,8 @@ void ProceduralVoxelTerrain::CreateRightSquare(int x, int y, int z) {
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z + 0.5), RIGHT, glm::vec2(0.625/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z + 0.5), RIGHT, glm::vec2(0.375/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z - 0.5), RIGHT, glm::vec2(0.375/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    triangles.push_back(Triangle(i, i + 1, i+2));
-    triangles.push_back(Triangle(i, i + 2, i + 3));
+    triangles.push_back(Triangle(i, i+1, i+2));
+    triangles.push_back(Triangle(i, i+2, i+3));
 }
 void ProceduralVoxelTerrain::CreateLeftSquare(int x, int y, int z) {
     int i = vertices.size();
@@ -73,8 +73,8 @@ void ProceduralVoxelTerrain::CreateLeftSquare(int x, int y, int z) {
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z + 0.5), LEFT, glm::vec2(0.625/texSize.x, 0.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z + 0.5), LEFT, glm::vec2(0.375/texSize.x, 0.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z - 0.5), LEFT, glm::vec2(0.375/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    triangles.push_back(Triangle(i, i + 1, i+2));
-    triangles.push_back(Triangle(i, i + 2, i + 3));
+    triangles.push_back(Triangle(i, i+2, i+1));
+    triangles.push_back(Triangle(i, i+3, i+2));
 }
 
 void ProceduralVoxelTerrain::CreateFrontSquare(int x, int y, int z) {
@@ -84,8 +84,8 @@ void ProceduralVoxelTerrain::CreateFrontSquare(int x, int y, int z) {
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z + 0.5), FORWARD, glm::vec2(0.375/texSize.x, 1.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z + 0.5), FORWARD, glm::vec2(0.625/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z + 0.5), FORWARD, glm::vec2(0.375/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    triangles.push_back(Triangle(i, i + 2, i + 1));
-    triangles.push_back(Triangle(i + 1, i + 2, i + 3));
+    triangles.push_back(Triangle(i, i+1, i+2));
+    triangles.push_back(Triangle(i+1, i+3, i+2));
 }
 
 void ProceduralVoxelTerrain::CreateBackSquare(int x, int y, int z) {
@@ -95,8 +95,8 @@ void ProceduralVoxelTerrain::CreateBackSquare(int x, int y, int z) {
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z - 0.5), BACKWARDS, glm::vec2(0.375/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z - 0.5), BACKWARDS, glm::vec2(0.625/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z - 0.5), BACKWARDS, glm::vec2(0.375/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    triangles.push_back(Triangle(i, i + 1, i+2));
-    triangles.push_back(Triangle(i +1, i + 3, i + 2));
+    triangles.push_back(Triangle(i, i+2, i+1));
+    triangles.push_back(Triangle(i+1, i+2, i+3));
 }
 
 void ProceduralVoxelTerrain::InitMesh() {

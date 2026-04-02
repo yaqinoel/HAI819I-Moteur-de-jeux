@@ -1,10 +1,8 @@
 #pragma once
 
-#include "../common/3dEntities/Meshes/lod.h"
+#include "../common/3dEntities/Mesh.hpp"
 #include "../common/3dEntities/collisionshape3d.h"
 #include "../common/Shapes/cube.h"
-#include "../common/scene.h"
-#include <iostream>
 
 
 inline Mesh* makeCube(){
@@ -23,8 +21,7 @@ inline Mesh* makeCube(){
     cube->addChild(collider);
     collider->SetShape(shape);
     collider->name = "cube collider";
-    cube->name = "cube";
-    cube->Translate(glm::vec3(1, 20, 0));
+    cube->name = "cube mesh";
 
     return cube;
 }

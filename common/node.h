@@ -29,17 +29,21 @@ public:
     Node* getParent() const;
     virtual void setParent(Node* p);
     virtual void process(float deltaTime){}
-    virtual glm::mat4 globalMatrix() const=0;
+    virtual glm::mat4 getGlobalMatrix() const=0;
     std::string name;
     inline static Scene* scene;
     void instantiate(Node* node, Node* parent);
     void instantiate(Node* node);
     bool getVisible() const {if(!visible) return false; else if(parent) return parent->getVisible(); else return true;}
     void setVisible(bool b){visible = b;}
+    virtual void setLocalPosition(const glm::vec3 pos) = 0;
+    void markDirty();
+    virtual void unDirty() const=0;
 
 protected:
     std::vector<Node*> children;
-    Node* parent;
+    Node* parent = nullptr;
+    mutable bool dirty=true;
 private:
     bool visible = true;
 };

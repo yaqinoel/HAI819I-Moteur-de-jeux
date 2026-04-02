@@ -7,7 +7,7 @@
 Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
     LOD* lod = new LOD();
     lod->name = "terrain("+std::to_string(x) + ","+std::to_string(y)+")";
-    lod->position = glm::vec3(x*size, 0, y*size);
+    lod->getLocalPosition() = glm::vec3(x*size, 0, y*size);
     for(int i = 0; i < 5; i ++){
         Terrain* terrain = new ProceduralTerrain(x*size, y*size, 64/pow(2, i), 64/pow(2, i), size, size, 20);
         terrain->setMaterial(terrainMat);
@@ -19,7 +19,7 @@ Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
 }
 
 Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
-    Terrain* terrain = new ProceduralVoxelTerrain(x*size, y*size, size, size, size, size, 20);
+    ProceduralVoxelTerrain* terrain = new ProceduralVoxelTerrain(x*size, y*size, size, size, size, size, 20);
     terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
     Material* mat = new Material(glm::vec3(1, 0., 0.));
     Texture tex = Texture("../Resources/Textures/Environement/BlocTextures.png");
@@ -27,6 +27,7 @@ Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     mat->addTexture("texture0", tex);
     mat->setLit(0);
     terrain->setMaterial(mat);
+//    terrain->name = "voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
     return terrain;
 }
 
@@ -41,7 +42,7 @@ void TerrainManager::UpdateTerrain(glm::ivec3 newCamPosition){
         for(int j = -chunkRenderDistance; j <= chunkRenderDistance; j++){
             glm::ivec3 chunkPos = glm::ivec3(newCamPosition.x, 0, newCamPosition.z) + glm::ivec3(i, 0, j);
             glm::vec3 chunkWorldPos = (glm::vec3)chunkPos*chunkSize;
-            float chunkDistance = glm::length(chunkWorldPos-glm::vec3(cam->position.x,0, cam->position.z))-chunkSize;
+            float chunkDistance = glm::length(chunkWorldPos-glm::vec3(cam->getGlobalPosition().x,0, cam->getGlobalPosition().z))-chunkSize;
             if(chunkDistance < chunkSize * chunkRenderDistance && chunks.find(chunkPos) == chunks.end()){
                 Mesh * chunk = MakeVoxelChunk(chunkPos.x, chunkPos.z, chunkSize, terrainMat);
                 instantiate(chunk, this);
@@ -53,7 +54,7 @@ void TerrainManager::UpdateTerrain(glm::ivec3 newCamPosition){
     {
         glm::vec3 chunkWorldPos = glm::vec3(it->first) * chunkSize;
 
-        if (glm::length(chunkWorldPos - glm::vec3(cam->position.x,0, cam->position.z)) > chunkSize * (chunkRenderDistance + 1))
+        if (glm::length(chunkWorldPos - glm::vec3(cam->getGlobalPosition().x,0, cam->getGlobalPosition().z)) > chunkSize * (chunkRenderDistance + 1))
         {
             scene->remove(it->second);
             it = chunks.erase(it);
@@ -70,7 +71,7 @@ void TerrainManager::process(float deltaTime){
     Node3d::process(deltaTime);
     cam = scene->mainCamera;
     if(cam != nullptr){
-        glm::ivec3 newCamPosition = glm::ivec3((roundf(cam->position.x/chunkSize)), (roundf(cam->position.y / chunkSize)), (roundf(cam->position.z/chunkSize)));
+        glm::ivec3 newCamPosition = glm::ivec3((roundf(cam->getGlobalPosition().x/chunkSize)), (roundf(cam->getGlobalPosition().y / chunkSize)), (roundf(cam->getGlobalPosition().z/chunkSize)));
         if(newCamPosition != prevCamPosition){
             UpdateTerrain(newCamPosition);
             prevCamPosition = newCamPosition;

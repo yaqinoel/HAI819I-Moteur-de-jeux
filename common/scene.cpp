@@ -61,6 +61,20 @@ void Scene::physicsProcess(float fixedDeltaTime){
             rb->physicsProcess(fixedDeltaTime);
         }
     }
+    for (auto it = colliders.begin(); it != colliders.end(); ++it) {
+        (*it)->collisions.resize(0);
+    }
+    for (auto it1 = colliders.begin(); it1 != colliders.end(); ++it1) {
+        auto it2 = it1;
+        ++it2;
+        for (; it2 != colliders.end(); ++it2) {
+            (*it1)->intersect(*it2);
+        }
+    }
+    // for (auto it = colliders.begin(); it != colliders.end(); ++it) {
+    //     if((*it)->name[0] == 'c')
+    //         std::cout << (*it)->name << " collisions nbr : " << (*it)->collisions.size() << std::endl;
+    // }
     for(RigidBody3D* rb : rigidBodies){
         if(rb != nullptr && rb->getVisible()){
             rb->postPhysicsProcess(fixedDeltaTime);
@@ -68,9 +82,14 @@ void Scene::physicsProcess(float fixedDeltaTime){
     }
 }
 
-void Scene::render(){
+void Scene::render(float alpha){
     if(cameras.size() > 0){
         if(mainCamera == nullptr) mainCamera = *cameras.begin();
+        for(RigidBody3D* rb : rigidBodies){
+            if(rb != nullptr && rb->getVisible()){
+                rb->interpolate(alpha);
+            }
+        }
         for(Mesh* m: meshes){
             if(m != nullptr && m->getVisible()){
                 m->render(mainCamera);

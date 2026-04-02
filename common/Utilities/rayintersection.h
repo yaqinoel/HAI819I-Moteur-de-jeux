@@ -5,13 +5,10 @@
 
 class CollisionShape3D;
 
-class Mesh;
-
 class RayIntersection
 {
 public:
     bool intersectionExists;
-    unsigned int typeOfIntersectedObject;
     CollisionShape3D* collider;
     float t;
     Material material;

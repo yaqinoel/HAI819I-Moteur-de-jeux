@@ -28,18 +28,24 @@ Scene* makeInfiniteTerrain(){
     mat->maxHeight = 20.0;
     mat->scale = 10.0;
 
-    TerrainManager* tm = new TerrainManager();
-    {
-        tm->terrainMat = mat;
-        tm->name = "terrain manager";
-        tm->initTerrain();
-        scene->instantiate(tm);
-    }
+    // TerrainManager* tm = new TerrainManager();
+    // {
+    //     tm->terrainMat = mat;
+    //     tm->name = "terrain manager";
+    //     tm->initTerrain();
+    //     scene->instantiate(tm);
+    // }
 
     CharacterController* knight = makeKnight();
     cam->pivot = knight;
     knight->cam = cam;
     scene->instantiate(knight);
+    // Node3d* cubeA = makeCube();
+    // cubeA->Translate(glm::vec3(1, 7, 0));
+    // scene->instantiate(cubeA);
+    // Node3d* cubeB = makeCube();
+    // cubeB->Translate(glm::vec3(1, 7, 0.5));
+    // scene->instantiate(cubeB);
 
     return scene;
 }

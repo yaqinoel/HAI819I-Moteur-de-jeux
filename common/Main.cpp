@@ -92,6 +92,8 @@ int main( void )
     glfwSetCursorPos(window, 1024/2, 768/2);
 
     glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -108,14 +110,16 @@ int main( void )
     int nbFrames = 0;
 
     float physicsStep = 0.03;
-    auto previousTime = std::chrono::high_resolution_clock::now();
     double accumulator = 0.0;
     do{
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> delta = currentTime - previousTime;
-        previousTime = currentTime;
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
 
-        accumulator += delta.count();
+        accumulator += deltaTime;
+
+        glfwPollEvents();
+        scene->process(deltaTime);
 
         // Run physics at fixed intervals
         while (accumulator >= physicsStep) {
@@ -123,20 +127,15 @@ int main( void )
             accumulator -= physicsStep;
         }
 
-        float currentFrame = glfwGetTime();
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-        scene->process(deltaTime);
 
 
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        scene->render();
+        float alpha = accumulator / physicsStep;
+        scene->render(alpha);
 
         // Swap buffers
         glfwSwapBuffers(window);
-        glfwPollEvents();
 
     } // Check if the ESC key was pressed or the window was closed
     while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&

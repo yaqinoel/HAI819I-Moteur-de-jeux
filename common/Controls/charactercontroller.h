@@ -16,7 +16,6 @@ private:
     float speed = 5.0f;
     float jumpStrength = 7.0f;
     glm::vec2 axialInputs = glm::vec2(0);
-    bool jumpPressed;
     bool onground = false;
 };
 

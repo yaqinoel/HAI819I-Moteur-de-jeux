@@ -78,3 +78,8 @@ void Node::instantiate(Node* node){
 void Node::instantiate(Node* node, Node* parent){
     scene->instantiate(node, parent);
 }
+void Node::markDirty() {
+    dirty = true;
+    for (Node* child : children)
+        child->markDirty();
+}

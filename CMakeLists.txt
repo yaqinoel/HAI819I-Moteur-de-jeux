@@ -113,6 +113,8 @@ add_executable(Main
         Scenes/Ball.h
         Scenes/Cube.h
         Scenes/MainCharacter.h
+        common/Utilities/colliderIntersection.h
+        Scenes/PhysicsCube.h
 
 
 )

@@ -307,7 +307,7 @@ void Mesh::render(const Camera* camera) const{
 
 
     material->render(shaderPID);
-    glm::mat4 model = globalMatrix();
+    glm::mat4 model = getGlobalMatrix();
     glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(model));
 
     glm::mat4 View = camera->getViewMatrix();

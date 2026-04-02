@@ -17,6 +17,14 @@ RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 con
     }
 }
 
+void CollisionShape3D::intersect(CollisionShape3D* other){
+    ColliderIntersection newCol = shape->intersect(other->shape);
+    if(newCol.intersectionExist){
+        collisions.push_back(newCol);
+        other->collisions.push_back(newCol);
+    }
+}
+
 void CollisionShape3D::SetShape(Shape* s){
     shape = s;
     s->collider = this;

@@ -23,41 +23,51 @@ class Node3d : public Node
 public:
     Node3d();
     virtual ~Node3d(){};
-    glm::vec3 position = glm::vec3(0);
-    glm::vec3 globalPosition() const {return glm::vec3(globalMatrix()[3]);}
-    glm::vec3 scale = glm::vec3(1);
-    glm::quat rotation = glm::quat();
-    glm::vec3 eulerAngles() const{return glm::eulerAngles(rotation);}
-    glm::vec3 forward() const{return rotation*FORWARD;}
-    glm::vec3 backwards() const{return rotation*BACKWARDS;}
-    glm::vec3 up() const{return rotation*UP;}
-    glm::vec3 down() const{return rotation*DOWN;}
-    glm::vec3 right() const{return rotation*RIGHT;}
-    glm::vec3 left() const{return rotation*LEFT;}
-    void setParent(Node* p) override;
+    glm::mat4 getGlobalMatrix() const override;
+    glm::vec3 getGlobalPosition() const;
+    glm::quat getGlobalRotation() const;
+    glm::mat4 getLocalMatrix() const;
+    glm::vec3 getLocalPosition() const {return localPosition;}
+    glm::quat getLocalRotation() const {return localRotation;}
+    glm::vec3 getScale() const {return scale;}
+    glm::vec3 eulerAngles() const {return glm::eulerAngles(localRotation);}
+    glm::vec3 forward() const {return getGlobalRotation()*FORWARD;}
+    glm::vec3 backwards() const {return getGlobalRotation()*BACKWARDS;}
+    glm::vec3 up() const {return getGlobalRotation()*UP;}
+    glm::vec3 down() const {return getGlobalRotation()*DOWN;}
+    glm::vec3 right() const {return getGlobalRotation()*RIGHT;}
+    glm::vec3 left() const {return getGlobalRotation()*LEFT;}
+
     void addChild(Node* c) override;
-    glm::mat4 localMatrix() const{return glm::translate(glm::mat4(1.0f), position)*glm::mat4_cast(rotation)*glm::scale(glm::mat4(1.0f), scale);}
-    void Rotate(const float angleRadians, const glm::vec3& axis) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); rotation = glm::normalize(rotation * delta);}
-    void setGlobalPosition(glm::vec3  globPos){position = globPos-globalPosition();}
-    void SetRotation(const glm::vec3 eulerRotation){rotation = glm::normalize(glm::quat(glm::radians(eulerRotation)));}
-    void SetForward(const glm::vec3& forward)
+    void setParent(Node* p) override;
+    void Rotate(const float angleRadians, const glm::vec3& axis) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); localRotation = glm::normalize(localRotation * delta);markDirty();}
+    void setGlobalPosition(const glm::vec3  &globPos);
+    void setGlobalRotation(const glm::quat  &globRot);
+    virtual void setLocalPosition(const glm::vec3 pos) override {localPosition = pos; markDirty();};
+    void SetLocalRotation(const glm::vec3 eulerRotation){localRotation = glm::normalize(glm::quat(glm::radians(eulerRotation))); markDirty();}
+    void SetLocalRotation(const glm::quat rotation){localRotation = glm::normalize(rotation); markDirty();}
+    void SetForward(const glm::vec3& forward);
+    void SetRight(const glm::vec3& right);
+    virtual void Translate(const glm::vec3 translation){localPosition += translation; markDirty();}
+
+    void unDirty() const override;
+private:
+    mutable glm::vec3 localPosition = glm::vec3(0);
+    mutable glm::vec3 globalPosition = glm::vec3(0);
+    mutable glm::quat localRotation = glm::quat();
+    mutable glm::quat globalRotation = glm::quat();
+    mutable glm::mat4 localMatrix = glm::mat4(1);
+    mutable glm::mat4 globalMatrix = glm::mat4(1);
+    glm::vec3 scale = glm::vec3(1);
+    glm::mat3 extractRotation(const glm::mat4& m) const
     {
-        glm::vec3 f = glm::normalize(forward);
-        if (glm::length2(f) < 0.000001f) return;
-        glm::vec3 r = glm::normalize(glm::cross(UP, f));
-        glm::mat3 rotMatrix(r, glm::cross(f, r), f);
-        rotation = glm::normalize(glm::quat_cast(rotMatrix));
+        glm::mat3 rot;
+
+        rot[0] = glm::normalize(glm::vec3(m[0]));
+        rot[1] = glm::normalize(glm::vec3(m[1]));
+        rot[2] = glm::normalize(glm::vec3(m[2]));
+
+        return rot;
     }
-    void SetRight(const glm::vec3& right)
-    {
-        glm::vec3 r = glm::normalize(-right);
-        if (glm::length2(r) < 0.000001f) return;
-        glm::vec3 f = glm::normalize(glm::cross(UP, r));
-        glm::vec3 u = glm::cross(f, r);
-        glm::mat3 rotMatrix(r, u, f);
-        rotation = glm::normalize(glm::quat_cast(rotMatrix));
-    }
-    glm::mat4 globalMatrix() const override;
-    void Translate(const glm::vec3 translation){position += translation;}
 };
 #endif

@@ -11,6 +11,8 @@ public:
     bool active = true;
     void SetShape(Shape* s);
     void setDebug(bool b);
+    void intersect(CollisionShape3D* other);
+    std::vector<ColliderIntersection> collisions = std::vector<ColliderIntersection>();
 private:
     Shape *shape = nullptr;
     bool debug = false;

@@ -44,8 +44,8 @@ void CameraControls::process(float deltaTime){
     glm::quat newRot = glm::normalize(pitch * yaw);
     targetNode->SetForward(newRot * forward());
     targetNode->position = pivot->up()+ pivot->position +pivotDistance*(targetNode->rotation*BACKWARDS);
-    position = glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
-    rotation = glm::slerp(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));
+    position = targetNode->position;//glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
+    rotation = targetNode->rotation;//glm::slerp(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));
 }
 
 void CameraControls::CameraMovement(float deltaTime){

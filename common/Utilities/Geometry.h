@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <array>
@@ -64,3 +63,31 @@ struct Vertex {
         texCoord = glm::vec2(0);
     }
 };
+
+static glm::vec3 projectPointOnPlane(const glm::vec3& point, const glm::vec3& planePoint, const glm::vec3& planeNormal){
+    glm::vec3 n = glm::normalize(planeNormal);
+    float distance = glm::dot(point - planePoint, n);
+    return point - distance * n;
+}
+static glm::vec3 projectPointOnNormalizedPlane(const glm::vec3& point, const glm::vec3& planePoint, const glm::vec3& planeNormal){
+    float distance = glm::dot(point - planePoint, planeNormal);
+    return point - distance * planeNormal;
+}
+
+static glm::vec3 projectPointOnNormalizedLine(const glm::vec3& point, const glm::vec3& direction){
+    return glm::dot(point, direction) * direction;
+}
+static glm::vec3 projectPointOnLine(const glm::vec3& point, const glm::vec3& direction){
+    float t = glm::dot(point, direction) / glm::dot(direction, direction);
+    return t * direction;
+}
+
+static glm::vec3 projectPointOnNormalizedLine(const glm::vec3& point, const glm::vec3& origin, const glm::vec3& direction){
+    float t = glm::dot(point - origin, direction);
+    return origin + t * direction;
+}
+static glm::vec3 projectPointOnLine(const glm::vec3& point, const glm::vec3& origin, const glm::vec3& direction){
+    float t = glm::dot(point - origin, direction) / glm::dot(direction, direction);
+    return origin + t * direction;
+}
+
