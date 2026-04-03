@@ -150,15 +150,66 @@ RayIntersection Cube::raycast( glm::vec3 const &origin, glm::vec3 const &directi
     return intersection;
 }
 
+//this algorithm takes a polygon and a plane, and clip every vertices of the polygon so that they are under or on the plane
+std::vector<glm::vec3> SutherlandHodgman(const std::vector<glm::vec3>& polygon, const glm::vec3& planeNormal, const glm::vec3& planePoint) {
+    std::vector<glm::vec3> output;
+    if(polygon.empty()) return output;
 
-ColliderIntersection Cube::intersectCube(Cube* cube){
+    for (size_t i = 0; i < polygon.size(); i++) {
+        //the algorithm goes from edge to edge by going from vertex to vertex in a linear order
+        glm::vec3 currentVertex  = polygon[i];
+        glm::vec3 previousVertex = polygon[(i + polygon.size() - 1) % polygon.size()];
+
+        //calculates the signed distance to the plane
+        float currentDistance  = glm::dot(currentVertex - planePoint, planeNormal);
+        float previousDistance = glm::dot(previousVertex - planePoint, planeNormal);
+
+        if (currentDistance <= 0 && previousDistance <= 0) {
+            // both inside
+            output.push_back(currentVertex);
+        }
+        else if (previousDistance <= 0 && currentDistance > 0) {
+            // edge goes from inside to outside
+            float t = previousDistance / (previousDistance - currentDistance);
+            output.push_back(previousVertex + t * (currentVertex - previousVertex));
+        }
+        else if (previousDistance > 0 && currentDistance <= 0) {
+            // edge goes from outside to inside
+            float t = previousDistance / (previousDistance - currentDistance);
+            output.push_back(previousVertex + t * (currentVertex - previousVertex));
+            output.push_back(currentVertex);
+        }
+        // else both outside → do nothing
+    }
+
+    return output;
+}
+std::vector<glm::vec3> clipPolygon(const std::vector<glm::vec3>& polygon, const std::vector<glm::vec3>& planeNormals, const std::vector<glm::vec3>& planePoints) {
+    std::vector<glm::vec3> result = polygon;
+    for (size_t i = 0; i < planeNormals.size(); i++) {
+        result = SutherlandHodgman(result, planeNormals[i], planePoints[i]);
+        if (result.empty()) return result;
+    }
+    return result;
+}
+
+std::vector<glm::vec3> projectToPlane(const std::vector<glm::vec3>& points, const glm::vec3& planeNormal, const glm::vec3& planePoint) {
+    std::vector<glm::vec3> projected;
+    for (auto& p : points) {
+        glm::vec3 proj = p - planeNormal * glm::dot(p - planePoint, planeNormal);
+        projected.push_back(proj);
+    }
+    return projected;
+}
+
+ColliderIntersection Cube::intersectCube(Cube* cubeB, bool calculatePoints){
     ColliderIntersection intersection = ColliderIntersection();
     intersection.t = INFINITY;
     glm::vec3 centerA = collider->getGlobalPosition();
-    glm::vec3 centerB = cube->collider->getGlobalPosition();
+    glm::vec3 centerB = cubeB->collider->getGlobalPosition();
     std::array<glm::vec3, 15> axes = std::array<glm::vec3, 15>();
     glm::quat cubeArotation = collider->getGlobalRotation();
-    glm::quat cubeBrotation = cube->collider->getGlobalRotation();
+    glm::quat cubeBrotation = cubeB->collider->getGlobalRotation();
     axes[0] = cubeArotation * RIGHT;
     axes[1] = cubeArotation * UP;
     axes[2] = cubeArotation * FORWARD;
@@ -177,7 +228,7 @@ ColliderIntersection Cube::intersectCube(Cube* cube){
             float centerProjectionA = dot(centerA, axes[i]);
             float centerProjectionB = dot(centerB, axes[i]);
             float radiusA = halfSize.x * abs(dot(axes[i], axes[0])) + halfSize.y * abs(dot(axes[i], axes[1])) + halfSize.z * abs(dot(axes[i], axes[2]));
-            float radiusB = cube->halfSize.x * abs(dot(axes[i], axes[3])) + cube->halfSize.y * abs(dot(axes[i], axes[4])) + cube->halfSize.z * abs(dot(axes[i], axes[5]));
+            float radiusB = cubeB->halfSize.x * abs(dot(axes[i], axes[3])) + cubeB->halfSize.y * abs(dot(axes[i], axes[4])) + cubeB->halfSize.z * abs(dot(axes[i], axes[5]));
             float minA = centerProjectionA - radiusA;
             float maxA = centerProjectionA + radiusA;
             float minB = centerProjectionB - radiusB;
@@ -192,10 +243,121 @@ ColliderIntersection Cube::intersectCube(Cube* cube){
             if(overlap < intersection.t){
                 intersection.t = overlap;
                 intersection.intersectionExist = true;
-                intersection.collider = cube->collider;
-                intersection.axis = axes[i];
+                intersection.collider = cubeB->collider;
+                intersection.axis = glm::normalize(axes[i]);
+                if (dot(intersection.axis, centerB - centerA) < 0) {
+                    intersection.axis = -intersection.axis;
+                }
             }
         }
+    }
+    if(calculatePoints && intersection.intersectionExist){
+        //getting the reference and incident axes
+        float maxA = -FLT_MAX;
+        glm::vec3 axisA;
+        int axisIndexA;
+
+        for (int i = 0; i < 3; i++) {
+            float d = glm::dot(intersection.axis, axes[i]);
+            if (fabs(d) > maxA) {
+                maxA = fabs(d);
+                axisA = (d > 0) ? axes[i] : -axes[i];
+                axisIndexA = i;
+            }
+        }
+
+        float maxB = -FLT_MAX;
+        glm::vec3 axisB;
+        int axisIndexB;
+
+        for (int i = 0; i < 3; i++) {
+            float d = glm::dot(intersection.axis, axes[3 + i]);
+            if (fabs(d) > maxB) {
+                maxB = fabs(d);
+                axisB = (d > 0) ? axes[3 + i] : -axes[3 + i];
+                axisIndexB = 3+i;
+            }
+        }
+        // Determine reference and incident axes
+        glm::vec3 referenceAxis, incidentAxis;
+        bool boxAisReference = maxB < maxA;
+
+        glm::vec3 refCenter, incCenter;
+        glm::vec3 refAxes[3], incAxes[3];
+        glm::vec3 refHalf, incHalf;
+        int refIndex, incIndex;
+
+        if (boxAisReference) {
+            referenceAxis = axisA;
+            incidentAxis = -axisB;
+
+            refAxes[0] = axes[0]; refAxes[1] = axes[1]; refAxes[2] = axes[2];
+            refHalf = halfSize;
+            refCenter = centerA;
+            refIndex = axisIndexA;
+
+            incAxes[0] = axes[3]; incAxes[1] = axes[4]; incAxes[2] = axes[5];
+            incHalf = cubeB->halfSize;
+            incCenter = centerB;
+            incIndex = axisIndexB;
+        } else {
+            referenceAxis = axisB;
+            incidentAxis = -axisA;
+
+            refAxes[0] = axes[3]; refAxes[1] = axes[4]; refAxes[2] = axes[5];
+            refHalf = cubeB->halfSize;
+            refCenter = centerB;
+            refIndex = axisIndexB;
+
+            incAxes[0] = axes[0]; incAxes[1] = axes[1]; incAxes[2] = axes[2];
+            incHalf = halfSize;
+            incCenter = centerA;
+            incIndex = axisIndexA;
+        }
+
+        // Compute incident face vertices
+        glm::vec3 incU = incAxes[(incIndex+1)%3] * incHalf[(incIndex+1)%3];
+        glm::vec3 incV = incAxes[(incIndex+2)%3] * incHalf[(incIndex+2)%3];
+        glm::vec3 incidentFaceCenter = incCenter + incidentAxis * incHalf[incIndex%3];
+
+        std::vector<glm::vec3> incidentVertices(4);
+        incidentVertices[0] = incidentFaceCenter + incU + incV;
+        incidentVertices[1] = incidentFaceCenter - incU + incV;
+        incidentVertices[2] = incidentFaceCenter + incU - incV;
+        incidentVertices[3] = incidentFaceCenter - incU - incV;
+
+        // Compute reference face planes
+        std::vector<glm::vec3> referenceVertices(4);
+        glm::vec3 refU = refAxes[(refIndex+1)%3] * refHalf[(refIndex+1)%3];
+        glm::vec3 refV = refAxes[(refIndex+2)%3] * refHalf[(refIndex+2)%3];
+        glm::vec3 referenceFaceCenter = refCenter + referenceAxis * refHalf[refIndex%3];
+
+        referenceVertices[0] = referenceFaceCenter + refU + refV;
+        referenceVertices[1] = referenceFaceCenter - refU + refV;
+        referenceVertices[2] = referenceFaceCenter + refU - refV;
+        referenceVertices[3] = referenceFaceCenter - refU - refV;
+
+        // Compute reference side planes
+        std::vector<glm::vec3> sidePlanesNormals = std::vector<glm::vec3>(4);
+        std::vector<glm::vec3> sidePlanesOrigin = std::vector<glm::vec3>(4);
+
+        for(int i = 0; i < 4; i++){
+            glm::vec3 p0 = referenceVertices[i];
+            glm::vec3 p1 = referenceVertices[(i+1)%4];
+
+            glm::vec3 edge = p1 - p0;
+            sidePlanesNormals[i] = glm::normalize(glm::cross(referenceAxis, edge));
+            sidePlanesOrigin[i] = p0;
+        }
+
+        std::vector<glm::vec3> clipped = clipPolygon(incidentVertices, sidePlanesNormals, sidePlanesOrigin);
+        std::vector<glm::vec3> contactPoints = projectToPlane(clipped, referenceAxis, referenceVertices[0]);
+
+        if(intersection.intersectionExist){
+            std::cout << "contact points = " << contactPoints.size() << std::endl;
+        }
+        intersection.contactPoints = contactPoints;
+        intersection.intersectionExist = !contactPoints.empty();
     }
     return intersection;
 }

@@ -40,9 +40,9 @@ Scene* makeInfiniteTerrain(){
     cam->pivot = knight;
     knight->cam = cam;
     scene->instantiate(knight);
-    // Node3d* cubeA = makeCube();
-    // cubeA->Translate(glm::vec3(1, 7, 0));
-    // scene->instantiate(cubeA);
+    Node3d* cubeA = makeCube();
+    cubeA->Translate(glm::vec3(1, 7, 0));
+    scene->instantiate(cubeA);
     // Node3d* cubeB = makeCube();
     // cubeB->Translate(glm::vec3(1, 7, 0.5));
     // scene->instantiate(cubeB);

@@ -9,5 +9,6 @@ inline RigidBody3D* makePhysicsCube(){
     physicsCube->addChild(child);
     physicsCube->gravity = glm::vec3(0, -20, 0);
     physicsCube->name = "rigidbody cube";
+    ((CollisionShape3D*)(child->getChildren()[0]))->rb = physicsCube;
     return physicsCube;
 }

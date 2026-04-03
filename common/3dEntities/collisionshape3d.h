@@ -13,6 +13,7 @@ public:
     void setDebug(bool b);
     void intersect(CollisionShape3D* other);
     std::vector<ColliderIntersection> collisions = std::vector<ColliderIntersection>();
+    RigidBody3D *rb = nullptr;
 private:
     Shape *shape = nullptr;
     bool debug = false;

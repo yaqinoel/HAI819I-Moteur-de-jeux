@@ -22,8 +22,8 @@ class Shape
 public:
     Shape();
     virtual RayIntersection raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length)=0;
-    virtual ColliderIntersection intersectCube(Cube* cube){return ColliderIntersection();}
-    virtual ColliderIntersection intersect(Shape* shape);
+    virtual ColliderIntersection intersectCube(Cube* cube, bool calculatePoints = false){return ColliderIntersection();}
+    virtual ColliderIntersection intersect(Shape* shape, bool calculatePoints = false);
     CollisionShape3D* collider = nullptr;
     float radius = 0;
     ShapeType type;
