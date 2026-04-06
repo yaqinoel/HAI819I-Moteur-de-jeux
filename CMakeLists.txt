@@ -113,9 +113,13 @@ add_executable(Main
         Scenes/Ball.h
         Scenes/Cube.h
         Scenes/MainCharacter.h
+        Scenes/HoveringCharacter.h
         common/Utilities/colliderIntersection.h
         Scenes/PhysicsCube.h
         common/Utilities/InputManager.h
+        common/Controls/hoveringcontroller.h common/Controls/hoveringcontroller.cpp
+        common/Constraint/constraint.h
+        common/Constraint/contactconstraint.h common/Constraint/contactconstraint.cpp
 
 
 
@@ -139,6 +143,7 @@ SOURCE_GROUP(common/Controls REGULAR_EXPRESSION ".*/common/Controls/.*" )
 SOURCE_GROUP(common/Materials REGULAR_EXPRESSION ".*/common/Materials/.*" )
 SOURCE_GROUP(common/Shapes REGULAR_EXPRESSION ".*/common/Shapes/.*" )
 SOURCE_GROUP(common/Utilities REGULAR_EXPRESSION ".*/common/Utilities/.*" )
+SOURCE_GROUP(common/Constraint REGULAR_EXPRESSION ".*/common/Constraint/.*" )
 SOURCE_GROUP(scenes REGULAR_EXPRESSION ".*/Scenes/.*" )
 SOURCE_GROUP(shaders REGULAR_EXPRESSION ".*/.*shader$" )
 

@@ -27,6 +27,7 @@ Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     mat->addTexture("texture0", tex);
     mat->setLit(0);
     terrain->setMaterial(mat);
+    terrain->meshDisplay = false;
 //    terrain->name = "voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
     return terrain;
 }

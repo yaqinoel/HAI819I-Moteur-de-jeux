@@ -38,4 +38,5 @@ void TerrainShape::InitMesh(int posX, int posY , int resX, int resY, float sizeX
             }
         }
     }
+    inertia = glm::mat3(INFINITY);
 }

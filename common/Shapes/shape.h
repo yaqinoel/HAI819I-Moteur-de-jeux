@@ -26,12 +26,17 @@ public:
     virtual ColliderIntersection intersect(Shape* shape, bool calculatePoints = false);
     CollisionShape3D* collider = nullptr;
     float radius = 0;
+    glm::mat3 inertia = glm::mat3(0); //calculated as if the total mass was 1
     ShapeType type;
     virtual void setMesh(std::vector<Vertex> &ver, std::vector<Triangle> &tri){}
     virtual std::vector<glm::vec3> getVertices(){return vertices;}
     virtual std::vector<glm::ivec3> getTriangles(){return triangles;}
 
+    void setMass(float m){inertia*= m/mass;mass = m; }
+    float getMass(){return mass;}
+
 protected:
+    float mass = 1000;
     std::vector<glm::vec3> vertices = std::vector<glm::vec3>() ;
     std::vector<glm::ivec3>triangles = std::vector<glm::ivec3>();
 };

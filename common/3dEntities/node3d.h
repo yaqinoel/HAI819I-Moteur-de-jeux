@@ -23,9 +23,10 @@ class Node3d : public Node
 public:
     Node3d();
     virtual ~Node3d(){};
+    glm::mat4 getInverseGlobalMatrix() const;
     glm::mat4 getGlobalMatrix() const override;
-    glm::vec3 getGlobalPosition() const;
-    glm::quat getGlobalRotation() const;
+    virtual glm::vec3 getGlobalPosition() const;
+    virtual glm::quat getGlobalRotation() const;
     glm::mat4 getLocalMatrix() const;
     glm::vec3 getLocalPosition() const;
     glm::quat getLocalRotation() const;
@@ -38,11 +39,14 @@ public:
     glm::vec3 right() const {return getGlobalRotation()*RIGHT;}
     glm::vec3 left() const {return getGlobalRotation()*LEFT;}
 
+    glm::vec3 localToWorld(glm::vec3 p){return glm::vec3(getGlobalMatrix() * glm::vec4(p, 1.0f));}
+    glm::vec3 worldToLocal(glm::vec3 p){return glm::vec3(getInverseGlobalMatrix()*glm::vec4(p, 1.0f));}
+
     void addChild(Node* c) override;
     void setParent(Node* p) override;
     void Rotate(const float angleRadians, const glm::vec3& axis) { glm::quat delta = glm::angleAxis(angleRadians, glm::normalize(axis)); localRotation = glm::normalize(localRotation * delta);markDirty();}
     virtual void setGlobalPosition(const glm::vec3  &globPos);
-    void setGlobalRotation(const glm::quat  &globRot);
+    virtual void setGlobalRotation(const glm::quat  &globRot);
     virtual void setLocalPosition(const glm::vec3 pos) override {localPosition = pos; markDirty();};
     void SetLocalRotation(const glm::vec3 eulerRotation){localRotation = glm::normalize(glm::quat(glm::radians(eulerRotation))); markDirty();}
     void SetLocalRotation(const glm::quat rotation){localRotation = glm::normalize(rotation); markDirty();}
@@ -50,8 +54,10 @@ public:
     void SetRight(const glm::vec3& right);
     void setScale(const glm::vec3& newScale){scale = newScale; markDirty();}
     virtual void Translate(const glm::vec3 translation){localPosition += translation; markDirty();}
+    void markDirty() override {inverseDirty = true; Node::markDirty();}
 
     void unDirty() const override;
+    void unInverseDirty() const;
 private:
     mutable glm::vec3 localPosition = glm::vec3(0);
     mutable glm::vec3 globalPosition = glm::vec3(0);
@@ -59,7 +65,9 @@ private:
     mutable glm::quat globalRotation = glm::quat();
     mutable glm::mat4 localMatrix = glm::mat4(1);
     mutable glm::mat4 globalMatrix = glm::mat4(1);
+    mutable glm::mat4 inverseGlobalMatrix = glm::mat4(1);
     glm::vec3 scale = glm::vec3(1);
     void decompose(const glm::mat4& m, glm::vec3& position, glm::quat& rotation, glm::vec3& scale);
+    mutable bool inverseDirty = true;
 };
 #endif

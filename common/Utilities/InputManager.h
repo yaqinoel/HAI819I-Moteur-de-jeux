@@ -23,6 +23,7 @@ public:
     InputManager(){
         inputs.insert({"action1", new InputState(GLFW_KEY_E)});
         inputs.insert({"jump", new InputState(GLFW_KEY_SPACE)});
+        inputs.insert({"down", new InputState(GLFW_KEY_LEFT_SHIFT)});
         inputs.insert({"left", new InputState(GLFW_KEY_A)});
         inputs.insert({"right", new InputState(GLFW_KEY_D)});
         inputs.insert({"backwards", new InputState(GLFW_KEY_S)});

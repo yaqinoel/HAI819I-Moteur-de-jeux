@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scenes/PhysicsCube.h"
 #include "common/Controls/charactercontroller.h"
 #include <common/node.h>
 #include <common/3dEntities/node3d.h>
@@ -11,6 +12,7 @@
 #include "Ball.h"
 #include "Cube.h"
 #include "MainCharacter.h"
+#include "HoveringCharacter.h"
 
 
 Scene* makeInfiniteTerrain(){
@@ -28,23 +30,35 @@ Scene* makeInfiniteTerrain(){
     mat->maxHeight = 20.0;
     mat->scale = 10.0;
 
-    TerrainManager* tm = new TerrainManager();
-    {
-        tm->terrainMat = mat;
-        tm->name = "terrain manager";
-        tm->initTerrain();
-        scene->instantiate(tm);
-    }
+    // TerrainManager* tm = new TerrainManager();
+    // {
+    //     tm->terrainMat = mat;
+    //     tm->name = "terrain manager";
+    //     tm->initTerrain();
+    //     scene->instantiate(tm);
+    // }
+    //HoveringController* knight = makeHoveringController();
+    //knight->setGlobalPosition(glm::vec3(3, 7, 0.5));
 
     CharacterController* knight = makeKnight();
+    knight->setGlobalPosition(glm::vec3(1, 8, -3));
+
     cam->pivot = knight;
     knight->cam = cam;
     scene->instantiate(knight);
+
     Node3d* cubeA = makeCube();
     cubeA->Translate(glm::vec3(1, 7, 0));
+    cubeA->Rotate(glm::radians(40.0), glm::vec3(0, 1, 0));
     scene->instantiate(cubeA);
+
+    // Node3d* cubeA = makePhysicsCube();
+    // cubeA->Translate(glm::vec3(1, 7, 0));
+    // cubeA->Rotate(glm::radians(40.0), glm::vec3(0, 1, 0));
+    // scene->instantiate(cubeA);
+
     // Node3d* cubeB = makeCube();
-    // cubeB->Translate(glm::vec3(1, 7, 0.5));
+    // cubeB->Translate(glm::vec3(1, 6.5, 0.5));
     // scene->instantiate(cubeB);
 
     return scene;

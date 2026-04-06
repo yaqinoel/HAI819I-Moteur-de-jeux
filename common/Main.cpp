@@ -109,7 +109,7 @@ int main( void )
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
-    float physicsStep = 0.03;
+    float physicsStep = scene->fixedDeltaTime;
     double accumulator = 0.0;
     do{
         float currentFrame = glfwGetTime();
@@ -123,7 +123,7 @@ int main( void )
 
         // Run physics at fixed intervals
         while (accumulator >= physicsStep) {
-            scene->physicsProcess(physicsStep);
+            scene->physicsProcess();
             accumulator -= physicsStep;
         }
 

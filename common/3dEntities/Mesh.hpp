@@ -67,6 +67,7 @@ public:
     void recomputeSmoothVertexNormals (unsigned int weight);
     void computeTriangleNormals (std::vector<glm::vec3> & triangleNormals);
     void setMaterial(Material* material);
+    bool meshDisplay = true;
     virtual void setUniforms() const {}
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;

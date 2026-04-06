@@ -4,18 +4,16 @@
 #include <common/3dEntities/terrainmanager.h>
 #include <common/3dEntities/rigidbody3d.h>
 
-
-class CharacterController : public RigidBody3D
+class HoveringController : public RigidBody3D
 {
 public:
-    CharacterController();
+    HoveringController();
     void process(float deltaTime) override;
     void physicsProcess() override;
     Camera* cam;
 private:
-    float speed = 5.0f;
-    float jumpStrength = 7.0f;
-    glm::vec2 axialInputs = glm::vec2(0);
+    float speed = 2.0f;
+    glm::vec3 axialInputs = glm::vec3(0);
     bool onground = false;
 };
 

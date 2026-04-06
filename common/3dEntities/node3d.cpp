@@ -20,6 +20,16 @@ void Node3d::unDirty() const{
     dirty = false;
 }
 
+void Node3d::unInverseDirty() const{
+    inverseGlobalMatrix = glm::inverse(globalMatrix);
+    inverseDirty = false;
+}
+
+glm::mat4 Node3d::getInverseGlobalMatrix() const{
+    if(inverseDirty)unInverseDirty();
+    return inverseGlobalMatrix;
+}
+
 glm::mat4 Node3d::getGlobalMatrix() const{
     if(dirty)unDirty();
     return globalMatrix;
@@ -92,9 +102,9 @@ void Node3d::setGlobalRotation(const glm::quat& globRot){
     }
     markDirty();
 }
-void Node3d::SetForward(const glm::vec3& forward)
+void Node3d::SetForward(const glm::vec3& forw)
 {
-    glm::vec3 f = glm::normalize(forward);
+    glm::vec3 f = glm::normalize(forw);
     if (glm::length2(f) < 0.000001f) return;
     glm::vec3 r = glm::normalize(glm::cross(UP, f));
     glm::mat3 rotMatrix(r, glm::cross(f, r), f);

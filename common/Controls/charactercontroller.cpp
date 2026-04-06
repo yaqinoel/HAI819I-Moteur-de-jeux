@@ -18,6 +18,9 @@ void CharacterController::process(float deltaTime){
 
     axialInputs = glm::vec2(0);
 
+    glm::vec3 cameraForward = glm::normalize(glm::vec3(cam->forward().x, 0, cam->forward().z));
+    SetForward(glm::normalize(cameraForward));
+
     if (scene->inputHeld("forward")){
         axialInputs.x += 1;
     }
@@ -40,21 +43,18 @@ void CharacterController::process(float deltaTime){
         RigidBody3D* cube = makePhysicsCube();
         cube->velocity = cam->forward()*20.0f+UP*7.0f;
         cube->setGlobalPosition(getGlobalPosition()+cam->forward()*2.0f+up());
-        cube->SetForward(forward());
-        Node3d * child = static_cast<Node3d*>(cube->getChildren()[0]);
-        Node3d * parent = static_cast<Node3d*>(child->getParent());
         instantiate(cube);
+        cube->SetForward(forward());
+        cube->setGlobalRotation(cube->getGlobalRotation());
 
     }
 
-    glm::vec3 cameraForward = glm::normalize(glm::vec3(cam->forward().x, 0, cam->forward().z));
-    SetForward(cameraForward);
 
 
 }
 
-void CharacterController::physicsProcess(float fixedDeltaTime){
-    RigidBody3D::physicsProcess(fixedDeltaTime);
+void CharacterController::physicsProcess(){
+    RigidBody3D::physicsProcess();
     float boundary = 0.5f;
     glm::vec3 planarVelocity = (axialInputs.x * forward() + axialInputs.y * right());
     if(planarVelocity != glm::vec3(0)) planarVelocity = glm::normalize(planarVelocity)*speed;

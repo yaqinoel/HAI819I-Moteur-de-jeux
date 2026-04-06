@@ -296,6 +296,9 @@ void Mesh::render(const Camera* camera) const{
         _synchronized = true ;
         return;
     }
+    if(!meshDisplay){
+        return;
+    }
     if (!_synchronized){
         synchronize();
         return;

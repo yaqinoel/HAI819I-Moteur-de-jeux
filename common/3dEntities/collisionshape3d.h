@@ -11,9 +11,11 @@ public:
     bool active = true;
     void SetShape(Shape* s);
     void setDebug(bool b);
-    void intersect(CollisionShape3D* other);
+    ColliderIntersection intersect(CollisionShape3D* other);
+    glm::mat3 getInertia() {return shape->inertia;}
     std::vector<ColliderIntersection> collisions = std::vector<ColliderIntersection>();
     RigidBody3D *rb = nullptr;
+    float mass = 1000;
 private:
     Shape *shape = nullptr;
     bool debug = false;

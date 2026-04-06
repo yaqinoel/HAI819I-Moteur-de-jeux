@@ -5,6 +5,7 @@
 #include "3dEntities/rigidbody3d.h"
 #include "3dEntities/collisionshape3d.h"
 #include <ctime>
+#include <common/Constraint/contactconstraint.h>
 
 Scene::Scene(Node* node)
 {
@@ -25,18 +26,18 @@ void Scene::instantiate(Node* node, Node* parent){
 
 
 void Scene::addToTree(Node* node){
-    nodes.insert(node);
+    nodes.push_back(node);
     if (Mesh* m = dynamic_cast<Mesh*>(node)) {
-        meshes.insert(m);
+        meshes.push_back(m);
     }
     if (Camera* c = dynamic_cast<Camera*>(node)) {
-        cameras.insert(c);
+        cameras.push_back(c);
     }
     if (RigidBody3D* r = dynamic_cast<RigidBody3D*>(node)) {
-        rigidBodies.insert(r);
+        rigidBodies.push_back(r);
     }
     if (CollisionShape3D* c = dynamic_cast<CollisionShape3D*>(node)) {
-        colliders.insert(c);
+        colliders.push_back(c);
     }
     for(Node* child: node->getChildren()){
         addToTree(child);
@@ -56,31 +57,74 @@ void Scene::process(float deltaTime){
     }
 }
 
-void Scene::physicsProcess(float fixedDeltaTime){
+void Scene::addConstraint(ContactConstraint c){
+    for(size_t i = 0; i < previousConstraints.size(); i++){
+        ContactConstraint& oldC = previousConstraints[i];
+        if(oldC.featureId == c.featureId && oldC.objA == c.objA && oldC.objB == c.objB){
+            c.accumulatedNormalLambda = oldC.accumulatedNormalLambda;
+            c.isReused = true;
+            newConstraints.push_back(c);
+            previousConstraints.erase(previousConstraints.begin()+i);
+            return;
+        }
+    }
+    newConstraints.push_back(c);
+}
+
+void Scene::physicsProcess(){
     for(RigidBody3D* rb : rigidBodies){
         if(rb != nullptr && rb->getVisible()){
-            rb->physicsProcess(fixedDeltaTime);
+            rb->physicsProcess();
         }
     }
-    for (auto it = colliders.begin(); it != colliders.end(); ++it) {
-        (*it)->collisions.resize(0);
-    }
-    for (auto it1 = colliders.begin(); it1 != colliders.end(); ++it1) {
-        auto it2 = it1;
-        ++it2;
-        for (; it2 != colliders.end(); ++it2) {
-            (*it1)->intersect(*it2);
+    collisions.clear();
+    for (int i = 0; i < colliders.size(); i++) {
+        for (int j = i + 1; j < colliders.size(); j++) {
+            ColliderIntersection newCollision = colliders[i]->intersect(colliders[j]);
+            if(newCollision.intersectionExist){
+                collisions.push_back(newCollision);
+            }
         }
     }
-    // for (auto it = colliders.begin(); it != colliders.end(); ++it) {
-    //     if((*it)->name[0] == 'c')
-    //         std::cout << (*it)->name << " collisions nbr : " << (*it)->collisions.size() << std::endl;
-    // }
+    for(const ColliderIntersection& col : collisions){
+        RigidBody3D* objA = col.colliderA->rb;
+        RigidBody3D* objB = col.colliderB->rb;
+
+        // Skip if both are null (static colliders only)
+        if(objA == nullptr && objB == nullptr) continue;
+        if(objA != nullptr){
+            for(const glm::vec3& point : col.contactPoints){
+                ContactConstraint c(objA, objB, point, col.axis, col.t, FeatureID(col.featureA, col.featureB));
+                addConstraint(c);
+            }
+        }
+        else{
+            for(const glm::vec3& point : col.contactPoints){
+                ContactConstraint c(objB, objA, point, -col.axis, col.t, FeatureID(col.featureB, col.featureA));
+                addConstraint(c);
+            }
+        }
+    }
+    if(newConstraints.size() > 0)std::cout << "\n**********************\nnewframe" << std::endl;
+    //init constraints
+    for(ContactConstraint& c : newConstraints){
+        c.init();
+    }
+    //interative solver
+    const int solverIterations = 10;
+    for(int i = 0; i < solverIterations; i++){
+        for(ContactConstraint& c : newConstraints){
+            c.solve(fixedDeltaTime);
+        }
+    }
     for(RigidBody3D* rb : rigidBodies){
         if(rb != nullptr && rb->getVisible()){
-            rb->postPhysicsProcess(fixedDeltaTime);
+            rb->postPhysicsProcess();
         }
     }
+    previousConstraints = newConstraints;
+    newConstraints.clear();
+    newConstraints.reserve(previousConstraints.size() * 2);
 }
 
 void Scene::render(float alpha){
@@ -100,18 +144,18 @@ void Scene::render(float alpha){
 }
 
 void Scene::removeFromTree(Node* node){
-    nodes.erase(node);
+    nodes.erase(std::remove(nodes.begin(), nodes.end(), node), nodes.end());
     if (Mesh* m = dynamic_cast<Mesh*>(node)) {
-        meshes.erase(m);
+        meshes.erase(std::remove(meshes.begin(), meshes.end(), m), meshes.end());
     }
     if (Camera* c = dynamic_cast<Camera*>(node)) {
-        cameras.erase(c);
+        cameras.erase(std::remove(cameras.begin(), cameras.end(), c), cameras.end());
     }
     if (RigidBody3D* r = dynamic_cast<RigidBody3D*>(node)) {
-        rigidBodies.erase(r);
+        rigidBodies.erase(std::remove(rigidBodies.begin(), rigidBodies.end(), r), rigidBodies.end());
     }
     if (CollisionShape3D* c = dynamic_cast<CollisionShape3D*>(node)) {
-        colliders.erase(c);
+        colliders.erase(std::remove(colliders.begin(), colliders.end(), c), colliders.end());
     }
     node->removeParent();
 }

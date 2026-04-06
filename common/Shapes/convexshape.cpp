@@ -10,12 +10,14 @@ void ConvexShape::InitMesh(std::vector<Vertex> vertices, std::vector<Triangle> t
         this->vertices.push_back(v.position);
         if(radius*radius < glm::dot(v.position, v.position)){
             radius = glm::length(v.position);
+            inertia += glm::dot(v.position, v.position) * glm::mat3(1.0f) - glm::outerProduct(v.position, v.position);
         }
     }
     for(Triangle t:triangles){
         this->triangles.push_back(glm::vec3(t[0], t[1], t[2]));
     }
     initTree();
+    inertia *= mass/vertices.size();
 }
 
 void ConvexShape::initTree(){

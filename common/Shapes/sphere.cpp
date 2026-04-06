@@ -42,6 +42,7 @@ Sphere::Sphere(float rad){
             triangles.emplace_back(b, c, d);
         }
     }
+    inertia = glm::mat3(mass*rad*rad*2.0/5.0);
 }
 
 

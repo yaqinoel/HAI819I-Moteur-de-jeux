@@ -37,7 +37,7 @@ public:
     bool getVisible() const {if(!visible) return false; else if(parent) return parent->getVisible(); else return true;}
     void setVisible(bool b){visible = b;}
     virtual void setLocalPosition(const glm::vec3 pos) = 0;
-    void markDirty();
+    virtual void markDirty();
     virtual void unDirty() const=0;
 
 protected:
