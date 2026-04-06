@@ -56,72 +56,61 @@ void Scene::process(float deltaTime){
         }
     }
 }
-
-void Scene::addConstraint(ContactConstraint c){
-    for(size_t i = 0; i < previousConstraints.size(); i++){
-        ContactConstraint& oldC = previousConstraints[i];
-        if(oldC.featureId == c.featureId && oldC.objA == c.objA && oldC.objB == c.objB){
-            c.accumulatedNormalLambda = oldC.accumulatedNormalLambda;
+void Scene::addConstraint(ContactConstraint c) {
+    for (size_t i = 0; i < previousConstraints.size(); i++) {
+        ContactConstraint& old = previousConstraints[i];
+        if (old.featureId == c.featureId && old.objA == c.objA && old.objB == c.objB) {
+            c.accumulatedNormalLambda = old.accumulatedNormalLambda;
             c.isReused = true;
             newConstraints.push_back(c);
-            previousConstraints.erase(previousConstraints.begin()+i);
+            previousConstraints.erase(previousConstraints.begin() + i);
             return;
         }
     }
     newConstraints.push_back(c);
 }
 
-void Scene::physicsProcess(){
-    for(RigidBody3D* rb : rigidBodies){
-        if(rb != nullptr && rb->getVisible()){
+void Scene::physicsProcess() {
+    for (RigidBody3D* rb : rigidBodies)
+        if (rb && rb->getVisible())
             rb->physicsProcess();
-        }
-    }
+
     collisions.clear();
-    for (int i = 0; i < colliders.size(); i++) {
+    for (int i = 0; i < colliders.size(); i++)
         for (int j = i + 1; j < colliders.size(); j++) {
-            ColliderIntersection newCollision = colliders[i]->intersect(colliders[j]);
-            if(newCollision.intersectionExist){
-                collisions.push_back(newCollision);
-            }
+            auto col = colliders[i]->intersect(colliders[j]);
+            if (col.intersectionExist)
+                collisions.push_back(col);
         }
-    }
-    for(const ColliderIntersection& col : collisions){
+
+    for (const ColliderIntersection& col : collisions) {
         RigidBody3D* objA = col.colliderA->rb;
         RigidBody3D* objB = col.colliderB->rb;
+        if (!objA && !objB) continue;
 
-        // Skip if both are null (static colliders only)
-        if(objA == nullptr && objB == nullptr) continue;
-        if(objA != nullptr){
-            for(const glm::vec3& point : col.contactPoints){
-                ContactConstraint c(objA, objB, point, col.axis, col.t, FeatureID(col.featureA, col.featureB));
-                addConstraint(c);
-            }
-        }
-        else{
-            for(const glm::vec3& point : col.contactPoints){
-                ContactConstraint c(objB, objA, point, -col.axis, col.t, FeatureID(col.featureB, col.featureA));
-                addConstraint(c);
-            }
+        if (objA) {
+            for (const glm::vec3& pt : col.contactPoints)
+                addConstraint(ContactConstraint( objA, objB, pt, col.axis, col.t, FeatureID(col.featureA, col.featureB)));
+        } else {
+            for (const glm::vec3& pt : col.contactPoints)
+                addConstraint(ContactConstraint( objB, objA, pt, -col.axis, col.t, FeatureID(col.featureB, col.featureA)));
         }
     }
-    if(newConstraints.size() > 0)std::cout << "\n**********************\nnewframe" << std::endl;
-    //init constraints
-    for(ContactConstraint& c : newConstraints){
+    for (ContactConstraint& c : newConstraints){
         c.init();
+        c.warmStart();
+        c.setUp(fixedDeltaTime);
     }
-    //interative solver
+
     const int solverIterations = 10;
-    for(int i = 0; i < solverIterations; i++){
-        for(ContactConstraint& c : newConstraints){
-            c.solve(fixedDeltaTime);
-        }
-    }
-    for(RigidBody3D* rb : rigidBodies){
-        if(rb != nullptr && rb->getVisible()){
+    for (int i = 0; i < solverIterations; i++)
+        for (ContactConstraint& c : newConstraints)
+            c.solve();
+
+    for (RigidBody3D* rb : rigidBodies)
+        if (rb && rb->getVisible())
             rb->postPhysicsProcess();
-        }
-    }
+
     previousConstraints = newConstraints;
     newConstraints.clear();
     newConstraints.reserve(previousConstraints.size() * 2);

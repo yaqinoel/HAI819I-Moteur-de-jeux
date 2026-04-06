@@ -1,103 +1,98 @@
+// contactconstraint.cpp
 #include "contactconstraint.h"
-
 #include <common/3dEntities/rigidbody3d.h>
-ContactConstraint::ContactConstraint(RigidBody3D* objA, RigidBody3D* objB, glm::vec3 worldPoint, glm::vec3 normal, float penetration, FeatureID featureId){
-    this->objA = objA;
-    this->objB = objB;
-    this->featureId = featureId;
+#include <algorithm>
+
+ContactConstraint::ContactConstraint(RigidBody3D* objA, RigidBody3D* objB,
+                                     glm::vec3 worldPoint, glm::vec3 normal,
+                                     float penetration, FeatureID featureId)
+    : objA(objA), objB(objB), featureId(featureId)
+{
     accumulatedNormalLambda = 0;
     isReused = false;
 
-    invMassA = objA->mass > 0 ? 1.0/objA->mass : 0;
-    invIA = objA->inverseInertia;
+    invMassA = objA->mass > 0 ? 1.0f / objA->mass : 0.0f;
+    invIA    = objA->inverseInertia;
 
-    if(objB != nullptr){
-        invMassB = objB->mass > 0 ? 1.0/objB->mass : 0;
-        invIB = objB->inverseInertia;
+    if (objB) {
+        invMassB = objB->mass > 0 ? 1.0f / objB->mass : 0.0f;
+        invIB    = objB->inverseInertia;
     }
+
     setCollisionData(worldPoint, normal, penetration);
-
 }
 
-void ContactConstraint::setCollisionData(glm::vec3 worldPoint, glm::vec3 normal, float penetration){
-    this->worldPoint = worldPoint;
-    this->normal = normal;
-    this->penetration = penetration;
-    localA = objA->worldToLocal(worldPoint);
-    if(objB != nullptr) localB = objB->worldToLocal(worldPoint);
-
+void ContactConstraint::setCollisionData(glm::vec3 wp, glm::vec3 n, float pen) {
+    worldPoint  = wp;
+    normal      = n;
+    penetration = pen;
+    localA = objA->worldToLocal(wp);
+    if (objB) localB = objB->worldToLocal(wp);
 }
 
-void ContactConstraint::init(){
+// only calculates geometry
+void ContactConstraint::init() {
     worldA = objA->localToWorld(localA);
-    rA = worldA - objA->getGlobalPosition();
-    if(objB != nullptr){
-        worldB = objB->localToWorld(localB);
-        rB = worldB - objB->getGlobalPosition();
-    }
+    rA     = worldA - objA->getGlobalPosition();
 
-    // Warm start: re-apply accumulated impulse from previous frame
-    if(accumulatedNormalLambda != 0.0f){
-        glm::vec3 impulse = normal * accumulatedNormalLambda;
-        objA->applyImpulse(-impulse, worldA);   // ← use applyImpulse, consistent with solve()
-        if(objB != nullptr){
-            objB->applyImpulse(impulse, worldB);
-        }
+    if (objB) {
+        worldB = objB->localToWorld(localB);
+        rB     = worldB - objB->getGlobalPosition();
     }
 }
 
+// warm start
+void ContactConstraint::warmStart() {
+    if (accumulatedNormalLambda == 0.0f) return;
 
-void ContactConstraint::solve(float dt){
-    if(objB != nullptr){
-        glm::vec3 velA = objA->velocity + glm::cross(rA, objA->angularVelocity);
-        glm::vec3 velB = objB->velocity + glm::cross(rB, objB->angularVelocity);
-        glm::vec3 relVel = velB-velA;
-        float Cdot = glm::dot(normal, relVel);
+    glm::vec3 impulse = normal * accumulatedNormalLambda;
+    objA->applyImpulse(-impulse, worldA);
+    if (objB) objB->applyImpulse(impulse, worldB);
+}
 
-        glm::vec3 rnA = glm::cross(rA, normal);
+// precomputes other values
+void ContactConstraint::setUp(float dt) {
+    glm::vec3 rnA = glm::cross(rA, normal);
+
+    if (objB) {
         glm::vec3 rnB = glm::cross(rB, normal);
-        float effectiveMass = invMassA + invMassB + glm::dot(glm::cross(invIA * rnA, rA) + glm::cross(invIB * rnB, rB), normal);
-        if(effectiveMass < 1e-6) return;
-
-        float allowedPenetration = 0.01f;
-        float baumgarteFactor = 0.2f;
-        float separation = std::min(0.0f, -penetration+allowedPenetration); //might need to switch signs
-        float velocityBias = (baumgarteFactor/dt) * separation;
-
-        float lambda = -(Cdot + velocityBias)/effectiveMass;
-
-        float oldAccum = accumulatedNormalLambda;
-        accumulatedNormalLambda = std::max(oldAccum + lambda, 0.0f);
-        lambda = accumulatedNormalLambda-oldAccum;
-
-        if(lambda == 0) return;
-
-        glm::vec3 impulse = normal*lambda;
-        objA->applyImpulse(-impulse, worldA);
-        objB->applyImpulse(impulse, worldB);
+        effectiveMass = invMassA + invMassB
+                        + glm::dot(glm::cross(invIA * rnA, rA) + glm::cross(invIB * rnB, rB), normal);
+    } else {
+        effectiveMass = invMassA
+                        + glm::dot(glm::cross(invIA * rnA, rA), normal);
     }
-    else{
-        glm::vec3 velA = objA->velocity + glm::cross(rA, objA->angularVelocity);
-        float Cdot = glm::dot(normal, -velA);
 
-        glm::vec3 rnA = glm::cross(rA, normal);
-        float effectiveMass = invMassA + glm::dot(glm::cross(invIA * rnA, rA), normal);
-        if(effectiveMass < 1e-6) return;
+    if (effectiveMass < 1e-6f) effectiveMass = 0.0f;
 
-        float allowedPenetration = 0.001f;
-        float baumgarteFactor = 0.1f;
-        float separation = std::min(0.0f, -penetration+allowedPenetration);
-        float velocityBias = (baumgarteFactor/dt) * separation;
+    const float allowedPenetration = 0.001f;
+    const float baumgarteFactor    = 0.2f;
+    float separation = std::min(0.0f, -penetration + allowedPenetration);
+    velocityBias = (baumgarteFactor / dt) * separation;
+}
 
-        float lambda = -(Cdot + velocityBias)/effectiveMass;
+void ContactConstraint::solve() {
+    if (effectiveMass < 1e-6f) return;
 
-        float oldAccum = accumulatedNormalLambda;
-        accumulatedNormalLambda = std::max(oldAccum + lambda, 0.0f);
-        lambda = accumulatedNormalLambda-oldAccum;
-
-        if(lambda == 0) return;
-
-        glm::vec3 impulse = normal*lambda;
-        objA->applyImpulse(-impulse, worldA);
+    float Cdot;
+    if (objB) {
+        glm::vec3 velA = objA->velocity + glm::cross(objA->angularVelocity, rA);
+        glm::vec3 velB = objB->velocity + glm::cross(objB->angularVelocity, rB);
+        Cdot = glm::dot(normal, velB - velA);
+    } else {
+        glm::vec3 velA = objA->velocity + glm::cross(objA->angularVelocity, rA);
+        Cdot = glm::dot(normal, -velA);
     }
+
+    float lambda = -(Cdot + velocityBias) / effectiveMass;
+
+    float oldAccum = accumulatedNormalLambda;
+    accumulatedNormalLambda = std::max(oldAccum + lambda, 0.0f);
+    lambda = accumulatedNormalLambda - oldAccum;
+
+    if (lambda == 0.0f) return;
+
+    glm::vec3 impulse = normal * lambda;
+    objA->applyImpulse(-impulse, worldA);
+    if (objB) objB->applyImpulse(impulse, worldB);
 }

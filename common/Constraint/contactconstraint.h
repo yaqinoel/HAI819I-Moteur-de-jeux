@@ -22,33 +22,46 @@ struct FeatureID {
     }
 };
 
-class ContactConstraint : public Constraint
-{
+class ContactConstraint {
 public:
-    ContactConstraint(RigidBody3D* objA, RigidBody3D* objB, glm::vec3 worldPoint, glm::vec3 normal, float penetration, FeatureID featureId);
-    void setCollisionData(glm::vec3 worldPoint, glm::vec3 normal, float penetration);
-    void init() override;
-    void solve(float dt) override;
-    bool isReused = false;
-    float accumulatedNormalLambda;
-    FeatureID featureId;
     RigidBody3D* objA;
     RigidBody3D* objB;
+    FeatureID featureId;
 
-private:
     glm::vec3 worldPoint;
     glm::vec3 normal;
     float penetration;
-    float invMassA;
-    float invMassB;
-    glm::mat3 invIA;
-    glm::mat3 invIB;
-    glm::vec3 localA;
-    glm::vec3 localB;
-    glm::vec3 worldA;
-    glm::vec3 worldB;
-    glm::vec3 rA;
-    glm::vec3 rB;
 
+    glm::vec3 localA, localB;
+    glm::vec3 worldA, worldB;
+    glm::vec3 rA, rB;
+
+    float invMassA = 0, invMassB = 0;
+    glm::mat3 invIA{0}, invIB{0};
+
+    // Precomputed once before the solver loop (like VPE's K_inv)
+    float effectiveMass = 0;
+    float velocityBias  = 0;
+
+    float accumulatedNormalLambda = 0;
+    bool  isReused = false;
+
+    ContactConstraint(RigidBody3D* objA, RigidBody3D* objB,
+                      glm::vec3 worldPoint, glm::vec3 normal,
+                      float penetration, FeatureID featureId);
+
+    void setCollisionData(glm::vec3 worldPoint, glm::vec3 normal, float penetration);
+
+    // Step 1 — only geometry, no velocity changes (mirrors VPE's narrowPhase geometry work)
+    void init();
+
+    // Step 2 — warm-start: re-apply last frame's accumulated impulse once (mirrors VPE's warmStart())
+    void warmStart();
+
+    // Step 3 — precompute effective mass and bias (mirrors VPE's setupConstraints())
+    void setUp(float dt);
+
+    // Step 4 — iterative velocity solve (mirrors VPE's calculateContactPointImpulses())
+    void solve();
 };
 
