@@ -7,7 +7,7 @@ CameraControls::CameraControls(float width, float height, glm::vec3 position) : 
 CameraControls::CameraControls(float width, float height, float fov, float nearPlane, float farPlane, glm::vec3 position): Camera(width, height, fov, nearPlane, farPlane, position){
     targetNode = new Node3d();
     instantiate(targetNode);
-    SetForward(glm::vec3(0, -1, 1));
+    setForward(glm::vec3(0, -1, 1));
 }
 
 void CameraControls::process(float deltaTime){
@@ -42,7 +42,7 @@ void CameraControls::process(float deltaTime){
     glm::vec3 pitchAxis = glm::normalize(glm::cross(flatForward, UP));
     glm::quat pitch = glm::angleAxis(glm::radians(yoffset), pitchAxis);
     glm::quat newRot = glm::normalize(pitch * yaw);
-    targetNode->SetForward(newRot * forward());
+    targetNode->setForward(newRot * forward());
     targetNode->setGlobalPosition(pivot->up()+ pivot->getGlobalPosition() +pivotDistance*(targetNode->getGlobalRotation()*BACKWARDS));
     setGlobalPosition(targetNode->getGlobalPosition());//glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
     setGlobalRotation(targetNode->getGlobalRotation());//glm::slerp(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));

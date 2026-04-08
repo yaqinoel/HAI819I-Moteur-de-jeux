@@ -26,9 +26,9 @@ Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     tex.setPixelArt(true);
     mat->addTexture("texture0", tex);
     mat->setLit(0);
+    //terrain->meshDisplay = false;
     terrain->setMaterial(mat);
-    terrain->meshDisplay = false;
-//    terrain->name = "voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
+    terrain->name = "voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
     return terrain;
 }
 
@@ -57,7 +57,7 @@ void TerrainManager::UpdateTerrain(glm::ivec3 newCamPosition){
 
         if (glm::length(chunkWorldPos - glm::vec3(cam->getGlobalPosition().x,0, cam->getGlobalPosition().z)) > chunkSize * (chunkRenderDistance + 1))
         {
-            scene->remove(it->second);
+            (it->second)->erase();
             it = chunks.erase(it);
         }
         else

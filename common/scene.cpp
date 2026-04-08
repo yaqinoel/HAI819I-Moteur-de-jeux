@@ -20,12 +20,16 @@ Scene::Scene(Node* node)
 }
 
 void Scene::instantiate(Node* node, Node* parent){
+    if(node->scene != nullptr){
+        return;
+    }
     addToTree(node);
     parent->addChild(node);
 }
 
 
 void Scene::addToTree(Node* node){
+    node->scene = this;
     nodes.push_back(node);
     if (Mesh* m = dynamic_cast<Mesh*>(node)) {
         meshes.push_back(m);
@@ -50,9 +54,16 @@ void Scene::instantiate(Node* node){
 
 void Scene::process(float deltaTime){
     inputManager->UpdateInputs();
-    for(Node* n : nodes){
-        if(n != nullptr && n->getVisible()){
-            n->process(deltaTime);
+    for(int i = 0; i < nodes.size();){
+        Node* n = nodes[i];
+        if(n->markedForErasure){
+            remove(n);
+        }
+        else{
+            if(n != nullptr && n->getVisible()){
+                n->process(deltaTime);
+            }
+            i++;
         }
     }
 }
@@ -78,9 +89,11 @@ void Scene::physicsProcess() {
     collisions.clear();
     for (int i = 0; i < colliders.size(); i++)
         for (int j = i + 1; j < colliders.size(); j++) {
-            auto col = colliders[i]->intersect(colliders[j]);
-            if (col.intersectionExist)
-                collisions.push_back(col);
+            std::vector<ColliderIntersection> cols = colliders[i]->intersect(colliders[j]);
+            for(ColliderIntersection col : cols){
+                if (col.intersectionExist)
+                    collisions.push_back(col);
+            }
         }
 
     for (const ColliderIntersection& col : collisions) {
@@ -97,8 +110,6 @@ void Scene::physicsProcess() {
         }
     }
     for (ContactConstraint& c : newConstraints){
-        c.init();
-        c.warmStart();
         c.setUp(fixedDeltaTime);
     }
 

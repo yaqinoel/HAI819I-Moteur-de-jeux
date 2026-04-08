@@ -35,7 +35,7 @@ Node* makeSolarSystem(){
         Earth->daySpeed = 2.0;
         Earth->yearSpeed = 0.2;
         Earth->setScale(glm::vec3(0.6));
-        Earth->SetLocalRotation(glm::vec3(0, 0, 23.44));
+        Earth->setLocalRotation(glm::vec3(0, 0, 23.44));
     }
 
 
@@ -51,7 +51,7 @@ Node* makeSolarSystem(){
         Moon->daySpeed = 2.0;
         Moon->yearSpeed = 2.0;
         Moon->setScale(glm::vec3(0.3));
-        Moon->SetLocalRotation(glm::vec3(0, 0, 6.68));
+        Moon->setLocalRotation(glm::vec3(0, 0, 6.68));
     }
 
 

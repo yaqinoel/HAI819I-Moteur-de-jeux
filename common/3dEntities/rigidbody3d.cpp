@@ -36,13 +36,27 @@ void RigidBody3D::Translate(const glm::vec3 translation){
 }
 
 void RigidBody3D::setGlobalPosition(const glm::vec3 &globPos){
+    Node3d::setGlobalPosition(globPos);
     currentPosition  = globPos;
     markDirty();
 }
 
 
 void RigidBody3D::setGlobalRotation(const glm::quat &globRot){
+    Node3d::setGlobalRotation(globRot);
     currentRotation  = globRot;
+    markDirty();
+}
+
+void RigidBody3D::setLocalRotation(const glm::quat rotation){
+    Node3d::setLocalRotation(rotation);
+    currentRotation = getGlobalRotation();
+    markDirty();
+}
+
+void RigidBody3D::setLocalPosition(const glm::vec3 pos){
+    Node3d::setLocalPosition(pos);
+    currentPosition = getGlobalPosition();
     markDirty();
 }
 

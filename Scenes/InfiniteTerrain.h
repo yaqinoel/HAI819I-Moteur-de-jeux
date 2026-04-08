@@ -30,18 +30,19 @@ Scene* makeInfiniteTerrain(){
     mat->maxHeight = 20.0;
     mat->scale = 10.0;
 
-    // TerrainManager* tm = new TerrainManager();
-    // {
-    //     tm->terrainMat = mat;
-    //     tm->name = "terrain manager";
-    //     tm->initTerrain();
-    //     scene->instantiate(tm);
-    // }
+    TerrainManager* tm = new TerrainManager();
+    {
+        tm->terrainMat = mat;
+        tm->name = "terrain manager";
+        tm->initTerrain();
+        scene->instantiate(tm);
+    }
+
     //HoveringController* knight = makeHoveringController();
     //knight->setGlobalPosition(glm::vec3(3, 7, 0.5));
 
     CharacterController* knight = makeKnight();
-    knight->setGlobalPosition(glm::vec3(1, 8, -3));
+    knight->setGlobalPosition(glm::vec3(3, 14, 10));
 
     cam->pivot = knight;
     knight->cam = cam;

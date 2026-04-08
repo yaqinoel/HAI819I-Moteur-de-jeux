@@ -31,7 +31,8 @@ public:
     virtual void process(float deltaTime){}
     virtual glm::mat4 getGlobalMatrix() const=0;
     std::string name;
-    inline static Scene* scene;
+    Scene* scene = nullptr;
+    virtual glm::mat4 getInverseGlobalMatrix() const = 0;
     void instantiate(Node* node, Node* parent);
     void instantiate(Node* node);
     bool getVisible() const {if(!visible) return false; else if(parent) return parent->getVisible(); else return true;}
@@ -39,6 +40,8 @@ public:
     virtual void setLocalPosition(const glm::vec3 pos) = 0;
     virtual void markDirty();
     virtual void unDirty() const=0;
+    void erase(){markedForErasure = true;}
+    bool markedForErasure = false;
 
 protected:
     std::vector<Node*> children;

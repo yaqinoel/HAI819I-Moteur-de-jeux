@@ -1,4 +1,5 @@
 #include "cube.h"
+#include "common/Shapes/voxelshape.h"
 #include <cmath>
 
 
@@ -155,64 +156,12 @@ RayIntersection Cube::raycast( glm::vec3 const &origin, glm::vec3 const &directi
 }
 
 
-//this algorithm takes a polygon and a plane, and clip every vertices of the polygon so that they are under or on the plane
-std::vector<glm::vec3> ClipPolygonToPlane(const std::vector<glm::vec3>& polygon, const glm::vec3& planeNormal, const glm::vec3& planePoint) {
-    std::vector<glm::vec3> output;
-    short int outputSize = 0;
-    if(polygon.empty()) return output;
-
-    for (size_t i = 0; i < polygon.size(); i++) {
-        //the algorithm goes from edge to edge by going from vertex to vertex in a linear order
-        glm::vec3 currentVertex  = polygon[i];
-        glm::vec3 previousVertex = polygon[(i + polygon.size() - 1) % polygon.size()];
-
-        //calculates the signed distance to the plane
-        float currentDistance  = glm::dot(currentVertex - planePoint, planeNormal);
-        float previousDistance = glm::dot(previousVertex - planePoint, planeNormal);
-
-        if (currentDistance <= 0 && previousDistance <= 0) {
-            output.push_back(currentVertex);
-            outputSize ++;
-        }
-        else if (previousDistance <= 0 && currentDistance > 0) {
-            // edge goes from inside to outside
-            float t = previousDistance / (previousDistance - currentDistance);
-            output.push_back(previousVertex + t * (currentVertex - previousVertex));
-            outputSize ++;
-        }
-        else if (previousDistance > 0 && currentDistance <= 0) {
-            // edge goes from outside to inside
-            float t = previousDistance / (previousDistance - currentDistance);
-            output.push_back(previousVertex + t * (currentVertex - previousVertex));
-            output.push_back(currentVertex);
-            outputSize +=2;
-        }
-        if(outputSize >= 4){
-            return output;
-        }
-    }
-
-    return output;
-}
-std::vector<glm::vec3> clipPolygon(const std::vector<glm::vec3>& polygon, const std::vector<glm::vec3>& planeNormals, const std::vector<glm::vec3>& planePoints) {
-    std::vector<glm::vec3> result = polygon;
-    for (size_t i = 0; i < planeNormals.size(); i++) {
-        result = ClipPolygonToPlane(result, planeNormals[i], planePoints[i]);
-        if (result.empty()) return result;
-    }
-    return result;
+std::vector<ColliderIntersection> Cube::intersectVoxel(VoxelShape* voxel, bool calculatePoints){
+    return voxel->intersectCube(this, calculatePoints);
 }
 
-std::vector<glm::vec3> projectToPlane(const std::vector<glm::vec3>& points, const glm::vec3& planeNormal, const glm::vec3& planePoint) {
-    std::vector<glm::vec3> projected;
-    for (auto& p : points) {
-        glm::vec3 proj = p - planeNormal * glm::dot(p - planePoint, planeNormal);
-        projected.push_back(proj);
-    }
-    return projected;
-}
 
-ColliderIntersection Cube::intersectCube(Cube* cubeB, bool calculatePoints){
+std::vector<ColliderIntersection> Cube::intersectCube(Cube* cubeB, bool calculatePoints){
     ColliderIntersection intersection = ColliderIntersection();
     intersection.t = INFINITY;
     glm::vec3 centerA = collider->getGlobalPosition();
@@ -246,7 +195,7 @@ ColliderIntersection Cube::intersectCube(Cube* cubeB, bool calculatePoints){
 
             if (maxA < minB || maxB < minA) {
                 intersection.intersectionExist = false;
-                return intersection;
+                return std::vector<ColliderIntersection>{intersection};
             }
 
             float overlap = std::min(maxA, maxB) - std::max(minA, minB);
@@ -376,14 +325,6 @@ ColliderIntersection Cube::intersectCube(Cube* cubeB, bool calculatePoints){
         referenceVertices[2] = referenceFaceCenter - refU - refV;
         referenceVertices[3] = referenceFaceCenter + refU - refV;
 
-        if(dot(intersection.axis, intersection.colliderB->getGlobalPosition()-intersection.colliderA->getGlobalPosition()) < 0){
-            std::cout << "collA " << glm::to_string(centerA) << std::endl;
-            std::cout << "collB " << glm::to_string(centerB) << std::endl;
-            std::cout << "dir " << glm::to_string(centerB-centerA) << std::endl;
-            std::cout << "collA " << glm::to_string(intersection.colliderA->getGlobalPosition()) << std::endl;
-            std::cout << "collB " << glm::to_string(intersection.colliderB->getGlobalPosition()) << std::endl;
-        }
-
         // Compute reference side planes
         std::vector<glm::vec3> sidePlanesNormals = std::vector<glm::vec3>({refUaxis, refVaxis, -refUaxis, -refVaxis});
 
@@ -391,5 +332,5 @@ ColliderIntersection Cube::intersectCube(Cube* cubeB, bool calculatePoints){
         std::vector<glm::vec3> contactPoints = projectToPlane(clipped, referenceAxis, referenceFaceCenter);
         intersection.contactPoints = contactPoints;
     }
-    return intersection;
+    return std::vector<ColliderIntersection>{intersection};
 }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "convexshape.h"
+#include "meshshape.h"
 #include <glm/gtc/noise.hpp>
 
-class TerrainShape : public ConvexShape
+class TerrainShape : public MeshShape
 {
 public:
     TerrainShape();

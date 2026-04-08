@@ -11,7 +11,7 @@ public:
     bool active = true;
     void SetShape(Shape* s);
     void setDebug(bool b);
-    ColliderIntersection intersect(CollisionShape3D* other);
+    std::vector<ColliderIntersection> intersect(CollisionShape3D* other);
     glm::mat3 getInertia() {return shape->inertia;}
     std::vector<ColliderIntersection> collisions = std::vector<ColliderIntersection>();
     RigidBody3D *rb = nullptr;

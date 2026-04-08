@@ -104,7 +104,7 @@ add_executable(Main
 
         common/Shapes/shape.h common/Shapes/shape.cpp
         common/Shapes/terrainshape.h common/Shapes/terrainshape.cpp
-        common/Shapes/convexshape.h common/Shapes/convexshape.cpp
+        common/Shapes/meshshape.h common/Shapes/meshshape.cpp
         common/Shapes/sphere.h common/Shapes/sphere.cpp
         common/Shapes/cube.h common/Shapes/cube.cpp
 
@@ -120,6 +120,7 @@ add_executable(Main
         common/Controls/hoveringcontroller.h common/Controls/hoveringcontroller.cpp
         common/Constraint/constraint.h
         common/Constraint/contactconstraint.h common/Constraint/contactconstraint.cpp
+        common/Shapes/voxelshape.h common/Shapes/voxelshape.cpp
 
 
 

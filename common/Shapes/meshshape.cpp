@@ -1,11 +1,11 @@
-#include "convexshape.h"
+#include "meshshape.h"
 
-ConvexShape::ConvexShape()
+MeshShape::MeshShape()
 {
 
 }
 
-void ConvexShape::InitMesh(std::vector<Vertex> vertices, std::vector<Triangle> triangles){
+void MeshShape::InitMesh(std::vector<Vertex> vertices, std::vector<Triangle> triangles){
     for(Vertex v:vertices){
         this->vertices.push_back(v.position);
         if(radius*radius < glm::dot(v.position, v.position)){
@@ -20,7 +20,7 @@ void ConvexShape::InitMesh(std::vector<Vertex> vertices, std::vector<Triangle> t
     inertia *= mass/vertices.size();
 }
 
-void ConvexShape::initTree(){
+void MeshShape::initTree(){
     device = rtcNewDevice(nullptr);
     scene  = rtcNewScene(device);
 
@@ -71,7 +71,7 @@ void ConvexShape::initTree(){
     rtcCommitScene(scene);
 }
 
-RayIntersection ConvexShape::raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length)
+RayIntersection MeshShape::raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length)
 {
     RayIntersection intersection;
     intersection.intersectionExists = false;

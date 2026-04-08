@@ -81,8 +81,7 @@ void Node3d::addChild(Node* c){
 
 void Node3d::setGlobalPosition(const glm::vec3  &globPos){
     if(parent != nullptr){
-        glm::mat4 parentGlobal = parent->getGlobalMatrix();
-        glm::mat4 invParent = glm::inverse(parentGlobal);
+        glm::mat4 invParent = parent->getInverseGlobalMatrix();
         localPosition = glm::vec3(invParent * glm::vec4(globPos, 1.0f));
     }
     else{
@@ -102,23 +101,24 @@ void Node3d::setGlobalRotation(const glm::quat& globRot){
     }
     markDirty();
 }
-void Node3d::SetForward(const glm::vec3& forw)
+void Node3d::setForward(const glm::vec3& forw)
 {
     glm::vec3 f = glm::normalize(forw);
     if (glm::length2(f) < 0.000001f) return;
     glm::vec3 r = glm::normalize(glm::cross(UP, f));
-    glm::mat3 rotMatrix(r, glm::cross(f, r), f);
-    localRotation = glm::normalize(glm::quat_cast(rotMatrix));
+    glm::vec3 u = glm::cross(f, r);
+    glm::mat3 rotMatrix(r, u, f);
+    setLocalRotation(glm::normalize(glm::quat_cast(rotMatrix)));
     markDirty();
 }
-void Node3d::SetRight(const glm::vec3& right)
+void Node3d::setRight(const glm::vec3& right)
 {
     glm::vec3 r = glm::normalize(-right);
     if (glm::length2(r) < 0.000001f) return;
     glm::vec3 f = glm::normalize(glm::cross(UP, r));
     glm::vec3 u = glm::cross(f, r);
     glm::mat3 rotMatrix(r, u, f);
-    localRotation = glm::normalize(glm::quat_cast(rotMatrix));
+    setLocalRotation(glm::normalize(glm::quat_cast(rotMatrix)));
     markDirty();
 }
 

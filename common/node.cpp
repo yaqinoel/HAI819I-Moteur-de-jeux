@@ -73,13 +73,20 @@ void Node::removeParent(){
 
 
 void Node::instantiate(Node* node){
-    scene->instantiate(node);
+    if(scene != nullptr){
+        scene->instantiate(node);
+    }
 }
 void Node::instantiate(Node* node, Node* parent){
-    scene->instantiate(node, parent);
+    node->setParent(parent);
+    if(scene != nullptr){
+        scene->instantiate(node, parent);
+    }
 }
 void Node::markDirty() {
-    dirty = true;
-    for (Node* child : children)
-        child->markDirty();
+    if(!dirty){
+        dirty = true;
+        for (Node* child : children)
+            child->markDirty();
+    }
 }

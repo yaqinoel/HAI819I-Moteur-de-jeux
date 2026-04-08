@@ -46,7 +46,7 @@ void ProceduralTerrain::InitMesh(int posX, int posY , int resX, int resY, float 
     recomputeSmoothVertexNormals(1);
 
     TerrainShape* shape = new TerrainShape();
-    shape->ConvexShape::InitMesh(vertices, triangles);
+    shape->MeshShape::InitMesh(vertices, triangles);
     collision->SetShape(shape);
 
     _synchronized = false;

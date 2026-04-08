@@ -12,6 +12,8 @@ public:
     virtual void process(float deltaTime) override {};
     virtual void physicsProcess();
     virtual void interpolate(float alpha);
+    void setLocalRotation(const glm::quat rotation) override;
+    void setLocalPosition(const glm::vec3 pos) override;
     void postPhysicsProcess();
     void solveCollision(ColliderIntersection collision);
     void Translate(const glm::vec3 translation) override;
@@ -29,8 +31,6 @@ public:
     glm::vec3 getTorque(glm::vec3 point, glm::vec3 momentum){return glm::cross(point-getGlobalPosition(), momentum);}
     void applyImpulse(glm::vec3 impulse, glm::vec3 worldPoint);
 
-    //glm::vec3 getGlobalPosition() const override{unDirty(); return currentPosition;}
-    //glm::quat getGlobalRotation() const override{unDirty(); return currentRotation;}
 
 protected:
     glm::vec3 previousPosition = glm::vec3(0);

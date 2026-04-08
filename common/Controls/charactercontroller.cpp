@@ -3,8 +3,6 @@
 #include <Scenes/Cube.h>
 
 CharacterController::CharacterController() {
-    RayIntersection intersection = scene->raycast(getGlobalPosition()+UP*30.0f, DOWN, 100);
-    if(intersection.intersectionExists) setGlobalPosition(intersection.point);
 }
 
 
@@ -19,7 +17,7 @@ void CharacterController::process(float deltaTime){
     axialInputs = glm::vec2(0);
 
     glm::vec3 cameraForward = glm::normalize(glm::vec3(cam->forward().x, 0, cam->forward().z));
-    SetForward(glm::normalize(cameraForward));
+    setForward(cameraForward);
 
     if (scene->inputHeld("forward")){
         axialInputs.x += 1;
@@ -42,10 +40,9 @@ void CharacterController::process(float deltaTime){
     if (scene->inputPressed("action1")){
         RigidBody3D* cube = makePhysicsCube();
         cube->velocity = cam->forward()*20.0f+UP*7.0f;
-        cube->setGlobalPosition(getGlobalPosition()+cam->forward()*2.0f+up());
         instantiate(cube);
-        cube->SetForward(forward());
-        cube->setGlobalRotation(cube->getGlobalRotation());
+        cube->setGlobalPosition(getGlobalPosition()+cam->forward()*2.0f+up());
+        cube->setForward(forward());
 
     }
 

@@ -5,11 +5,11 @@
 #include <embree4/rtcore.h>
 #include "../3dEntities/collisionshape3d.h"
 
-class ConvexShape : public Shape
+class MeshShape : public Shape
 {
 public:
-    ConvexShape();
-    virtual ~ConvexShape(){
+    MeshShape();
+    virtual ~MeshShape(){
         if(scene) rtcReleaseScene(scene);
         if(device) rtcReleaseDevice(device);
     }
@@ -22,4 +22,5 @@ private:
     RTCScene scene = nullptr;
     RTCGeometry geometry = nullptr;
 };
+
 

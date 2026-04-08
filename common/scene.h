@@ -27,7 +27,6 @@ public:
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
     void render(float alpha);
     void ping(){std::cout << "scene ping" << std::endl;}
-    void remove(Node * node);
     Camera* mainCamera = nullptr;
     InputManager* inputManager = new InputManager();
     bool inputHeld(std::string input){return inputManager->inputs[input]->currentlyHeld;}
@@ -44,6 +43,7 @@ private:
     std::vector<ContactConstraint> previousConstraints;
     std::vector<ContactConstraint> newConstraints;
     void addToTree(Node* node);
+    void remove(Node * node);
     void removeFromTree(Node* node);
     Node* root = nullptr;
 };

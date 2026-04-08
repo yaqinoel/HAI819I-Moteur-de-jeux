@@ -23,7 +23,7 @@ class Node3d : public Node
 public:
     Node3d();
     virtual ~Node3d(){};
-    glm::mat4 getInverseGlobalMatrix() const;
+    glm::mat4 getInverseGlobalMatrix() const override;
     glm::mat4 getGlobalMatrix() const override;
     virtual glm::vec3 getGlobalPosition() const;
     virtual glm::quat getGlobalRotation() const;
@@ -48,16 +48,17 @@ public:
     virtual void setGlobalPosition(const glm::vec3  &globPos);
     virtual void setGlobalRotation(const glm::quat  &globRot);
     virtual void setLocalPosition(const glm::vec3 pos) override {localPosition = pos; markDirty();};
-    void SetLocalRotation(const glm::vec3 eulerRotation){localRotation = glm::normalize(glm::quat(glm::radians(eulerRotation))); markDirty();}
-    void SetLocalRotation(const glm::quat rotation){localRotation = glm::normalize(rotation); markDirty();}
-    void SetForward(const glm::vec3& forward);
-    void SetRight(const glm::vec3& right);
+    virtual void setLocalRotation(const glm::quat rotation){localRotation = glm::normalize(rotation); markDirty();}
+    void setLocalRotation(const glm::vec3 eulerRotation){setLocalRotation(glm::normalize(glm::quat(glm::radians(eulerRotation)))); markDirty();}
+    void setForward(const glm::vec3& forward);
+    void setRight(const glm::vec3& right);
     void setScale(const glm::vec3& newScale){scale = newScale; markDirty();}
     virtual void Translate(const glm::vec3 translation){localPosition += translation; markDirty();}
     void markDirty() override {inverseDirty = true; Node::markDirty();}
 
-    void unDirty() const override;
+    virtual void unDirty() const override;
     void unInverseDirty() const;
+
 private:
     mutable glm::vec3 localPosition = glm::vec3(0);
     mutable glm::vec3 globalPosition = glm::vec3(0);
