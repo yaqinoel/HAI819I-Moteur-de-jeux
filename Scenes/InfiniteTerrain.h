@@ -13,12 +13,13 @@
 #include "Cube.h"
 #include "MainCharacter.h"
 #include "HoveringCharacter.h"
+#include "FirstPersonCharacter.h"
 
 
 Scene* makeInfiniteTerrain(){
     Node* root = new Node3d();
     Scene* scene = new Scene(root);
-    CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 1000.0f, glm::vec3(0, 9, -10));
+    CameraControls* cam = new CameraControls(4.0f, 3.0f, 70.0f, 0.1f, 1000.0f, glm::vec3(0, 9, -10));
     cam->name = "camera";
     scene->instantiate(cam);
 
@@ -38,20 +39,23 @@ Scene* makeInfiniteTerrain(){
         scene->instantiate(tm);
     }
 
-    //HoveringController* knight = makeHoveringController();
-    //knight->setGlobalPosition(glm::vec3(3, 7, 0.5));
+    //HoveringController* character = makeHoveringController();
+    //character->setGlobalPosition(glm::vec3(3, 7, 0.5));
 
-    CharacterController* knight = makeKnight();
-    knight->setGlobalPosition(glm::vec3(3, 14, 10));
+    // CharacterController* character = makeKnight();
+    // character->setGlobalPosition(glm::vec3(3, 14, 10));
 
-    cam->pivot = knight;
-    knight->cam = cam;
-    scene->instantiate(knight);
+    CharacterController* character = makeFPSController();
+    character->setGlobalPosition(glm::vec3(3, 14, 10));
 
-    Node3d* cubeA = makeCube();
-    cubeA->Translate(glm::vec3(1, 7, 0));
-    cubeA->Rotate(glm::radians(40.0), glm::vec3(0, 1, 0));
-    scene->instantiate(cubeA);
+    cam->pivot = character;
+    character->cam = cam;
+    scene->instantiate(character);
+
+    // Node3d* cubeA = makeCube();
+    // cubeA->Translate(glm::vec3(1, 7, 0));
+    // cubeA->Rotate(glm::radians(40.0), glm::vec3(0, 1, 0));
+    // scene->instantiate(cubeA);
 
     // Node3d* cubeA = makePhysicsCube();
     // cubeA->Translate(glm::vec3(1, 7, 0));

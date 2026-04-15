@@ -2,15 +2,7 @@
 #include <common/3dEntities/rigidbody3d.h>
 #include <algorithm>
 
-// ---------------------------------------------------------------------------
-// helpers
-// ---------------------------------------------------------------------------
-
-// Build an arbitrary orthonormal basis for the tangent plane of `n`.
-static void computeTangentBasis(const glm::vec3& n,
-                                glm::vec3& t1, glm::vec3& t2)
-{
-    // Pick the axis least aligned with n to avoid degeneracy
+static void computeTangentBasis(const glm::vec3& n, glm::vec3& t1, glm::vec3& t2){
     if (std::abs(n.x) <= std::abs(n.y) && std::abs(n.x) <= std::abs(n.z))
         t1 = glm::vec3(0.f, -n.z,  n.y);
     else if (std::abs(n.y) <= std::abs(n.z))
@@ -19,18 +11,13 @@ static void computeTangentBasis(const glm::vec3& n,
         t1 = glm::vec3(-n.y,  n.x, 0.f);
 
     t1 = glm::normalize(t1);
-    t2 = glm::cross(n, t1);          // already unit-length
+    t2 = glm::cross(n, t1);
 }
 
-// ---------------------------------------------------------------------------
-// ContactConstraint
-// ---------------------------------------------------------------------------
 
-ContactConstraint::ContactConstraint(RigidBody3D* objA, RigidBody3D* objB,
-                                     glm::vec3 worldPoint, glm::vec3 normal,
-                                     float penetration, FeatureID featureId)
-    : objA(objA), objB(objB), featureId(featureId)
-{
+ContactConstraint::ContactConstraint(RigidBody3D* objA, RigidBody3D* objB, glm::vec3 worldPoint, glm::vec3 normal, float penetration, FeatureID featureId, float friction)
+    : objA(objA), objB(objB), featureId(featureId){
+    this->friction = friction;
     accumulatedNormalLambda   = 0;
     accumulatedFrictionLambda1 = 0;
     accumulatedFrictionLambda2 = 0;
@@ -53,7 +40,6 @@ void ContactConstraint::setCollisionData(glm::vec3 wp, glm::vec3 n, float pen) {
     if (objB) localB = objB->worldToLocal(wp);
 }
 
-// ---------------------------------------------------------------------------
 
 float ContactConstraint::computeTangentEffectiveMass(const glm::vec3& t) const
 {
@@ -66,11 +52,8 @@ float ContactConstraint::computeTangentEffectiveMass(const glm::vec3& t) const
     return em;
 }
 
-// ---------------------------------------------------------------------------
 
-void ContactConstraint::setUp(float dt)
-{
-    // ---- world-space contact points & lever arms ----
+void ContactConstraint::setUp(float dt){
     worldA = objA->localToWorld(localA);
     rA     = worldA - objA->getGlobalPosition();
     if (objB) {
@@ -78,7 +61,6 @@ void ContactConstraint::setUp(float dt)
         rB     = worldB - objB->getGlobalPosition();
     }
 
-    // ---- normal effective mass ----
     glm::vec3 rnA = glm::cross(rA, normal);
     if (objB) {
         glm::vec3 rnB = glm::cross(rB, normal);
@@ -91,22 +73,16 @@ void ContactConstraint::setUp(float dt)
     }
     if (effectiveMass < 1e-6f) effectiveMass = 0.0f;
 
-    // ---- Baumgarte velocity bias ----
     float separation = std::min(0.0f, -penetration + 0.001f);
     velocityBias = (0.2f / dt) * separation;
 
-    // ---- tangent basis & friction effective masses ----
     computeTangentBasis(normal, tangent1, tangent2);
     effectiveMassTangent1 = computeTangentEffectiveMass(tangent1);
     effectiveMassTangent2 = computeTangentEffectiveMass(tangent2);
     if (effectiveMassTangent1 < 1e-6f) effectiveMassTangent1 = 0.0f;
     if (effectiveMassTangent2 < 1e-6f) effectiveMassTangent2 = 0.0f;
 
-    // ---- warm-start ----
-    if (accumulatedNormalLambda != 0.0f ||
-        accumulatedFrictionLambda1 != 0.0f ||
-        accumulatedFrictionLambda2 != 0.0f)
-    {
+    if (accumulatedNormalLambda != 0.0f || accumulatedFrictionLambda1 != 0.0f || accumulatedFrictionLambda2 != 0.0f){
         glm::vec3 impulse = normal   * accumulatedNormalLambda
                             + tangent1 * accumulatedFrictionLambda1
                             + tangent2 * accumulatedFrictionLambda2;
@@ -115,15 +91,10 @@ void ContactConstraint::setUp(float dt)
     }
 }
 
-// ---------------------------------------------------------------------------
 
-void ContactConstraint::solveFriction(const glm::vec3& t,
-                                      float             effectiveMassT,
-                                      float&            accumulatedLambdaT)
-{
+void ContactConstraint::solveFriction(const glm::vec3& t, float effectiveMassT, float& accumulatedLambdaT){
     if (effectiveMassT < 1e-6f) return;
 
-    // Relative velocity along tangent
     float Cdot;
     if (objB) {
         glm::vec3 velA = objA->velocity + glm::cross(objA->angularVelocity, rA);
@@ -149,11 +120,8 @@ void ContactConstraint::solveFriction(const glm::vec3& t,
     if (objB) objB->applyImpulse(impulse, worldB);
 }
 
-// ---------------------------------------------------------------------------
 
-void ContactConstraint::solve()
-{
-    // ---- 1. Normal (non-penetration) impulse ----
+void ContactConstraint::solve(){
     if (effectiveMass >= 1e-6f) {
         float Cdot;
         if (objB) {
@@ -177,7 +145,6 @@ void ContactConstraint::solve()
         }
     }
 
-    // ---- 2. Friction impulses (two tangent directions) ----
     solveFriction(tangent1, effectiveMassTangent1, accumulatedFrictionLambda1);
     solveFriction(tangent2, effectiveMassTangent2, accumulatedFrictionLambda2);
 }

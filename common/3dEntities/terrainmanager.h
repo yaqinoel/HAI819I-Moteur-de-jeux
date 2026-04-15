@@ -24,7 +24,7 @@ public:
     void UpdateTerrain(glm::ivec3 newCamPosition);
     void initTerrain();
     //Node* MakeChunk(int x, int y, int indexX, int indexY);
-    int chunkRenderDistance = 0;
+    int chunkRenderDistance = 3;
     float chunkSize = 30;
     Material* terrainMat;
 private:

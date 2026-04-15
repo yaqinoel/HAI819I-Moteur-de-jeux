@@ -24,7 +24,7 @@ public:
     void instantiate(Node* node);
     void process(float deltaTime);
     void physicsProcess();
-    RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
+    RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask = ~0ULL);
     void render(float alpha);
     void ping(){std::cout << "scene ping" << std::endl;}
     Camera* mainCamera = nullptr;

@@ -43,7 +43,7 @@ void CameraControls::process(float deltaTime){
     glm::quat pitch = glm::angleAxis(glm::radians(yoffset), pitchAxis);
     glm::quat newRot = glm::normalize(pitch * yaw);
     targetNode->setForward(newRot * forward());
-    targetNode->setGlobalPosition(pivot->up()+ pivot->getGlobalPosition() +pivotDistance*(targetNode->getGlobalRotation()*BACKWARDS));
+    targetNode->setGlobalPosition(pivotOffset+ pivot->getGlobalPosition() +pivotDistance*(targetNode->getGlobalRotation()*BACKWARDS));
     setGlobalPosition(targetNode->getGlobalPosition());//glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
     setGlobalRotation(targetNode->getGlobalRotation());//glm::slerp(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));
 }

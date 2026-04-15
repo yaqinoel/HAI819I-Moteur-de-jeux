@@ -7,6 +7,11 @@ Shape::Shape()
 
 }
 
+RayIntersection Shape::raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t layers){
+    if((layers & collider->collisionLayers) == 0) return RayIntersection();
+    else return this->raycast(origin, direction, length);
+}
+
 std::vector<ColliderIntersection> Shape::intersect(Shape* shape, bool calculatePoints){
     if(glm::length(shape->collider->getGlobalPosition()-collider->getGlobalPosition()) < radius+shape->radius){
         if(shape->type == CUBE){

@@ -16,8 +16,8 @@ void CharacterController::process(float deltaTime){
 
     axialInputs = glm::vec2(0);
 
-    glm::vec3 cameraForward = glm::normalize(glm::vec3(cam->forward().x, 0, cam->forward().z));
-    setForward(cameraForward);
+    cameraForward = glm::normalize(glm::vec3(cam->forward().x, 0, cam->forward().z));
+    //setForward(cameraForward);
 
     if (scene->inputHeld("forward")){
         axialInputs.x += 1;
@@ -33,41 +33,35 @@ void CharacterController::process(float deltaTime){
         axialInputs.y -= 1;
     }
     if (scene->inputPressed("jump")){
-        if(velocity.y <= 0 && onground){
-            velocity.y = jumpStrength;
+        if(velocity.y <= 0.01 && onground){
+            jumpPressed = true;
         }
     }
     if (scene->inputPressed("action1")){
         RigidBody3D* cube = makePhysicsCube();
         cube->velocity = cam->forward()*20.0f+UP*7.0f;
         instantiate(cube);
-        cube->setGlobalPosition(getGlobalPosition()+cam->forward()*2.0f+up());
-        cube->setForward(forward());
-
+        cube->setGlobalPosition(getGlobalPosition()+cam->forward()*1.0f+up()*0.7f);
+        cube->setForward(cameraForward);
     }
-
-
-
 }
 
 void CharacterController::physicsProcess(){
     RigidBody3D::physicsProcess();
-    float boundary = 0.5f;
-    glm::vec3 planarVelocity = (axialInputs.x * forward() + axialInputs.y * right());
+    glm::vec3 planarVelocity = (axialInputs.x * cameraForward + axialInputs.y * cam->right());
     if(planarVelocity != glm::vec3(0)) planarVelocity = glm::normalize(planarVelocity)*speed;
-    RayIntersection planarIntersection = scene->raycast(currentPosition+UP*boundary, planarVelocity, boundary+speed/100);
-    if(planarIntersection.intersectionExists){
-        glm::vec3 nearestPoint = projectPointOnPlane(currentPosition, planarIntersection.point, planarIntersection.normal);
-        currentPosition = nearestPoint + planarIntersection.normal * boundary;
-        planarVelocity = glm::cross(glm::cross(planarIntersection.normal, planarVelocity), planarIntersection.normal);
-    }
 
     velocity = planarVelocity+glm::vec3(0, velocity.y, 0);
 
-    if(velocity.y <= 0){
-        RayIntersection verticalIntersection = scene->raycast(currentPosition+UP*2.0f, DOWN, 2.2);
+    if(jumpPressed){
+        velocity.y = jumpStrength;
+        jumpPressed = false;
+    }
+    else if(velocity.y <= 0){
+        RayIntersection verticalIntersection = scene->raycast(currentPosition, DOWN, 1.1f, 1ULL);
+        //std::cout << glm::to_string(currentPosition) << std::endl;
         if(verticalIntersection.intersectionExists){
-            currentPosition = verticalIntersection.point+UP*0.08f;
+            currentPosition = verticalIntersection.point+UP*1.0f;
             velocity.y = 0;
             onground = true;
         }

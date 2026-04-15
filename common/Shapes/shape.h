@@ -25,6 +25,7 @@ class Shape
 public:
     Shape();
     virtual RayIntersection raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length)=0;
+    virtual RayIntersection raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t layers);
     virtual std::vector<ColliderIntersection> intersectCube(Cube* cube, bool calculatePoints = false){return std::vector<ColliderIntersection>();}
     virtual std::vector<ColliderIntersection> intersectVoxel(VoxelShape* voxel, bool calculatePoints = false){return std::vector<ColliderIntersection>();}
     virtual std::vector<ColliderIntersection> intersect(Shape* shape, bool calculatePoints = false);

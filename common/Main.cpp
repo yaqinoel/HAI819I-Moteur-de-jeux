@@ -124,6 +124,7 @@ int main( void )
         // Run physics at fixed intervals
         while (accumulator >= physicsStep) {
             scene->physicsProcess();
+
             accumulator -= physicsStep;
         }
 

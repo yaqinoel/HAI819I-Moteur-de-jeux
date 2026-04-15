@@ -4,9 +4,9 @@
 CollisionShape3D::CollisionShape3D()
 {
 }
-RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length){
+RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask){
     if(shape != nullptr){
-        return shape->raycast(origin, direction, length);
+        return shape->raycast(origin, direction, length, mask);
     }
     else{
         std::cerr << "Error no shape associated with the CollisionShape" << std::endl;

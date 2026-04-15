@@ -95,7 +95,6 @@ void Scene::physicsProcess() {
                     collisions.push_back(col);
             }
         }
-
     for (const ColliderIntersection& col : collisions) {
         RigidBody3D* objA = col.colliderA->rb;
         RigidBody3D* objB = col.colliderB->rb;
@@ -103,10 +102,10 @@ void Scene::physicsProcess() {
 
         if (objA) {
             for (const glm::vec3& pt : col.contactPoints)
-                addConstraint(ContactConstraint( objA, objB, pt, col.axis, col.t, FeatureID(col.featureA, col.featureB)));
+                addConstraint(ContactConstraint( objA, objB, pt, col.axis, col.t, FeatureID(col.featureA, col.featureB), objA->friction));
         } else {
             for (const glm::vec3& pt : col.contactPoints)
-                addConstraint(ContactConstraint( objB, objA, pt, -col.axis, col.t, FeatureID(col.featureB, col.featureA)));
+                addConstraint(ContactConstraint( objB, objA, pt, -col.axis, col.t, FeatureID(col.featureB, col.featureA), objB->friction));
         }
     }
     for (ContactConstraint& c : newConstraints){
@@ -169,7 +168,7 @@ void Scene::remove(Node * node){
     delete node;
 }
 
-RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length ) {
+RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask) {
     std::clock_t start = std::clock();
     RayIntersection closestIntersection;
     closestIntersection.t = FLT_MAX;
@@ -177,7 +176,7 @@ RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &directi
     for (CollisionShape3D* c: colliders)
     {
         if(c != nullptr && c->getVisible()){
-            RayIntersection newIntersection = c->raycast(origin, direction, length);
+            RayIntersection newIntersection = c->raycast(origin, direction, length, mask);
             if (newIntersection.intersectionExists && newIntersection.t < closestIntersection.t){
                 closestIntersection = newIntersection;
             }

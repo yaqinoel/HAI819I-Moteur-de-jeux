@@ -14,3 +14,4 @@ public:
     glm::vec3 size;
     glm::vec3 halfSize;
 };
+

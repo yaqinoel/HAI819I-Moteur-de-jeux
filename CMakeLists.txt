@@ -121,6 +121,7 @@ add_executable(Main
         common/Constraint/constraint.h
         common/Constraint/contactconstraint.h common/Constraint/contactconstraint.cpp
         common/Shapes/voxelshape.h common/Shapes/voxelshape.cpp
+        Scenes/FirstPersonCharacter.h
 
 
 

@@ -35,24 +35,20 @@ public:
     float invMassA = 0, invMassB = 0;
     glm::mat3 invIA{0}, invIB{0};
 
-    // Normal constraint
     float effectiveMass  = 0;
     float velocityBias   = 0;
     float accumulatedNormalLambda = 0;
 
-    // Friction
     glm::vec3 tangent1{0}, tangent2{0};
     float effectiveMassTangent1  = 0;
     float effectiveMassTangent2  = 0;
     float accumulatedFrictionLambda1 = 0;
     float accumulatedFrictionLambda2 = 0;
-    float friction = 0.5f;   // combined friction coefficient
+    float friction = 0.5f;
 
     bool isReused = false;
 
-    ContactConstraint(RigidBody3D* objA, RigidBody3D* objB,
-                      glm::vec3 worldPoint, glm::vec3 normal,
-                      float penetration, FeatureID featureId);
+    ContactConstraint(RigidBody3D* objA, RigidBody3D* objB, glm::vec3 worldPoint, glm::vec3 normal, float penetration, FeatureID featureId, float friction);
 
     void setCollisionData(glm::vec3 worldPoint, glm::vec3 normal, float penetration);
     void setUp(float dt);

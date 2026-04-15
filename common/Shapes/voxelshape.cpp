@@ -54,14 +54,22 @@ RayIntersection VoxelShape::raycast(glm::vec3 const &origin, glm::vec3 const &di
     int stepZ = (dir.z >= 0) ? 1 : -1;
 
     // How far along the ray we must travel to cross one voxel boundary per axis
-    float tDeltaX = (dir.x != 0) ? std::abs(voxelSize / dir.x) : std::numeric_limits<float>::infinity();
-    float tDeltaY = (dir.y != 0) ? std::abs(voxelSize / dir.y) : std::numeric_limits<float>::infinity();
-    float tDeltaZ = (dir.z != 0) ? std::abs(voxelSize / dir.z) : std::numeric_limits<float>::infinity();
+    float tDeltaX = (dir.x != 0) ? std::abs(voxelSize / dir.x) : INFINITY;
+    float tDeltaY = (dir.y != 0) ? std::abs(voxelSize / dir.y) : INFINITY;
+    float tDeltaZ = (dir.z != 0) ? std::abs(voxelSize / dir.z) : INFINITY;
 
     // Distance to first voxel boundary from origin
     auto tBoundary = [](float origin, float dir, int step) -> float {
-        if (dir == 0) return std::numeric_limits<float>::infinity();
-        float boundary = (step > 0) ? std::floor(origin) + 1.0f : std::ceil(origin) - 1.0f;
+        if (dir == 0.0f) return INFINITY;
+        float boundary;
+        if (step > 0) {
+            boundary = std::floor(origin);
+            if (origin > boundary) boundary += 1.0f;
+        } else {
+            boundary = std::ceil(origin);
+            if (origin < boundary) boundary -= 1.0f;
+        }
+
         return std::abs((boundary - origin) / dir);
     };
 
@@ -77,7 +85,7 @@ RayIntersection VoxelShape::raycast(glm::vec3 const &origin, glm::vec3 const &di
         // Check bounds
         if (x >= 0 && x < width && y >= 0 && y < height && z >= 0 && z < depth)
         {
-            if (get(x, y, z) != 0)
+            if (get(x, y, z) != 0 && t <= length)
             {
                 intersection.intersectionExists = true;
                 intersection.t = t;
@@ -118,7 +126,6 @@ RayIntersection VoxelShape::raycast(glm::vec3 const &origin, glm::vec3 const &di
             face = 2;
         }
     }
-
     return intersection;
 }
 

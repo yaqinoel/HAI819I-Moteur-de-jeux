@@ -38,6 +38,7 @@ void RigidBody3D::Translate(const glm::vec3 translation){
 void RigidBody3D::setGlobalPosition(const glm::vec3 &globPos){
     Node3d::setGlobalPosition(globPos);
     currentPosition  = globPos;
+    previousPosition = globPos;
     markDirty();
 }
 
@@ -45,6 +46,7 @@ void RigidBody3D::setGlobalPosition(const glm::vec3 &globPos){
 void RigidBody3D::setGlobalRotation(const glm::quat &globRot){
     Node3d::setGlobalRotation(globRot);
     currentRotation  = globRot;
+    previousRotation = globRot;
     markDirty();
 }
 
@@ -100,22 +102,15 @@ void RigidBody3D::solveCollision(ColliderIntersection collision){
             applyImpulse(-impulse, p);
             B->applyImpulse(impulse, p);
 
-            // float percent = 0.8f; // 20% leeway
-            // float slop = 0.01f;   // small allowance
-            // glm::vec3 correction = std::max(collision.t - slop, 0.0f) / (invMassA + invMassB) * percent * collision.axis;
-            // currentPosition -= invMassA * correction;
-            // B->currentPosition += invMassB * correction;
+            float percent = 0.9f;
+            float slop = 0.02f;
+            glm::vec3 correction = std::max(collision.t - slop, 0.0f) / (invMassA + invMassB) * percent * collision.axis;
+            currentPosition -= invMassA * correction;
+            B->currentPosition += invMassB * correction;
         }
         return;
     }
     else{
-        // std::cout << "\n\n " << std::endl;
-        // std::cout << "position " << glm::to_string(currentPosition) << std::endl;
-        // std::cout << "t " << collision.t << std::endl;
-        // std::cout << "posA " << glm::to_string(currentPosition) << std::endl;
-        // std::cout << "posB " << glm::to_string(collision.colliderB->getGlobalPosition()) << std::endl;
-
-
         glm::vec3 addedVelocity = glm::vec3(0);
         glm::vec3 addedAngularVelocity = glm::vec3(0);
         for(glm::vec3 p : collision.contactPoints){
@@ -138,25 +133,10 @@ void RigidBody3D::solveCollision(ColliderIntersection collision){
 
             addedVelocity += impulse/mass;
             addedAngularVelocity += inverseInertia * glm::cross(rA, impulse);
-
-            // std::cout << "\nmass " << mass << std::endl;
-            // std::cout << "velocity " << glm::to_string(velocity) << std::endl;
-            // std::cout << "relativeVelocity " << glm::to_string(relativeVelocity) << std::endl;
-            // std::cout << "velAlongNormal " << velAlongNormal << std::endl;
-            // std::cout << "collision.axis " << glm::to_string(collision.axis) << std::endl;
-            // std::cout << "rA " << glm::to_string(rA) << std::endl;
-            // std::cout << "inverseInertia " << glm::to_string(inverseInertia) << std::endl;
-            // std::cout << "raCrossN " << glm::to_string(rnA) << std::endl;
-            // std::cout << "denom " << denom << std::endl;
-            // std::cout << "velAlongNormal " << velAlongNormal << std::endl;
-            // std::cout << "j " << j << std::endl;
-            // std::cout << "impulse " << glm::to_string(impulse) << std::endl;
-            // std::cout << "vel currentl " << glm::to_string(addedVelocity)<< std::endl;
         }
 
         velocity += addedVelocity;
-        angularVelocity += addedAngularVelocity;
-        //std::cout << " vel final " << glm::to_string(velocity) <<"\n"<< std::endl;
+        angularVelocity += addedAngularVelocity*unlockedRotation;
     }
 }
 
@@ -167,6 +147,6 @@ void RigidBody3D::applyImpulse(glm::vec3 impulse, glm::vec3 worldPoint){
         glm::vec3 r = worldPoint - currentPosition;
         glm::vec3 angularImpulse = glm::cross(r, impulse);
 
-        angularVelocity += inverseInertia * angularImpulse;
+        angularVelocity += inverseInertia * angularImpulse * unlockedRotation;
     }
 }

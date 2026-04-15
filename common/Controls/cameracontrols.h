@@ -25,6 +25,7 @@ public:
 
     double lastX = 0.0;
     double lastY = 0.0;
-    float pivotDistance = 5;
+    float pivotDistance = 0;
+    glm::vec3 pivotOffset = glm::vec3(0, 0.8, 0);
     Node3d* pivot;
 };
