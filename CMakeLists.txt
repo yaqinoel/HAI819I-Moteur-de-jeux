@@ -2,6 +2,9 @@
 cmake_minimum_required (VERSION 3.0)
 project (Moteur)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(OpenGL REQUIRED)
 find_package(embree 4 REQUIRED)
 
@@ -132,7 +135,8 @@ target_link_libraries(Main
 )
 # Xcode and Visual working directories
 set_target_properties(Main PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Main/")
-create_target_launcher(Main WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Main/")
+# create_target_launcher uses deprecated LOCATION property, skip it
+# create_target_launcher(Main WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Main/")
 
 
 

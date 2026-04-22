@@ -68,6 +68,23 @@ public:
 
     Texture() = default;
     Texture(Texture &&) = default;
+
+    Texture& operator=(const Texture & other) {
+        if (this != &other) {
+            if (__synchronized) unsynchronize();
+            data = other.data;
+            width = other.width;
+            height = other.height;
+            nbChannels = other.nbChannels;
+            sharp = other.sharp;
+            scale = other.scale;
+            __synchronized = false;
+            if (!data.empty())
+                synchronize();
+        }
+        return *this;
+    }
+    
     ~Texture(){if (__synchronized) unsynchronize();}
 
     void loadTexture(const std::string path){
