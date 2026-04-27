@@ -7,16 +7,20 @@ struct FeatureID {
     FeatureID(){
         this->featureA = 0;
         this->featureB = 0;
+        this->index = 0;
     }
-    FeatureID(uint16_t featureA, uint16_t featureB){
+    FeatureID(uint16_t featureA, uint16_t featureB, uint16_t index = 0){
         this->featureA = featureA;
         this->featureB = featureB;
+        this->index = index;
     }
     uint16_t featureA;
     uint16_t featureB;
+    uint16_t index;
     bool operator==(const FeatureID& other) const {
         return featureA == other.featureA &&
-               featureB == other.featureB;
+               featureB == other.featureB &&
+               index == other.index;
     }
 };
 

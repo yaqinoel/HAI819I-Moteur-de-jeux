@@ -100,12 +100,17 @@ void Scene::physicsProcess() {
         RigidBody3D* objB = col.colliderB->rb;
         if (!objA && !objB) continue;
 
+        uint16_t ptIndex = 0;
         if (objA) {
-            for (const glm::vec3& pt : col.contactPoints)
-                addConstraint(ContactConstraint( objA, objB, pt, col.axis, col.t, FeatureID(col.featureA, col.featureB), objA->friction));
+            for (const glm::vec3& pt : col.contactPoints) {
+                addConstraint(ContactConstraint( objA, objB, pt, col.axis, col.t, FeatureID(col.featureA, col.featureB, ptIndex), objA->friction));
+                ptIndex++;
+            }
         } else {
-            for (const glm::vec3& pt : col.contactPoints)
-                addConstraint(ContactConstraint( objB, objA, pt, -col.axis, col.t, FeatureID(col.featureB, col.featureA), objB->friction));
+            for (const glm::vec3& pt : col.contactPoints) {
+                addConstraint(ContactConstraint( objB, objA, pt, -col.axis, col.t, FeatureID(col.featureB, col.featureA, ptIndex), objB->friction));
+                ptIndex++;
+            }
         }
     }
     for (ContactConstraint& c : newConstraints){
