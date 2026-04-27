@@ -5,7 +5,11 @@
 
 Cube::Cube(float size_x, float size_y, float size_z, std::vector<Vertex>& ver, std::vector<Triangle>& tri) : Cube(size_x, size_y, size_z) {
     setMesh(ver, tri);
-    inertia = mass*glm::mat3(1.0/6.0);
+    float sx2 = size_x*size_x, sy2 = size_y*size_y, sz2 = size_z*size_z;
+    inertia = glm::mat3(0);
+    inertia[0][0] = mass/12.0f * (sy2 + sz2);
+    inertia[1][1] = mass/12.0f * (sx2 + sz2);
+    inertia[2][2] = mass/12.0f * (sx2 + sy2);
     type = CUBE;
 }
 
@@ -38,7 +42,11 @@ Cube::Cube(float size_x, float size_y, float size_z){
     triangles[9] = glm::ivec3(1, 3, 7);
     triangles[10] = glm::ivec3(0, 2, 3);
     triangles[11] = glm::ivec3(4, 0, 1);
-    inertia = mass*glm::mat3(1.0/6.0);
+    float sx2 = size.x*size.x, sy2 = size.y*size.y, sz2 = size.z*size.z;
+    inertia = glm::mat3(0);
+    inertia[0][0] = mass/12.0f * (sy2 + sz2);
+    inertia[1][1] = mass/12.0f * (sx2 + sz2);
+    inertia[2][2] = mass/12.0f * (sx2 + sy2);
 }
 
 void Cube::setMesh(std::vector<Vertex> &ver, std::vector<Triangle> &tri){
