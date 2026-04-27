@@ -73,8 +73,9 @@ void ContactConstraint::setUp(float dt){
     }
     if (effectiveMass < 1e-6f) effectiveMass = 0.0f;
 
-    float separation = std::min(0.0f, -penetration + 0.001f);
-    velocityBias = (0.2f / dt) * separation;
+    // float separation = std::min(0.0f, -penetration + 0.001f);
+    // velocityBias = (0.2f / dt) * separation;
+    velocityBias = 0.0f;
 
     computeTangentBasis(normal, tangent1, tangent2);
     effectiveMassTangent1 = computeTangentEffectiveMass(tangent1);
@@ -133,7 +134,8 @@ void ContactConstraint::solve(){
             Cdot = glm::dot(normal, -velA);
         }
 
-        float lambda    = -(Cdot + velocityBias) / effectiveMass;
+        // float lambda    = -(Cdot + velocityBias) / effectiveMass;
+        float lambda    = -Cdot / effectiveMass;
         float oldAccum  = accumulatedNormalLambda;
         accumulatedNormalLambda = std::max(oldAccum + lambda, 0.0f);
         lambda = accumulatedNormalLambda - oldAccum;

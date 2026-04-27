@@ -121,9 +121,52 @@ void Scene::physicsProcess() {
         if (rb && rb->getVisible())
             rb->postPhysicsProcess();
 
+    solvePositionConstraints();
+
     previousConstraints = newConstraints;
     newConstraints.clear();
     newConstraints.reserve(previousConstraints.size() * 2);
+}
+
+void Scene::solvePositionConstraints() {
+    const float slop = 0.005f;
+    const float percent = 0.8f;
+    const int positionIterations = 3;
+
+    for (RigidBody3D* rb : rigidBodies) {
+        if (rb) rb->solverTempPosition = rb->getCurrentPosition();
+    }
+
+    for (int iter = 0; iter < positionIterations; iter++) {
+        for (const ColliderIntersection& col : collisions) {
+            RigidBody3D* objA = col.colliderA->rb;
+            RigidBody3D* objB = col.colliderB->rb;
+
+            float invMassA = (objA && objA->mass > 0.0f) ? 1.0f / objA->mass : 0.0f;
+            float invMassB = (objB && objB->mass > 0.0f) ? 1.0f / objB->mass : 0.0f;
+            float sumInvMass = invMassA + invMassB;
+
+            if (sumInvMass <= 0.0f) continue;
+
+            glm::vec3 deltaA = objA ? (objA->getCurrentPosition() - objA->solverTempPosition) : glm::vec3(0.0f);
+            glm::vec3 deltaB = objB ? (objB->getCurrentPosition() - objB->solverTempPosition) : glm::vec3(0.0f);
+
+            float separationChange = glm::dot(deltaB - deltaA, col.axis);
+            float currentPenetration = col.t - separationChange;
+
+            if (currentPenetration <= slop) continue;
+
+            float correctionScalar = (currentPenetration - slop) / sumInvMass * percent;
+            glm::vec3 correctionVector = col.axis * correctionScalar;
+
+            if (objA) {
+                objA->Translate(-correctionVector * invMassA);
+            }
+            if (objB) {
+                objB->Translate(correctionVector * invMassB);
+            }
+        }
+    }
 }
 
 void Scene::render(float alpha){

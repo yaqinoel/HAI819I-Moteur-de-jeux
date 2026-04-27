@@ -45,5 +45,6 @@ private:
     void addToTree(Node* node);
     void remove(Node * node);
     void removeFromTree(Node* node);
+    void solvePositionConstraints();
     Node* root = nullptr;
 };
