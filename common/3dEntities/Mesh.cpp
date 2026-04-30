@@ -267,6 +267,15 @@ void Mesh::synchronize() const {
     attributeIndex = 2;
     glVertexAttribPointer(attributeIndex, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
     glEnableVertexAttribArray(attributeIndex);
+
+    attributeIndex = 3;
+    glVertexAttribPointer(attributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+    glEnableVertexAttribArray(attributeIndex);
+
+    attributeIndex = 4;
+    glVertexAttribPointer(attributeIndex, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
+    glEnableVertexAttribArray(attributeIndex);
+
     _synchronized = true;
 }
 
