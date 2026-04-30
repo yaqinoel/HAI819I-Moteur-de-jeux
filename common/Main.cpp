@@ -1,6 +1,6 @@
 // Include standard headers
 #include "Scenes/SolarSystem.h"
-#include "Scenes/InfiniteTerrain.h"
+#include "Scenes/PBRGridScene.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,6 +9,8 @@
 
 // Include GLFW
 #include <GLFW/glfw3.h>
+
+#include "Scenes/InfiniteTerrain.h"
 GLFWwindow* window;
 
 // Include GLM
@@ -103,7 +105,7 @@ int main( void )
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    scene = makeInfiniteTerrain();
+    scene = makePBRGridScene();
 
     // For speed computation
     double lastTime = glfwGetTime();

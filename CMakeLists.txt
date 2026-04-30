@@ -73,13 +73,16 @@ add_executable(Main
         
         common/Materials/material.h common/Materials/material.cpp
         common/Materials/texture.h common/Materials/texture.cpp
+        common/Materials/pbrmaterial.h common/Materials/pbrmaterial.cpp
 
 
         common/Controls/cameracontrols.cpp common/Controls/cameracontrols.h
+        common/Controls/freecamera.cpp common/Controls/freecamera.h
 
         common/3dEntities/node3d.h common/3dEntities/node3d.cpp
         common/3dEntities/camera.h common/3dEntities/camera.cpp
         common/3dEntities/Mesh.hpp
+        common/3dEntities/Model.hpp common/3dEntities/Model.cpp
 
         common/3dEntities/Meshes/Terrain/proceduralterrain.h common/3dEntities/Meshes/Terrain/proceduralterrain.cpp
         common/3dEntities/Meshes/Terrain/heightmapterrain.h common/3dEntities/Meshes/Terrain/heightmapterrain.cpp
@@ -117,6 +120,7 @@ add_executable(Main
 
         Scenes/SolarSystem.h
         Scenes/InfiniteTerrain.h
+        Scenes/PBRGridScene.h
         Scenes/Ball.h
         Scenes/Cube.h
         Scenes/MainCharacter.h
