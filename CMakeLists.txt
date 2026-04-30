@@ -33,12 +33,15 @@ if(INCLUDE_DISTRIB)
         add_subdirectory(distrib)
 endif(INCLUDE_DISTRIB)
 
-
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL " " FORCE)
 
 include_directories(
         external/glfw-3.1.2/include/
         external/glm-0.9.7.1/
         external/glew-1.13.0/include/
+        external/assimp/include/
+        ${CMAKE_BINARY_DIR}/external/assimp/include/
         .
 )
 
@@ -49,6 +52,7 @@ set(ALL_LIBS
         glfw
         GLEW_1130
         embree
+        assimp
 )
 
 add_definitions(
