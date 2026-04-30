@@ -61,6 +61,7 @@ public:
     void openOBJ(const std::string &filename);
     void render(const Camera* camera) const;
     void setShader(std::string vertex_shader, std::string fragment_shader);
+    void setShader(GLuint shader);
     void clear ();
     void clearGeometry ();
     void clearTopology ();

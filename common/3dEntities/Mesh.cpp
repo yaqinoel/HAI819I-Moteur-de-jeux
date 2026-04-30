@@ -299,6 +299,14 @@ void Mesh::setShader(std::string vertex_shader, std::string fragment_shader){
     viewUniform = glGetUniformLocation(shaderPID, "viewVector");
 }
 
+void Mesh::setShader(GLuint shader) {
+    shaderPID = shader;
+    modelMatrixUniform = glGetUniformLocation(shaderPID, "model");
+    viewMatrixUniform = glGetUniformLocation(shaderPID, "view");
+    projectionMatrixUniform = glGetUniformLocation(shaderPID, "projection");
+    viewUniform = glGetUniformLocation(shaderPID, "viewVector");
+}
+
 void Mesh::render(const Camera* camera) const{
 
     if (vertices.empty()) {
