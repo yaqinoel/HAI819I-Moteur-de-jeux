@@ -99,11 +99,18 @@ add_executable(Main
         external/stb_image/stb_image.h external/stb_image/stb_image.cpp
         common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp
 
+        common/3dEntities/Lights/Light.hpp common/3dEntities/Lights/Light.cpp
+        common/3dEntities/Lights/DirectionalLight.hpp common/3dEntities/Lights/DirectionalLight.cpp
+        common/3dEntities/Lights/PointLight.hpp common/3dEntities/Lights/PointLight.cpp
+        common/3dEntities/Lights/SpotLight.hpp common/3dEntities/Lights/SpotLight.cpp
+
         common/3dEntities/Mesh.cpp
         common/3dEntities/rigidbody3d.h common/3dEntities/rigidbody3d.cpp
         common/3dEntities/collisionshape3d.h common/3dEntities/collisionshape3d.cpp
         common/3dEntities/terrainmanager.h common/3dEntities/terrainmanager.cpp
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
+
+        common/Utilities/Shader.hpp common/Utilities/Shader.cpp
         common/Utilities/rayintersection.h
         common/Utilities/PerlinNoise.h
         common/Utilities/Geometry.h

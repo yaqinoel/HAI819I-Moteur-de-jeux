@@ -1,6 +1,6 @@
 #include "DirectionalLight.hpp"
 
-DirectionalLight::DirectionalLight(glm::vec3 c = glm::vec3(1.0f), float i = 1.0f)
+DirectionalLight::DirectionalLight(glm::vec3 c, float i)
     : Light(c, i) {}
 
 LightType DirectionalLight::getType() const {
