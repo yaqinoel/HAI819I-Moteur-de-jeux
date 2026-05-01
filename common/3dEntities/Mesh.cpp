@@ -150,11 +150,10 @@ void Mesh::openOBJ(const std::string &filename)
         else if (type == "f")
         {
             std::vector<unsigned int> faceIndices;
+            std::string vertexString;
 
-            for (int i = 0; i < 3; ++i) // assuming triangles
+            while (ss >> vertexString)
             {
-                std::string vertexString;
-                ss >> vertexString;
                 int vIndex = -1, vtIndex = -1, vnIndex = -1;
                 sscanf(vertexString.c_str(), "%d/%d/%d", &vIndex, &vtIndex, &vnIndex);
                 // OBJ indices start at 1
@@ -180,10 +179,62 @@ void Mesh::openOBJ(const std::string &filename)
                 }
             }
 
-            triangles.push_back(Triangle(faceIndices[0], faceIndices[1], faceIndices[2]));
+            for (size_t i = 2; i < faceIndices.size(); ++i) {
+                triangles.push_back(Triangle(faceIndices[0], faceIndices[i - 1], faceIndices[i]));
+            }
         }
     }
     in.close();
+
+    // Calculate Tangents and Bitangents
+    for (Vertex& v : vertices) {
+        v.tangent = glm::vec3(0.0f);
+        v.bitangent = glm::vec3(0.0f);
+    }
+
+    for (const Triangle& tri : triangles) {
+        Vertex& v0 = vertices[tri[0]];
+        Vertex& v1 = vertices[tri[1]];
+        Vertex& v2 = vertices[tri[2]];
+
+        glm::vec3 edge1 = v1.position - v0.position;
+        glm::vec3 edge2 = v2.position - v0.position;
+
+        glm::vec2 deltaUV1 = v1.texCoord - v0.texCoord;
+        glm::vec2 deltaUV2 = v2.texCoord - v0.texCoord;
+
+        float det = (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+        if (std::abs(det) < 1e-6f) continue;
+        
+        float f = 1.0f / det;
+
+        glm::vec3 tangent;
+        tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+        glm::vec3 bitangent;
+        bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+        v0.tangent += tangent;
+        v1.tangent += tangent;
+        v2.tangent += tangent;
+
+        v0.bitangent += bitangent;
+        v1.bitangent += bitangent;
+        v2.bitangent += bitangent;
+    }
+
+    for (Vertex& v : vertices) {
+        if (glm::length(v.tangent) > 0.0001f) {
+            v.tangent = glm::normalize(v.tangent);
+        }
+        if (glm::length(v.bitangent) > 0.0001f) {
+            v.bitangent = glm::normalize(v.bitangent);
+        }
+    }
 }
 
 Mesh::Mesh(const std::vector<glm::vec3> & v, const std::vector<glm::ivec3> & t){
