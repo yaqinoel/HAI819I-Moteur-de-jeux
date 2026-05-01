@@ -15,9 +15,12 @@ class Node;
 class Mesh;
 class Camera;
 class RigidBody3D;
+class Light;
 
 class Scene
 {
+    friend class RenderSystem;
+    friend class ForwardRenderSystem;
 public:
     Scene(Node* rootNode);
     void instantiate(Node* node, Node* parent);
@@ -26,6 +29,7 @@ public:
     void physicsProcess();
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask = ~0ULL);
     void render(float alpha);
+    void updateInterpolation(float alpha);
     void ping(){std::cout << "scene ping" << std::endl;}
     Camera* mainCamera = nullptr;
     InputManager* inputManager = new InputManager();
@@ -36,6 +40,7 @@ public:
 private:
     std::vector<ColliderIntersection> collisions = std::vector<ColliderIntersection>();
     std::vector<Mesh*> meshes = std::vector<Mesh*>();
+    std::vector<Light*> lights = std::vector<Light*>();
     std::vector<Node*> nodes = std::vector<Node*>();
     std::vector<RigidBody3D*> rigidBodies = std::vector<RigidBody3D*>();
     std::vector<CollisionShape3D*> colliders = std::vector<CollisionShape3D*>();

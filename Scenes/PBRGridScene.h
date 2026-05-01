@@ -5,6 +5,8 @@
 #include <common/Controls/cameracontrols.h>
 #include <common/Controls/freecamera.h>
 #include <common/shader.hpp>
+#include <common/Render/RenderSystem.hpp>
+#include <common/Render/Shader.hpp>
 #include <GLFW/glfw3.h>
 #include <iostream>
 
@@ -48,7 +50,7 @@ public:
     }
 };
 
-Scene* makePBRGridScene() {
+Scene* makePBRGridScene(RenderSystem* renderer) {
     Node* root = new Node3d();
     Scene* scene = new Scene(root);
 
@@ -56,9 +58,10 @@ Scene* makePBRGridScene() {
     scene->mainCamera = cameraNode;
     scene->instantiate(cameraNode);
 
-    GLuint pbrShader = LoadShaders("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
-    
-    PBRMaterial* rustIronMat = new PBRMaterial();
+    // GLuint pbrShader = LoadShaders("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
+    Shader* uniPbrShader = renderer->getOrCreateShader("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
+
+    PBRMaterial* rustIronMat = new PBRMaterial(uniPbrShader, glm::vec3(1.0f), 0.0f, 0.5f, 1.0f);
     rustIronMat->addTexture("albedoMap", Texture("../Resources/Textures/RustIron/albedo.png"));
     rustIronMat->addTexture("normalMap", Texture("../Resources/Textures/RustIron/normal.png"));
     rustIronMat->addTexture("metallicMap", Texture("../Resources/Textures/RustIron/metallic.png"));
@@ -80,7 +83,7 @@ Scene* makePBRGridScene() {
             sphereNode->name = "Sphere(" + std::to_string(row) + "," + std::to_string(col) + ")";
 
             Mesh* instancedMesh = new Mesh(*baseSphereMesh);
-            instancedMesh->setShader(pbrShader);
+            // instancedMesh->setShader(pbrShader);
             instancedMesh->setMaterial(rustIronMat);
             sphereNode->addChild(instancedMesh);
 
@@ -104,7 +107,7 @@ Scene* makePBRGridScene() {
     
     delete baseSphereMesh;
     
-    PBRLightUpdater* lightUpdater = new PBRLightUpdater(pbrShader);
+    PBRLightUpdater* lightUpdater = new PBRLightUpdater(uniPbrShader->m_ID);
     scene->instantiate(lightUpdater);
     
     return scene;

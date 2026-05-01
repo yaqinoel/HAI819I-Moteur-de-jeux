@@ -1,6 +1,5 @@
 // Include standard headers
 #include "Scenes/SolarSystem.h"
-#include "Scenes/PBRGridScene.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,7 +9,11 @@
 // Include GLFW
 #include <GLFW/glfw3.h>
 
+#include "Scenes/PBRGridScene.h"
 #include "Scenes/InfiniteTerrain.h"
+#include "common/Render/RenderSystem.hpp"
+#include "common/Render/ForwardRenderSystem.hpp"
+
 GLFWwindow* window;
 
 // Include GLM
@@ -49,6 +52,8 @@ Scene* scene;
 int resX = 4;
 int resY = 4;
 float rotSpeed = 1;
+
+RenderSystem* renderer;
 
 int main( void )
 {
@@ -105,7 +110,10 @@ int main( void )
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    scene = makePBRGridScene();
+    renderer = new ForwardRenderSystem();
+
+    scene = makePBRGridScene(renderer);
+    // scene = makeInfiniteTerrain();
 
     // For speed computation
     double lastTime = glfwGetTime();
@@ -135,7 +143,9 @@ int main( void )
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         float alpha = accumulator / physicsStep;
-        scene->render(alpha);
+        // scene->render(alpha);
+        scene->updateInterpolation(alpha);
+        renderer->render(scene);
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -146,6 +156,7 @@ int main( void )
 
 
     delete(scene);
+    delete(renderer);
     scene = nullptr;
     // Close OpenGL window and terminate GLFW
     glfwTerminate();

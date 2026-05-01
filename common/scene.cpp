@@ -4,6 +4,7 @@
 #include "3dEntities/camera.h"
 #include "3dEntities/rigidbody3d.h"
 #include "3dEntities/collisionshape3d.h"
+#include "3dEntities/Lights/Light.hpp"
 #include <ctime>
 #include <common/Constraint/contactconstraint.h>
 
@@ -42,6 +43,9 @@ void Scene::addToTree(Node* node){
     }
     if (CollisionShape3D* c = dynamic_cast<CollisionShape3D*>(node)) {
         colliders.push_back(c);
+    }
+    if (Light* l = dynamic_cast<Light*>(node)) {
+        lights.push_back(l);
     }
     for(Node* child: node->getChildren()){
         addToTree(child);
@@ -186,6 +190,14 @@ void Scene::render(float alpha){
             if(m != nullptr && m->getVisible()){
                 m->render(mainCamera);
             }
+        }
+    }
+}
+
+void Scene::updateInterpolation(float alpha) {
+    for(RigidBody3D* rb : rigidBodies) {
+        if(rb && rb->getVisible()) {
+            rb->interpolate(alpha);
         }
     }
 }

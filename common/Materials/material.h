@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "common/Utilities/Shader.hpp"
+#include "../Render/Shader.hpp"
 
 class Material
 {

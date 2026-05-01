@@ -110,7 +110,10 @@ add_executable(Main
         common/3dEntities/terrainmanager.h common/3dEntities/terrainmanager.cpp
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
 
-        common/Utilities/Shader.hpp common/Utilities/Shader.cpp
+        common/Render/Shader.hpp common/Render/Shader.cpp
+        common/Render/RenderSystem.hpp common/Render/RenderSystem.cpp
+        common/Render/ForwardRenderSystem.hpp common/Render/ForwardRenderSystem.cpp
+
         common/Utilities/rayintersection.h
         common/Utilities/PerlinNoise.h
         common/Utilities/Geometry.h

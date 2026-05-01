@@ -398,3 +398,21 @@ void Mesh::render(const Camera* camera) const{
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void Mesh::drawOnly() const {
+    if (vertices.empty()) {
+        _synchronized = true;
+        return;
+    }
+
+    if (!_synchronized) {
+        synchronize();
+        return;
+    }
+
+    glBindVertexArray(_VAO);
+    glDrawElements(GL_TRIANGLES, triangles.size() * 3, GL_UNSIGNED_INT, (void*)0);
+    glBindVertexArray(0);
+
+}
+
