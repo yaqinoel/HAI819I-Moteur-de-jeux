@@ -65,8 +65,10 @@ Scene* makePBRGridScene() {
     rustIronMat->addTexture("roughnessMap", Texture("../Resources/Textures/RustIron/roughness.png"));
     rustIronMat->addTexture("aoMap", Texture("../Resources/Textures/RustIron/ao.png"));
     
-    Model* baseSphere = new Model("../Resources/Models/obj/pbr_sphere.obj", true);
-    
+    // Model* baseSphere = new Model("../Resources/Models/obj/pbr_sphere.obj", true);
+    Mesh* baseSphereMesh = new Mesh();
+    baseSphereMesh->openOBJ("../Resources/Models/obj/pbr_sphere.obj");
+
     // Sphere Grid Setup
     int nrRows = 7;
     int nrColumns = 7;
@@ -77,12 +79,17 @@ Scene* makePBRGridScene() {
             Node3d* sphereNode = new Node3d();
             sphereNode->name = "Sphere(" + std::to_string(row) + "," + std::to_string(col) + ")";
 
-            for(Mesh* m : baseSphere->meshes) {
-                Mesh* instancedMesh = new Mesh(*m);
-                instancedMesh->setShader(pbrShader);
-                instancedMesh->setMaterial(rustIronMat);
-                sphereNode->addChild(instancedMesh);
-            }
+            Mesh* instancedMesh = new Mesh(*baseSphereMesh);
+            instancedMesh->setShader(pbrShader);
+            instancedMesh->setMaterial(rustIronMat);
+            sphereNode->addChild(instancedMesh);
+
+            // for(Mesh* m : baseSphere->meshes) {
+            //     Mesh* instancedMesh = new Mesh(*m);
+            //     instancedMesh->setShader(pbrShader);
+            //     instancedMesh->setMaterial(rustIronMat);
+            //     sphereNode->addChild(instancedMesh);
+            // }
 
             glm::vec3 pos(
                 (float)(col - (nrColumns / 2)) * spacing,
@@ -95,7 +102,7 @@ Scene* makePBRGridScene() {
         }
     }
     
-    delete baseSphere;
+    delete baseSphereMesh;
     
     PBRLightUpdater* lightUpdater = new PBRLightUpdater(pbrShader);
     scene->instantiate(lightUpdater);
