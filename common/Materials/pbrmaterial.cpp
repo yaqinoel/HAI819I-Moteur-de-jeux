@@ -9,8 +9,17 @@ PBRMaterial::PBRMaterial()
     ao = 1.0f;
 }
 
-PBRMaterial::PBRMaterial(glm::vec3 alb, float met, float rough, float ambientOcclusion){
-    albedo = alb;
+PBRMaterial::PBRMaterial(glm::vec3 alb, float met, float rough, float ambientOcclusion)
+    :Material(alb)
+{
+    metallic = met;
+    roughness = rough;
+    ao = ambientOcclusion;
+}
+
+PBRMaterial::PBRMaterial(Shader* sha, glm::vec3 alb, float met, float rough, float ambientOcclusion)
+    : Material(sha, alb)
+{
     metallic = met;
     roughness = rough;
     ao = ambientOcclusion;
@@ -47,4 +56,24 @@ void PBRMaterial::render(GLuint shaderPID) const{
     glUniform1f(roughnessUniform, roughness);
     glUniform1f(aoUniform, ao);
     glUniform1f(scaleUniform, scale);
+}
+
+void PBRMaterial::bind() const {
+    if (!shader) return;
+
+    shader->use();
+
+    int i = 0;
+    for (const auto& [name, texture] : texmap) {
+        texture.bind(i);
+        shader->setInt(name, i);
+        shader->setInt("has_" + name, 1);
+        i++;
+    }
+
+    shader->setVec3("pbrMaterial.albedo", albedo);
+    shader->setFloat("pbrMaterial.metallic", metallic);
+    shader->setFloat("pbrMaterial.roughness", roughness);
+    shader->setFloat("pbrMaterial.ao", ao);
+    shaderSet = true;
 }

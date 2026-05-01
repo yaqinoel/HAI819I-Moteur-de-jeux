@@ -14,6 +14,15 @@ Material::Material(glm::vec3 alb, float amb, float dif, float spec, float shin){
     shininess = shin;
 }
 
+Material::Material(Shader* sha, glm::vec3 alb, float amb, float dif, float spec, float shin){
+    shader = sha;
+    albedo = alb;
+    ambient = amb;
+    diffuse = dif;
+    specular = spec;
+    shininess = shin;
+}
+
 void Material::addTexture(const std::string & name, const Texture & texture){
     texmap.insert({name, texture});
 }
@@ -54,4 +63,25 @@ void Material::render(GLuint shaderPID) const{
     glUniform1f(specularUniform, specular);
     glUniform1f(shininessUniform, shininess);
     glUniform1f(scaleUniform, scale);
+}
+
+void Material::bind() const {
+    if (!shader) return;
+    shader->use();
+    int i = 0;
+    for (const auto& [name, texture] : texmap) {
+        texture.bind(i);
+        shader->setInt(name, i);
+        i++;
+        shader->setInt("hasTexture", 1);
+    }
+
+    shader->setVec3("material.albedo", albedo);
+    shader->setFloat("material.ambiant", ambient);
+    shader->setFloat("material.diffuse", diffuse);
+    shader->setFloat("material.specular", specular);
+    shader->setFloat("material.shininess", shininess);
+    shader->setFloat("scale", scale);
+    shader->setInt("lit", lit);
+    shaderSet = true;
 }
