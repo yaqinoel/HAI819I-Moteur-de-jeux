@@ -2,6 +2,9 @@
 #include "RenderSystem.hpp"
 #include "Shader.hpp"
 #include "common/3dEntities/Lights/Light.hpp"
+#include "common/3dEntities/Lights/PointLight.hpp"
+
+constexpr int MAX_PBR_POINT_LIGHTS = 4;
 
 RenderSystem::~RenderSystem() {
     for (auto& pair : m_ShaderLibrary) {
@@ -21,5 +24,23 @@ Shader* RenderSystem::getOrCreateShader(const std::string& vPath, const std::str
 }
 
 void RenderSystem::uploadLights(Shader* shader, const std::vector<Light*>& lights) {
-    // TODO upload all lights data for a shader
+    if (!shader) return;
+
+    int pointLightCount = 0;
+    for (Light* light : lights) {
+        if (!light || !light->getActive() || !light->getVisible()) continue;
+        if (light->getType() != LightType::Point) continue;
+        if (pointLightCount >= MAX_PBR_POINT_LIGHTS) break;
+
+        shader->setVec3("lightPositions[" + std::to_string(pointLightCount) + "]", light->getGlobalPosition());
+        shader->setVec3("lightColors[" + std::to_string(pointLightCount) + "]", light->getRadiance());
+        pointLightCount++;
+    }
+
+    for (int i = pointLightCount; i < MAX_PBR_POINT_LIGHTS; ++i) {
+        shader->setVec3("lightPositions[" + std::to_string(i) + "]", glm::vec3(0.0f));
+        shader->setVec3("lightColors[" + std::to_string(i) + "]", glm::vec3(0.0f));
+    }
+
+    shader->setInt("pointLightCount", pointLightCount);
 }
