@@ -5,8 +5,11 @@
 #include "3dEntities/rigidbody3d.h"
 #include "3dEntities/collisionshape3d.h"
 #include "3dEntities/Lights/Light.hpp"
+#include "Render/IBLEnvironment.hpp"
 #include <ctime>
 #include <common/Constraint/contactconstraint.h>
+#include <algorithm>
+#include <cmath>
 
 Scene::Scene(Node* node)
 {
@@ -18,6 +21,10 @@ Scene::Scene(Node* node)
     else{
         root->addChild(node);
     }
+}
+
+Scene::~Scene() {
+    delete iblEnvironment;
 }
 
 void Scene::instantiate(Node* node, Node* parent){
@@ -56,8 +63,24 @@ void Scene::instantiate(Node* node){
     instantiate(node, root);
 }
 
+void Scene::updateLights(float deltaTime) {
+    static const glm::vec3 basePositions[] = {
+        glm::vec3(-10.0f,  10.0f, 10.0f),
+        glm::vec3( 10.0f,  10.0f, 10.0f),
+        glm::vec3(-10.0f, -10.0f, 10.0f),
+        glm::vec3( 10.0f, -10.0f, 10.0f),
+    };
+
+    float offset = std::sin(glfwGetTime() * 5.0f) * 5.0f;
+    int count = std::min<int>(lights.size(), 4);
+    for (int i = 0; i < count; ++i) {
+        lights[i]->setLocalPosition(basePositions[i] + glm::vec3(offset, 0.0f, 0.0f));
+    }
+}
+
 void Scene::process(float deltaTime){
     inputManager->UpdateInputs();
+    updateLights(deltaTime);
     for(int i = 0; i < nodes.size();){
         Node* n = nodes[i];
         if(n->markedForErasure){

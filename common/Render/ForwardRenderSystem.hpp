@@ -14,5 +14,3 @@ protected:
     virtual void shadowMapPass(Scene* scene);
     virtual void colorPass(Scene* scene, Camera* camera);
 };
-
-

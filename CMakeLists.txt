@@ -95,6 +95,11 @@ add_executable(Main
         Shaders/fragment_shader_lit.glsl
         Shaders/fragment_shader_Terrain_HeightMap.glsl
         Shaders/fragment_shader_Terrain_Noise.glsl
+        Shaders/cubemap_capture.vert
+        Shaders/equirectangular_to_cubemap.frag
+        Shaders/irradiance_convolution.frag
+        Shaders/skybox.vert
+        Shaders/skybox.frag
         
         external/stb_image/stb_image.h external/stb_image/stb_image.cpp
         common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp
@@ -113,6 +118,7 @@ add_executable(Main
         common/Render/Shader.hpp common/Render/Shader.cpp
         common/Render/RenderSystem.hpp common/Render/RenderSystem.cpp
         common/Render/ForwardRenderSystem.hpp common/Render/ForwardRenderSystem.cpp
+        common/Render/IBLEnvironment.hpp common/Render/IBLEnvironment.cpp
 
         common/Utilities/rayintersection.h
         common/Utilities/PerlinNoise.h

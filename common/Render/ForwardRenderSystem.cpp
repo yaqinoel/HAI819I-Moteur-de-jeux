@@ -1,12 +1,20 @@
 #include "ForwardRenderSystem.hpp"
+#include "IBLEnvironment.hpp"
 #include "common/scene.h"
 #include "common/3dEntities/Mesh.hpp"
 #include <algorithm>
 
 void ForwardRenderSystem::render(Scene* scene) {
     if (!scene || !scene->mainCamera) return;
+    if (scene->iblEnvironment && !scene->iblEnvironment->isReady()) {
+        scene->iblEnvironment->initialize();
+    }
+
     shadowMapPass(scene);
     colorPass(scene, scene->mainCamera);
+    if (scene->iblEnvironment && scene->iblEnvironment->isReady()) {
+        scene->iblEnvironment->renderSkybox(scene->mainCamera);
+    }
 }
 
 void ForwardRenderSystem::shadowMapPass(Scene* scene) {
@@ -33,6 +41,13 @@ void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
             currentShader->use();
 
             uploadLights(currentShader, lights);
+            if (scene->iblEnvironment && scene->iblEnvironment->isReady()) {
+                scene->iblEnvironment->bindIrradianceMap(5);
+                currentShader->setInt("irradianceMap", 5);
+                currentShader->setInt("useIBL", 1);
+            } else {
+                currentShader->setInt("useIBL", 0);
+            }
             currentShader->setMat4("view", camera->getViewMatrix());
             currentShader->setMat4("projection", camera->getProjectionMatrix());
             currentShader->setVec3("camPos", camera->getGlobalPosition());
