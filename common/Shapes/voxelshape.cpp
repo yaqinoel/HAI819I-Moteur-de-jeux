@@ -5,6 +5,25 @@ VoxelShape::VoxelShape() {
     type = VOXEL;
 }
 
+bool VoxelShape::isSolid(int x, int y, int z) const {
+    if (x < 0 || x >= width || y < 0 || y >= height || z < 0 || z >= depth)
+        return false;
+    return get(x, y, z) != 0;
+}
+
+glm::ivec3 VoxelShape::worldToCell(const glm::vec3& worldPoint) const {
+    glm::vec3 local = (worldPoint - collider->getGlobalPosition() - glm::vec3(voxelSize * 0.5f)) / voxelSize;
+    return glm::ivec3(glm::floor(local));
+}
+
+glm::vec3 VoxelShape::cellMin(int x, int y, int z) const {
+    return collider->getGlobalPosition() + glm::vec3(x, y, z) * voxelSize + glm::vec3(voxelSize * 0.5f);
+}
+
+glm::vec3 VoxelShape::cellMax(int x, int y, int z) const {
+    return cellMin(x, y, z) + glm::vec3(voxelSize);
+}
+
 void VoxelShape::InitMesh(int width, int height, int depth, std::vector<unsigned short int> voxelData){
     this->width = width;
     this->height = height;

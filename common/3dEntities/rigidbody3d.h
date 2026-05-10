@@ -12,6 +12,13 @@ public:
     virtual void process(float deltaTime) override {};
     virtual void physicsProcess();
     virtual void interpolate(float alpha);
+    glm::vec3 getPhysicsPosition() const { return currentPosition; }
+    glm::quat getPhysicsRotation() const { return currentRotation; }
+    void setPhysicsPosition(const glm::vec3& position);
+    void setPhysicsRotation(const glm::quat& rotation);
+    void syncTransformToPhysicsState();
+    bool isOnGround() const { return onGround; }
+    void setOnGround(bool value) { onGround = value; }
     void setLocalRotation(const glm::quat rotation) override;
     void setLocalPosition(const glm::vec3 pos) override;
     void postPhysicsProcess();
@@ -40,6 +47,6 @@ protected:
     glm::vec3 currentPosition = glm::vec3(0);
     glm::quat previousRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     glm::quat currentRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+    bool onGround = false;
 
 };
-

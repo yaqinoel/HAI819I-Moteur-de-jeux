@@ -97,6 +97,7 @@ add_executable(Main
         common/3dEntities/collisionshape3d.h common/3dEntities/collisionshape3d.cpp
         common/3dEntities/terrainmanager.h common/3dEntities/terrainmanager.cpp
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
+        common/Physics/physicsworld.h common/Physics/physicsworld.cpp
         common/Utilities/rayintersection.h
         common/Utilities/PerlinNoise.h
         common/Utilities/Geometry.h
@@ -121,8 +122,6 @@ add_executable(Main
         Scenes/PhysicsCube.h
         common/Utilities/InputManager.h
         common/Controls/hoveringcontroller.h common/Controls/hoveringcontroller.cpp
-        common/Constraint/constraint.h
-        common/Constraint/contactconstraint.h common/Constraint/contactconstraint.cpp
         common/Shapes/voxelshape.h common/Shapes/voxelshape.cpp
         Scenes/FirstPersonCharacter.h
 

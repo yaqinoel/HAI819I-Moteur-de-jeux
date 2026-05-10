@@ -33,7 +33,7 @@ void CharacterController::process(float deltaTime){
         axialInputs.y -= 1;
     }
     if (scene->inputPressed("jump")){
-        if(velocity.y <= 0.01 && onground){
+        if(velocity.y <= 0.01 && isOnGround()){
             jumpPressed = true;
         }
     }
@@ -56,17 +56,5 @@ void CharacterController::physicsProcess(){
     if(jumpPressed){
         velocity.y = jumpStrength;
         jumpPressed = false;
-    }
-    else if(velocity.y <= 0){
-        RayIntersection verticalIntersection = scene->raycast(currentPosition, DOWN, 1.1f, 1ULL);
-        //std::cout << glm::to_string(currentPosition) << std::endl;
-        if(verticalIntersection.intersectionExists){
-            currentPosition = verticalIntersection.point+UP*1.0f;
-            velocity.y = 0;
-            onground = true;
-        }
-        else{
-            onground = false;
-        }
     }
 }

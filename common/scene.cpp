@@ -5,7 +5,6 @@
 #include "3dEntities/rigidbody3d.h"
 #include "3dEntities/collisionshape3d.h"
 #include <ctime>
-#include <common/Constraint/contactconstraint.h>
 
 Scene::Scene(Node* node)
 {
@@ -67,63 +66,8 @@ void Scene::process(float deltaTime){
         }
     }
 }
-void Scene::addConstraint(ContactConstraint c) {
-    for (size_t i = 0; i < previousConstraints.size(); i++) {
-        ContactConstraint& old = previousConstraints[i];
-        if (old.featureId == c.featureId && old.objA == c.objA && old.objB == c.objB) {
-            c.accumulatedNormalLambda = old.accumulatedNormalLambda;
-            c.isReused = true;
-            newConstraints.push_back(c);
-            previousConstraints.erase(previousConstraints.begin() + i);
-            return;
-        }
-    }
-    newConstraints.push_back(c);
-}
-
 void Scene::physicsProcess() {
-    for (RigidBody3D* rb : rigidBodies)
-        if (rb && rb->getVisible())
-            rb->physicsProcess();
-
-    collisions.clear();
-    for (int i = 0; i < colliders.size(); i++)
-        for (int j = i + 1; j < colliders.size(); j++) {
-            std::vector<ColliderIntersection> cols = colliders[i]->intersect(colliders[j]);
-            for(ColliderIntersection col : cols){
-                if (col.intersectionExist)
-                    collisions.push_back(col);
-            }
-        }
-    for (const ColliderIntersection& col : collisions) {
-        RigidBody3D* objA = col.colliderA->rb;
-        RigidBody3D* objB = col.colliderB->rb;
-        if (!objA && !objB) continue;
-
-        if (objA) {
-            for (const glm::vec3& pt : col.contactPoints)
-                addConstraint(ContactConstraint( objA, objB, pt, col.axis, col.t, FeatureID(col.featureA, col.featureB), objA->friction));
-        } else {
-            for (const glm::vec3& pt : col.contactPoints)
-                addConstraint(ContactConstraint( objB, objA, pt, -col.axis, col.t, FeatureID(col.featureB, col.featureA), objB->friction));
-        }
-    }
-    for (ContactConstraint& c : newConstraints){
-        c.setUp(fixedDeltaTime);
-    }
-
-    const int solverIterations = 10;
-    for (int i = 0; i < solverIterations; i++)
-        for (ContactConstraint& c : newConstraints)
-            c.solve();
-
-    for (RigidBody3D* rb : rigidBodies)
-        if (rb && rb->getVisible())
-            rb->postPhysicsProcess();
-
-    previousConstraints = newConstraints;
-    newConstraints.clear();
-    newConstraints.reserve(previousConstraints.size() * 2);
+    physicsWorld.step(rigidBodies, colliders, fixedDeltaTime);
 }
 
 void Scene::render(float alpha){

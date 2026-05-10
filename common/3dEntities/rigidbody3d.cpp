@@ -25,6 +25,19 @@ void RigidBody3D::postPhysicsProcess(){
     }
 }
 
+void RigidBody3D::setPhysicsPosition(const glm::vec3& position) {
+    currentPosition = position;
+}
+
+void RigidBody3D::setPhysicsRotation(const glm::quat& rotation) {
+    currentRotation = glm::normalize(rotation);
+}
+
+void RigidBody3D::syncTransformToPhysicsState() {
+    Node3d::setGlobalPosition(currentPosition);
+    Node3d::setGlobalRotation(currentRotation);
+}
+
 void RigidBody3D::interpolate(float alpha){
     //std::cout << glm::length(position - glm::mix(previousPosition, currentPosition, alpha)) << std::endl;
     Node3d::setGlobalPosition(glm::mix(previousPosition, currentPosition, std::min(1.0f,alpha)));

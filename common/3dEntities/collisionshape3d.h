@@ -10,6 +10,7 @@ public:
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask);
     bool active = true;
     void SetShape(Shape* s);
+    Shape* getShape() const { return shape; }
     void setDebug(bool b);
     std::vector<ColliderIntersection> intersect(CollisionShape3D* other);
     glm::mat3 getInertia() {return shape->inertia;}
@@ -31,4 +32,3 @@ private:
     bool debug = false;
     Mesh *debugMesh = nullptr;
 };
-
