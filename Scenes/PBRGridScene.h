@@ -18,14 +18,13 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
     Scene* scene = new Scene(root);
     scene->iblEnvironment = new IBLEnvironment("../Resources/Textures/HDR/newport_loft.hdr");
 
-    FreeCamera* cameraNode = new FreeCamera(1024.0f, 768.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 0, 20));
+    FreeCamera* cameraNode = new FreeCamera(1024.0f, 768.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 0, 26));
     scene->mainCamera = cameraNode;
     scene->instantiate(cameraNode);
 
     // GLuint pbrShader = LoadShaders("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
     Shader* uniPbrShader = renderer->getOrCreateShader("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
 
-    // Textures are disabled in this demo so metallic/roughness values are easy to observe.
     // PBRMaterial* rustIronMat = new PBRMaterial(uniPbrShader, glm::vec3(1.0f), 0.0f, 0.5f, 1.0f);
     // rustIronMat->addTexture("albedoMap", Texture("../Resources/Textures/RustIron/albedo.png"));
     // rustIronMat->addTexture("normalMap", Texture("../Resources/Textures/RustIron/normal.png"));
@@ -37,7 +36,6 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
     Mesh* baseSphereMesh = new Mesh();
     baseSphereMesh->openOBJ("../Resources/Models/obj/pbr_sphere.obj");
 
-    // Sphere Grid Setup
     int nrRows = 7;
     int nrColumns = 7;
     float spacing = 2.5;

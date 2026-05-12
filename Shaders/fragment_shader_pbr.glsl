@@ -21,7 +21,10 @@ uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D aoMap;
 uniform samplerCube irradianceMap;
+uniform samplerCube prefilterMap;
+uniform sampler2D brdfLUT;
 uniform int useIBL;
+uniform int debugIBLMode;
 
 // has_ variables from our material.cpp
 uniform int has_albedoMap;
@@ -107,6 +110,31 @@ void main()
 
     vec3 V = normalize(camPos - WorldPos);
 
+    if (debugIBLMode == 1) {
+        FragColor = vec4(normalize(N) * 0.5 + 0.5, 1.0);
+        return;
+    }
+    if (debugIBLMode == 2) {
+        FragColor = vec4(vec3(roughness), 1.0);
+        return;
+    }
+    if (debugIBLMode == 3) {
+        vec3 R = reflect(-V, N);
+        FragColor = vec4(textureLod(prefilterMap, R, roughness * 4.0).rgb, 1.0);
+        return;
+    }
+    if (debugIBLMode == 4) {
+        float NdotV = max(dot(N, V), 0.0);
+        vec2 envBRDF = texture(brdfLUT, vec2(NdotV, roughness)).rg;
+        FragColor = vec4(envBRDF.r, envBRDF.g, 0.0, 1.0);
+        return;
+    }
+    if (debugIBLMode == 5) {
+        vec3 irradiance = texture(irradianceMap, N).rgb;
+        FragColor = vec4(irradiance * albedo, 1.0);
+        return;
+    }
+
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
 
@@ -138,13 +166,23 @@ void main()
     
     vec3 ambient = vec3(0.03) * albedo * ao;
     if (useIBL == 1) {
-        vec3 kS = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+        vec3 R = reflect(-V, N);
+        float NdotV = max(dot(N, V), 0.0);
+
+        vec3 F = fresnelSchlickRoughness(NdotV, F0, roughness);
+        vec3 kS = F;
         vec3 kD = 1.0 - kS;
         kD *= 1.0 - metallic;
 
         vec3 irradiance = texture(irradianceMap, N).rgb;
         vec3 diffuse = irradiance * albedo;
-        ambient = kD * diffuse * ao;
+
+        const float MAX_REFLECTION_LOD = 4.0;
+        vec3 prefilteredColor = textureLod(prefilterMap, R, roughness * MAX_REFLECTION_LOD).rgb;
+        vec2 envBRDF = texture(brdfLUT, vec2(NdotV, roughness)).rg;
+        vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
+        ambient = (kD * diffuse + specular) * ao;
     }
     
     vec3 color = ambient + Lo;

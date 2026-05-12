@@ -64,18 +64,7 @@ void Scene::instantiate(Node* node){
 }
 
 void Scene::updateLights(float deltaTime) {
-    static const glm::vec3 basePositions[] = {
-        glm::vec3(-10.0f,  10.0f, 10.0f),
-        glm::vec3( 10.0f,  10.0f, 10.0f),
-        glm::vec3(-10.0f, -10.0f, 10.0f),
-        glm::vec3( 10.0f, -10.0f, 10.0f),
-    };
-
-    float offset = std::sin(glfwGetTime() * 5.0f) * 5.0f;
-    int count = std::min<int>(lights.size(), 4);
-    for (int i = 0; i < count; ++i) {
-        lights[i]->setLocalPosition(basePositions[i] + glm::vec3(offset, 0.0f, 0.0f));
-    }
+    (void)deltaTime;
 }
 
 void Scene::process(float deltaTime){

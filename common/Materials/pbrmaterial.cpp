@@ -36,6 +36,12 @@ void PBRMaterial::setShader(GLuint shaderPID) const{
 }
 
 void PBRMaterial::render(GLuint shaderPID) const{
+    glUniform1i(glGetUniformLocation(shaderPID, "has_albedoMap"), 0);
+    glUniform1i(glGetUniformLocation(shaderPID, "has_normalMap"), 0);
+    glUniform1i(glGetUniformLocation(shaderPID, "has_metallicMap"), 0);
+    glUniform1i(glGetUniformLocation(shaderPID, "has_roughnessMap"), 0);
+    glUniform1i(glGetUniformLocation(shaderPID, "has_aoMap"), 0);
+
     int i = 0;
     for(const auto&[name, texture]:texmap){
         texture.bind(i);
@@ -62,6 +68,12 @@ void PBRMaterial::bind() const {
     if (!shader) return;
 
     shader->use();
+
+    shader->setInt("has_albedoMap", 0);
+    shader->setInt("has_normalMap", 0);
+    shader->setInt("has_metallicMap", 0);
+    shader->setInt("has_roughnessMap", 0);
+    shader->setInt("has_aoMap", 0);
 
     int i = 0;
     for (const auto& [name, texture] : texmap) {

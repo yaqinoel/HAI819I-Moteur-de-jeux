@@ -98,6 +98,9 @@ add_executable(Main
         Shaders/cubemap_capture.vert
         Shaders/equirectangular_to_cubemap.frag
         Shaders/irradiance_convolution.frag
+        Shaders/prefilter_environment.frag
+        Shaders/brdf.vert
+        Shaders/brdf.frag
         Shaders/skybox.vert
         Shaders/skybox.frag
         
