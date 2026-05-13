@@ -1,0 +1,31 @@
+#pragma once
+
+#include <array>
+#include <vector>
+#include <glm/glm.hpp>
+#include "physicstypes.h"
+
+class CollisionShape3D;
+class RigidBody3D;
+
+struct OrientedBox {
+    CollisionShape3D* collider = nullptr;
+    RigidBody3D* body = nullptr;
+    glm::vec3 center = glm::vec3(0.0f);
+    glm::vec3 half = glm::vec3(0.0f);
+    glm::vec3 axis[3] = {
+        glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f)
+    };
+};
+
+bool isFiniteVec3(const glm::vec3& v);
+int normalSlot(const glm::vec3& normal);
+bool makeBox(CollisionShape3D* collider, OrientedBox& outBox);
+OrientedBox makeStaticAabbBox(CollisionShape3D* collider, const glm::vec3& min, const glm::vec3& max);
+std::array<glm::vec3, 8> boxCorners(const OrientedBox& box);
+bool boxAabb(CollisionShape3D* collider, PhysicsAabb& outAabb);
+bool satContact(const OrientedBox& a, const OrientedBox& b, glm::vec3& normalFromBToA, float& penetration);
+std::vector<glm::vec3> contactPoints(const OrientedBox& a, const OrientedBox& b);
+glm::vec3 averagePoint(const std::vector<glm::vec3>& points);

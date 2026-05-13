@@ -97,6 +97,13 @@ add_executable(Main
         common/3dEntities/collisionshape3d.h common/3dEntities/collisionshape3d.cpp
         common/3dEntities/terrainmanager.h common/3dEntities/terrainmanager.cpp
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
+        common/Physics/physicstypes.h
+        common/Physics/physicssettings.h
+        common/Physics/physicsgeometry.h common/Physics/physicsgeometry.cpp
+        common/Physics/broadphase.h common/Physics/broadphase.cpp
+        common/Physics/narrowphase.h common/Physics/narrowphase.cpp
+        common/Physics/contactsolver.h common/Physics/contactsolver.cpp
+        common/Physics/contactcache.h common/Physics/contactcache.cpp
         common/Physics/physicsworld.h common/Physics/physicsworld.cpp
         common/Utilities/rayintersection.h
         common/Utilities/PerlinNoise.h
