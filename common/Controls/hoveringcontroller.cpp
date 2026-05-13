@@ -4,6 +4,7 @@
 #include <Scenes/Cube.h>
 
 HoveringController::HoveringController() {
+    canSleep = false;
     RayIntersection intersection = scene->raycast(getGlobalPosition()+UP*30.0f, DOWN, 100);
     if(intersection.intersectionExists) setGlobalPosition(intersection.point);
 }

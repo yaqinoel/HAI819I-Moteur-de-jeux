@@ -1,8 +1,6 @@
 #pragma once
 
-#include "common/Utilities/colliderIntersection.h"
 #include "node3d.h"
-RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length);
 
 class RigidBody3D: public Node3d
 {
@@ -17,12 +15,15 @@ public:
     void setPhysicsPosition(const glm::vec3& position);
     void setPhysicsRotation(const glm::quat& rotation);
     void syncTransformToPhysicsState();
+    void keepPhysicsStateForSleep();
     bool isOnGround() const { return onGround; }
     void setOnGround(bool value) { onGround = value; }
+    bool isSleeping() const { return sleeping; }
+    void wakeUp();
+    void sleep();
     void setLocalRotation(const glm::quat rotation) override;
     void setLocalPosition(const glm::vec3 pos) override;
     void postPhysicsProcess();
-    void solveCollision(ColliderIntersection collision);
     void Translate(const glm::vec3 translation) override;
     void setGlobalPosition(const glm::vec3 &globPos) override;
     void setGlobalRotation(const glm::quat &globRot) override;
@@ -33,6 +34,8 @@ public:
     glm::vec3 angularVelocity = glm::vec3(0);
     float mass = 0;
     float friction = 0.5f;
+    bool canSleep = true;
+    float sleepTimer = 0.0f;
     glm::mat3 inertia=glm::mat3(0);
     glm::mat3 inverseInertia=glm::mat3(0);
     std::vector<CollisionShape3D*> collisions = std::vector<CollisionShape3D*>();
@@ -48,5 +51,6 @@ protected:
     glm::quat previousRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     glm::quat currentRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     bool onGround = false;
+    bool sleeping = false;
 
 };

@@ -3,6 +3,7 @@
 #include <Scenes/Cube.h>
 
 CharacterController::CharacterController() {
+    canSleep = false;
 }
 
 

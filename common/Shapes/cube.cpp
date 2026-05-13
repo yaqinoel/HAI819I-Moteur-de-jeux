@@ -1,11 +1,13 @@
 #include "cube.h"
-#include "common/Shapes/voxelshape.h"
 #include <cmath>
 
 
 Cube::Cube(float size_x, float size_y, float size_z, std::vector<Vertex>& ver, std::vector<Triangle>& tri) : Cube(size_x, size_y, size_z) {
     setMesh(ver, tri);
-    inertia = mass*glm::mat3(1.0/6.0);
+    inertia = glm::mat3(0.0f);
+    inertia[0][0] = mass * (size.y * size.y + size.z * size.z) / 12.0f;
+    inertia[1][1] = mass * (size.x * size.x + size.z * size.z) / 12.0f;
+    inertia[2][2] = mass * (size.x * size.x + size.y * size.y) / 12.0f;
     type = CUBE;
 }
 
@@ -38,7 +40,10 @@ Cube::Cube(float size_x, float size_y, float size_z){
     triangles[9] = glm::ivec3(1, 3, 7);
     triangles[10] = glm::ivec3(0, 2, 3);
     triangles[11] = glm::ivec3(4, 0, 1);
-    inertia = mass*glm::mat3(1.0/6.0);
+    inertia = glm::mat3(0.0f);
+    inertia[0][0] = mass * (size.y * size.y + size.z * size.z) / 12.0f;
+    inertia[1][1] = mass * (size.x * size.x + size.z * size.z) / 12.0f;
+    inertia[2][2] = mass * (size.x * size.x + size.y * size.y) / 12.0f;
 }
 
 void Cube::setMesh(std::vector<Vertex> &ver, std::vector<Triangle> &tri){
@@ -153,184 +158,4 @@ RayIntersection Cube::raycast( glm::vec3 const &origin, glm::vec3 const &directi
     intersection.normal = worldNormal;
 
     return intersection;
-}
-
-
-std::vector<ColliderIntersection> Cube::intersectVoxel(VoxelShape* voxel, bool calculatePoints){
-    return voxel->intersectCube(this, calculatePoints);
-}
-
-
-std::vector<ColliderIntersection> Cube::intersectCube(Cube* cubeB, bool calculatePoints){
-    ColliderIntersection intersection = ColliderIntersection();
-    intersection.t = INFINITY;
-    glm::vec3 centerA = collider->getGlobalPosition();
-    glm::vec3 centerB = cubeB->collider->getGlobalPosition();
-    std::array<glm::vec3, 15> axes = std::array<glm::vec3, 15>();
-    glm::quat cubeArotation = collider->getGlobalRotation();
-    glm::quat cubeBrotation = cubeB->collider->getGlobalRotation();
-    axes[0] = cubeArotation * RIGHT;
-    axes[1] = cubeArotation * UP;
-    axes[2] = cubeArotation * FORWARD;
-    axes[3] = cubeBrotation * RIGHT;
-    axes[4] = cubeBrotation * UP;
-    axes[5] = cubeBrotation * FORWARD;
-    for(int i = 0; i < 3; i++){
-        for(int j = 0; j < 3; j++){
-            axes[6+i*3+j] = glm::normalize(glm::cross(axes[i], axes[3+j]));
-        }
-    }
-
-
-    for(int i = 0; i < 15; i ++){
-        if(glm::length2(axes[i]) > 1e-6f){
-            float centerProjectionA = dot(centerA, axes[i]);
-            float centerProjectionB = dot(centerB, axes[i]);
-            float radiusA = halfSize.x * abs(dot(axes[i], axes[0])) + halfSize.y * abs(dot(axes[i], axes[1])) + halfSize.z * abs(dot(axes[i], axes[2]));
-            float radiusB = cubeB->halfSize.x * abs(dot(axes[i], axes[3])) + cubeB->halfSize.y * abs(dot(axes[i], axes[4])) + cubeB->halfSize.z * abs(dot(axes[i], axes[5]));
-            float minA = centerProjectionA - radiusA;
-            float maxA = centerProjectionA + radiusA;
-            float minB = centerProjectionB - radiusB;
-            float maxB = centerProjectionB + radiusB;
-
-            if (maxA < minB || maxB < minA) {
-                intersection.intersectionExist = false;
-                return std::vector<ColliderIntersection>{intersection};
-            }
-
-            float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-            if(overlap < intersection.t){
-                intersection.t = overlap;
-                intersection.intersectionExist = true;
-                intersection.colliderA = collider;
-                intersection.colliderB = cubeB->collider;
-                intersection.axis = axes[i];
-                if(dot(intersection.axis, centerB-centerA) < 0){
-                    intersection.axis *= -1;
-                }
-            }
-        }
-    }
-    if(calculatePoints && intersection.intersectionExist){
-        //getting the reference and incident axes
-        float maxA = -FLT_MAX;
-        glm::vec3 axisA;
-        int axisIndexA;
-        bool reversedAxisA;
-
-        for (int i = 0; i < 3; i++) {
-            float d = glm::dot(intersection.axis, axes[i]);
-            if (fabs(d) > maxA) {
-                maxA = fabs(d);
-                if(d > 0){
-                    reversedAxisA = false;
-                    axisA = axes[i];
-                }
-                else{
-                    reversedAxisA = true;
-                    axisA = -axes[i];
-                }
-                axisIndexA = i;
-            }
-        }
-
-        float maxB = -FLT_MAX;
-        glm::vec3 axisB;
-        int axisIndexB;
-        bool reversedAxisB;
-
-        for (int i = 0; i < 3; i++) {
-            float d = glm::dot(intersection.axis, axes[3 + i]);
-            if (fabs(d) > maxB) {
-                maxB = fabs(d);
-                if(d > 0){
-                    reversedAxisB = false;
-                    axisB = axes[3+i];
-                }
-                else{
-                    reversedAxisB = true;
-                    axisB = -axes[3+i];
-                }
-                axisIndexB = 3+i;
-            }
-        }
-        // Determine reference and incident axes
-        glm::vec3 referenceAxis, incidentAxis;
-        bool boxAisReference = maxB < maxA;
-
-        glm::vec3 refCenter, incCenter;
-        glm::vec3 refAxes[3], incAxes[3];
-        glm::vec3 refHalf, incHalf;
-        int refIndex, incIndex;
-
-        if (boxAisReference) {
-            referenceAxis = axisA;
-            incidentAxis = -axisB;
-
-            refAxes[0] = axes[0]; refAxes[1] = axes[1]; refAxes[2] = axes[2];
-            refHalf = halfSize;
-            refCenter = centerA;
-            refIndex = axisIndexA;
-
-            incAxes[0] = axes[3]; incAxes[1] = axes[4]; incAxes[2] = axes[5];
-            incHalf = cubeB->halfSize;
-            incCenter = centerB;
-            incIndex = axisIndexB;
-
-            intersection.featureA = axisIndexA+ 3*reversedAxisA;
-            intersection.featureB = axisIndexB+ 3*reversedAxisB;
-
-        } else {
-            referenceAxis = axisB;
-            incidentAxis = -axisA;
-            refAxes[0] = axes[3]; refAxes[1] = axes[4]; refAxes[2] = axes[5];
-            refHalf = cubeB->halfSize;
-            refCenter = centerB;
-            refIndex = axisIndexB;
-
-            incAxes[0] = axes[0]; incAxes[1] = axes[1]; incAxes[2] = axes[2];
-            incHalf = halfSize;
-            incCenter = centerA;
-            incIndex = axisIndexA;
-
-            intersection.colliderA = cubeB->collider;
-            intersection.colliderB = collider;
-            intersection.axis *= -1;
-
-            intersection.featureA = axisIndexB+ 3*reversedAxisB;
-            intersection.featureB = axisIndexA+ 3*reversedAxisA;
-        }
-
-        // Compute incident face vertices
-        glm::vec3 incU = incAxes[(incIndex+1)%3] * incHalf[(incIndex+1)%3];
-        glm::vec3 incV = incAxes[(incIndex+2)%3] * incHalf[(incIndex+2)%3];
-        glm::vec3 incidentFaceCenter = incCenter + incidentAxis * incHalf[incIndex%3];
-
-        std::vector<glm::vec3> incidentVertices(4);
-        incidentVertices[0] = incidentFaceCenter + incU + incV;
-        incidentVertices[1] = incidentFaceCenter - incU + incV;
-        incidentVertices[2] = incidentFaceCenter - incU - incV;
-        incidentVertices[3] = incidentFaceCenter + incU - incV;
-
-        // Compute reference face planes
-        std::vector<glm::vec3> referenceVertices(4);
-        glm::vec3 refUaxis = refAxes[(refIndex+1)%3];
-        glm::vec3 refVaxis = refAxes[(refIndex+2)%3];
-        glm::vec3 refU = refUaxis * refHalf[(refIndex+1)%3];
-        glm::vec3 refV = refVaxis * refHalf[(refIndex+2)%3];
-        glm::vec3 referenceFaceCenter = refCenter + referenceAxis * refHalf[refIndex%3];
-
-        referenceVertices[0] = referenceFaceCenter + refU + refV;
-        referenceVertices[1] = referenceFaceCenter - refU + refV;
-        referenceVertices[2] = referenceFaceCenter - refU - refV;
-        referenceVertices[3] = referenceFaceCenter + refU - refV;
-
-        // Compute reference side planes
-        std::vector<glm::vec3> sidePlanesNormals = std::vector<glm::vec3>({refUaxis, refVaxis, -refUaxis, -refVaxis});
-
-        std::vector<glm::vec3> clipped = clipPolygon(incidentVertices, sidePlanesNormals, referenceVertices);
-        std::vector<glm::vec3> contactPoints = projectToPlane(clipped, referenceAxis, referenceFaceCenter);
-        intersection.contactPoints = contactPoints;
-    }
-    return std::vector<ColliderIntersection>{intersection};
 }

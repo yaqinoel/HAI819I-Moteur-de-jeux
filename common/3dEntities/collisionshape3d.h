@@ -12,9 +12,7 @@ public:
     void SetShape(Shape* s);
     Shape* getShape() const { return shape; }
     void setDebug(bool b);
-    std::vector<ColliderIntersection> intersect(CollisionShape3D* other);
     glm::mat3 getInertia() {return shape->inertia;}
-    std::vector<ColliderIntersection> collisions = std::vector<ColliderIntersection>();
     RigidBody3D *rb = nullptr;
     float mass = 1000;
 
