@@ -25,6 +25,7 @@ uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
 uniform sampler2D shadowMap;
+uniform samplerCube pointShadowMaps[4];
 uniform int useIBL;
 uniform int useShadowMap;
 uniform int debugIBLMode;
@@ -40,6 +41,9 @@ uniform int has_aoMap;
 uniform vec3 lightPositions[4];
 uniform vec3 lightColors[4];
 uniform int pointLightCount;
+uniform int pointShadowCount;
+uniform vec3 pointShadowPositions[4];
+uniform float pointShadowFarPlanes[4];
 uniform vec3 directionalLightDirections[1];
 uniform vec3 directionalLightColors[1];
 uniform int directionalLightCount;
@@ -136,6 +140,26 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 N, vec3 L)
     return shadow / 9.0;
 }
 
+float PointShadowCalculation(int lightIndex, vec3 fragPos)
+{
+    if (lightIndex >= pointShadowCount) {
+        return 0.0;
+    }
+
+    vec3 fragToLight = fragPos - pointShadowPositions[lightIndex];
+    float currentDepth = length(fragToLight);
+    float farPlane = pointShadowFarPlanes[lightIndex];
+    if (currentDepth > farPlane) {
+        return 0.0;
+    }
+
+    float closestDepth = texture(pointShadowMaps[lightIndex], fragToLight).r;
+    closestDepth *= farPlane;
+
+    float bias = 0.10;
+    return currentDepth - bias > closestDepth ? 1.0 : 0.0;
+}
+
 void main()
 {		
     vec3 albedo     = getAlbedo();
@@ -173,6 +197,11 @@ void main()
     if (debugIBLMode == 6) {
         vec3 L = directionalLightCount > 0 ? normalize(-directionalLightDirections[0]) : vec3(0.0, 1.0, 0.0);
         float shadow = ShadowCalculation(FragPosLightSpace, N, L);
+        FragColor = vec4(vec3(1.0 - shadow), 1.0);
+        return;
+    }
+    if (debugIBLMode == 7) {
+        float shadow = PointShadowCalculation(0, WorldPos);
         FragColor = vec4(vec3(1.0 - shadow), 1.0);
         return;
     }
@@ -225,8 +254,9 @@ void main()
         kD *= 1.0 - metallic;
 
         float NdotL = max(dot(N, L), 0.0);
+        float shadow = PointShadowCalculation(i, WorldPos);
 
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
+        Lo += (1.0 - shadow) * (kD * albedo / PI + specular) * radiance * NdotL;  // note that we already multiplied the BRDF by the Fresnel (kS) so we won't multiply by kS again
     }   
     
     vec3 ambient = vec3(0.03) * albedo * ao;

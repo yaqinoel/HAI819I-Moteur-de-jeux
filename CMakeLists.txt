@@ -105,6 +105,8 @@ add_executable(Main
         Shaders/skybox.frag
         Shaders/shadow_depth.vert
         Shaders/shadow_depth.frag
+        Shaders/point_shadow_depth.vert
+        Shaders/point_shadow_depth.frag
         
         external/stb_image/stb_image.h external/stb_image/stb_image.cpp
         common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp

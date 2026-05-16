@@ -100,6 +100,9 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
     for (const glm::vec3& position : lightPositions) {
         PointLight* light = new PointLight(glm::vec3(1.0f), 300.0f, 20.0f);
         light->setLocalPosition(position);
+        light->castShadow = true;
+        light->shadowNearPlane = 1.0f;
+        light->shadowFarPlane = 40.0f;
         scene->instantiate(light);
     }
 

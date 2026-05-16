@@ -5,6 +5,7 @@
 #include "common/3dEntities/Mesh.hpp"
 #include "common/3dEntities/Lights/Light.hpp"
 #include "common/3dEntities/Lights/DirectionalLight.hpp"
+#include "common/3dEntities/Lights/PointLight.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -15,6 +16,8 @@ constexpr int DEBUG_IBL_MODE = 0;
 ForwardRenderSystem::~ForwardRenderSystem() {
     if (shadowMap != 0) glDeleteTextures(1, &shadowMap);
     if (shadowFBO != 0) glDeleteFramebuffers(1, &shadowFBO);
+    glDeleteTextures(MaxPointShadowMaps, pointShadowMaps);
+    if (pointShadowFBO != 0) glDeleteFramebuffers(1, &pointShadowFBO);
 }
 
 void ForwardRenderSystem::render(Scene* scene) {
@@ -32,46 +35,10 @@ void ForwardRenderSystem::render(Scene* scene) {
 
 void ForwardRenderSystem::shadowMapPass(Scene* scene) {
     hasShadowMap = false;
+    pointShadowCount = 0;
+    if (!scene) return;
+
     DirectionalLight* shadowLight = findShadowDirectionalLight(scene);
-    if (!scene || !shadowLight) return;
-
-    initializeShadowMap();
-    if (shadowFBO == 0 || shadowMap == 0 || !shadowDepthShader) return;
-
-    glm::vec3 lightDirection = glm::normalize(shadowLight->getDirection());
-    if (glm::length(lightDirection) < 0.0001f) {
-        lightDirection = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.3f));
-    }
-
-    glm::vec3 sceneMin(0.0f);
-    glm::vec3 sceneMax(0.0f);
-    bool hasMesh = false;
-    for (Mesh* mesh : scene->meshes) {
-        if (!mesh || !mesh->getVisible() || !mesh->meshDisplay) continue;
-
-        glm::vec3 position = mesh->getGlobalPosition();
-        if (!hasMesh) {
-            sceneMin = position;
-            sceneMax = position;
-            hasMesh = true;
-        } else {
-            sceneMin = glm::min(sceneMin, position);
-            sceneMax = glm::max(sceneMax, position);
-        }
-    }
-
-    glm::vec3 sceneCenter = hasMesh ? (sceneMin + sceneMax) * 0.5f : glm::vec3(0.0f);
-    float orthoSize = shadowLight->shadowOrthoSize;
-    float nearPlane = shadowLight->shadowNearPlane;
-    float farPlane = shadowLight->shadowFarPlane;
-
-    glm::vec3 up = std::abs(glm::dot(lightDirection, glm::vec3(0.0f, 1.0f, 0.0f))) > 0.9f
-        ? glm::vec3(0.0f, 0.0f, 1.0f)
-        : glm::vec3(0.0f, 1.0f, 0.0f);
-
-    glm::mat4 lightProjection = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, nearPlane, farPlane);
-    glm::mat4 lightView = glm::lookAt(sceneCenter - lightDirection * (farPlane * 0.5f), sceneCenter, up);
-    lightSpaceMatrix = lightProjection * lightView;
 
     GLint oldViewport[4];
     GLint oldCullFaceMode = GL_BACK;
@@ -79,20 +46,111 @@ void ForwardRenderSystem::shadowMapPass(Scene* scene) {
     glGetIntegerv(GL_VIEWPORT, oldViewport);
     glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
 
-    glViewport(0, 0, shadowMapSize, shadowMapSize);
-    glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    if (shadowLight) {
+        initializeShadowMap();
+        if (shadowFBO != 0 && shadowMap != 0 && shadowDepthShader) {
+            glm::vec3 lightDirection = glm::normalize(shadowLight->getDirection());
+            if (glm::length(lightDirection) < 0.0001f) {
+                lightDirection = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.3f));
+            }
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
+            glm::vec3 sceneMin(0.0f);
+            glm::vec3 sceneMax(0.0f);
+            bool hasMesh = false;
+            for (Mesh* mesh : scene->meshes) {
+                if (!mesh || !mesh->getVisible() || !mesh->meshDisplay) continue;
 
-    shadowDepthShader->use();
-    shadowDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-    for (Mesh* mesh : scene->meshes) {
-        if (!mesh || !mesh->getVisible() || !mesh->meshDisplay) continue;
+                glm::vec3 position = mesh->getGlobalPosition();
+                if (!hasMesh) {
+                    sceneMin = position;
+                    sceneMax = position;
+                    hasMesh = true;
+                } else {
+                    sceneMin = glm::min(sceneMin, position);
+                    sceneMax = glm::max(sceneMax, position);
+                }
+            }
 
-        shadowDepthShader->setMat4("model", mesh->getGlobalMatrix());
-        mesh->drawOnly();
+            glm::vec3 sceneCenter = hasMesh ? (sceneMin + sceneMax) * 0.5f : glm::vec3(0.0f);
+            float orthoSize = shadowLight->shadowOrthoSize;
+            float nearPlane = shadowLight->shadowNearPlane;
+            float farPlane = shadowLight->shadowFarPlane;
+
+            glm::vec3 up = std::abs(glm::dot(lightDirection, glm::vec3(0.0f, 1.0f, 0.0f))) > 0.9f
+                ? glm::vec3(0.0f, 0.0f, 1.0f)
+                : glm::vec3(0.0f, 1.0f, 0.0f);
+
+            glm::mat4 lightProjection = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, nearPlane, farPlane);
+            glm::mat4 lightView = glm::lookAt(sceneCenter - lightDirection * (farPlane * 0.5f), sceneCenter, up);
+            lightSpaceMatrix = lightProjection * lightView;
+
+            glViewport(0, 0, shadowMapSize, shadowMapSize);
+            glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
+            glClear(GL_DEPTH_BUFFER_BIT);
+
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+
+            shadowDepthShader->use();
+            shadowDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+            for (Mesh* mesh : scene->meshes) {
+                if (!mesh || !mesh->getVisible() || !mesh->meshDisplay) continue;
+
+                shadowDepthShader->setMat4("model", mesh->getGlobalMatrix());
+                mesh->drawOnly();
+            }
+
+            hasShadowMap = true;
+        }
+    }
+
+    std::vector<PointLight*> pointLights = collectShadowPointLights(scene);
+    if (!pointLights.empty()) {
+        initializePointShadowMaps();
+        if (pointShadowFBO != 0 && pointShadowDepthShader) {
+            glViewport(0, 0, pointShadowMapSize, pointShadowMapSize);
+            glBindFramebuffer(GL_FRAMEBUFFER, pointShadowFBO);
+
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+
+            pointShadowDepthShader->use();
+            for (int lightIndex = 0; lightIndex < static_cast<int>(pointLights.size()); ++lightIndex) {
+                PointLight* light = pointLights[lightIndex];
+                glm::vec3 lightPos = light->getGlobalPosition();
+                float nearPlane = light->shadowNearPlane;
+                float farPlane = light->shadowFarPlane;
+                glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), 1.0f, nearPlane, farPlane);
+                glm::mat4 shadowTransforms[] = {
+                    shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+                    shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+                    shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+                    shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+                    shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+                    shadowProjection * glm::lookAt(lightPos, lightPos + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+                };
+
+                pointShadowPositions[lightIndex] = lightPos;
+                pointShadowFarPlanes[lightIndex] = farPlane;
+                pointShadowDepthShader->setVec3("lightPos", lightPos);
+                pointShadowDepthShader->setFloat("farPlane", farPlane);
+
+                for (unsigned int face = 0; face < 6; ++face) {
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, pointShadowMaps[lightIndex], 0);
+                    glClear(GL_DEPTH_BUFFER_BIT);
+                    pointShadowDepthShader->setMat4("shadowMatrix", shadowTransforms[face]);
+
+                    for (Mesh* mesh : scene->meshes) {
+                        if (!mesh || !mesh->getVisible() || !mesh->meshDisplay) continue;
+
+                        pointShadowDepthShader->setMat4("model", mesh->getGlobalMatrix());
+                        mesh->drawOnly();
+                    }
+                }
+            }
+
+            pointShadowCount = static_cast<int>(pointLights.size());
+        }
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -104,7 +162,6 @@ void ForwardRenderSystem::shadowMapPass(Scene* scene) {
         glDisable(GL_CULL_FACE);
     }
 
-    hasShadowMap = true;
 }
 
 void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
@@ -149,6 +206,17 @@ void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
                 glActiveTexture(GL_TEXTURE8);
                 glBindTexture(GL_TEXTURE_2D, shadowMap);
             }
+            currentShader->setInt("pointShadowCount", pointShadowCount);
+            for (int i = 0; i < MaxPointShadowMaps; ++i) {
+                int slot = 9 + i;
+                currentShader->setInt("pointShadowMaps[" + std::to_string(i) + "]", slot);
+                currentShader->setVec3("pointShadowPositions[" + std::to_string(i) + "]", pointShadowPositions[i]);
+                currentShader->setFloat("pointShadowFarPlanes[" + std::to_string(i) + "]", pointShadowFarPlanes[i]);
+                if (i < pointShadowCount) {
+                    glActiveTexture(GL_TEXTURE0 + slot);
+                    glBindTexture(GL_TEXTURE_CUBE_MAP, pointShadowMaps[i]);
+                }
+            }
 
             lastShader = currentShader;
         }
@@ -162,6 +230,36 @@ void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
         currentShader->setMat4("model", m->getGlobalMatrix());
         m->drawOnly();
     }
+}
+
+void ForwardRenderSystem::initializePointShadowMaps() {
+    if (pointShadowFBO == 0) {
+        glGenFramebuffers(1, &pointShadowFBO);
+    }
+    if (!pointShadowDepthShader) {
+        pointShadowDepthShader = getOrCreateShader("../Shaders/point_shadow_depth.vert", "../Shaders/point_shadow_depth.frag");
+    }
+
+    for (int i = 0; i < MaxPointShadowMaps; ++i) {
+        if (pointShadowMaps[i] != 0) continue;
+
+        glGenTextures(1, &pointShadowMaps[i]);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, pointShadowMaps[i]);
+        for (unsigned int face = 0; face < 6; ++face) {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_DEPTH_COMPONENT,
+                         pointShadowMapSize, pointShadowMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+        }
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, pointShadowFBO);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ForwardRenderSystem::initializeShadowMap() {
@@ -206,4 +304,20 @@ DirectionalLight* ForwardRenderSystem::findShadowDirectionalLight(Scene* scene) 
     }
 
     return nullptr;
+}
+
+std::vector<PointLight*> ForwardRenderSystem::collectShadowPointLights(Scene* scene) const {
+    std::vector<PointLight*> pointLights;
+    if (!scene) return pointLights;
+
+    for (Light* light : scene->lights) {
+        if (!light || !light->getActive() || !light->getVisible()) continue;
+        if (!light->castShadow) continue;
+        if (light->getType() != LightType::Point) continue;
+
+        pointLights.push_back(static_cast<PointLight*>(light));
+        if (static_cast<int>(pointLights.size()) >= MaxPointShadowMaps) break;
+    }
+
+    return pointLights;
 }
