@@ -4,6 +4,7 @@
 #include <common/3dEntities/Model.hpp>
 #include <common/Controls/cameracontrols.h>
 #include <common/Controls/freecamera.h>
+#include <common/3dEntities/Lights/DirectionalLight.hpp>
 #include <common/3dEntities/Lights/PointLight.hpp>
 #include <common/shader.hpp>
 #include <common/Render/IBLEnvironment.hpp>
@@ -12,6 +13,7 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <iostream>
+#include <vector>
 
 Scene* makePBRGridScene(RenderSystem* renderer) {
     Node* root = new Node3d();
@@ -39,6 +41,21 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
     int nrRows = 7;
     int nrColumns = 7;
     float spacing = 2.5;
+
+    std::vector<Vertex> groundVertices;
+    groundVertices.push_back(Vertex(glm::vec3(-13.0f, -9.0f, -12.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+    groundVertices.push_back(Vertex(glm::vec3(-13.0f, -9.0f,  10.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(0.0f, 1.0f)));
+    groundVertices.push_back(Vertex(glm::vec3( 13.0f, -9.0f,  10.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 1.0f)));
+    groundVertices.push_back(Vertex(glm::vec3( 13.0f, -9.0f, -12.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec2(1.0f, 0.0f)));
+
+    std::vector<Triangle> groundTriangles;
+    groundTriangles.push_back(Triangle(0, 1, 2));
+    groundTriangles.push_back(Triangle(0, 2, 3));
+
+    Mesh* ground = new Mesh(groundVertices, groundTriangles);
+    PBRMaterial* groundMaterial = new PBRMaterial(uniPbrShader, glm::vec3(0.45f, 0.45f, 0.42f), 0.0f, 0.75f, 1.0f);
+    ground->setMaterial(groundMaterial);
+    scene->instantiate(ground);
     
     for (int row = 0; row < nrRows; ++row) {
         for (int col = 0; col < nrColumns; ++col) {
@@ -85,6 +102,14 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
         light->setLocalPosition(position);
         scene->instantiate(light);
     }
+
+    DirectionalLight* sunLight = new DirectionalLight(glm::vec3(1.0f), 3.0f);
+    sunLight->setForward(glm::vec3(-0.35f, -1.0f, -0.25f));
+    sunLight->castShadow = true;
+    sunLight->shadowOrthoSize = 13.0f;
+    sunLight->shadowNearPlane = 1.0f;
+    sunLight->shadowFarPlane = 40.0f;
+    scene->instantiate(sunLight);
     
     return scene;
 }

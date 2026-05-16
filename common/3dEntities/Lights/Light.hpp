@@ -12,6 +12,10 @@ public:
     glm::vec3 color;
     float intensity;
     bool isActive = true;
+    bool castShadow = false;
+    float shadowNearPlane = 1.0f;
+    float shadowFarPlane = 50.0f;
+    float shadowOrthoSize = 20.0f;
 
     Light(glm::vec3 color, float intensity);
     glm::vec3 getRadiance() const;
@@ -19,4 +23,3 @@ public:
     bool getActive() const;
     void setActive(bool bActive);
 };
-
