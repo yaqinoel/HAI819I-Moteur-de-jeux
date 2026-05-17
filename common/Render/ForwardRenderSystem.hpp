@@ -25,6 +25,7 @@ private:
 
     void initializeShadowMap();
     void initializePointShadowMaps();
+    void initializeDummyPointShadowMap();
     DirectionalLight* findShadowDirectionalLight(Scene* scene) const;
     std::vector<PointLight*> collectShadowPointLights(Scene* scene) const;
 
@@ -37,6 +38,7 @@ private:
 
     GLuint pointShadowFBO = 0;
     GLuint pointShadowMaps[MaxPointShadowMaps] = {0};
+    GLuint dummyPointShadowMap = 0;
     int pointShadowMapSize = 1024;
     int pointShadowCount = 0;
     glm::vec3 pointShadowPositions[MaxPointShadowMaps] = {glm::vec3(0.0f)};

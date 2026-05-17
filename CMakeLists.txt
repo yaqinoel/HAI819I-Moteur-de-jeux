@@ -143,6 +143,7 @@ add_executable(Main
 
         Scenes/SolarSystem.h
         Scenes/InfiniteTerrain.h
+        Scenes/PBRInfiniteTerrain.h
         Scenes/PBRGridScene.h
         Scenes/Ball.h
         Scenes/Cube.h

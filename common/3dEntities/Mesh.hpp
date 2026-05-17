@@ -73,7 +73,7 @@ public:
     virtual void setUniforms() const {}
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
-    Material* material;
+    Material* material = nullptr;
     std::map<std::string, Texture> mymap;
     glm::vec3 getBarycentre(const int triangleIndex);
 

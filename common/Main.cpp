@@ -11,6 +11,7 @@
 
 #include "Scenes/PBRGridScene.h"
 #include "Scenes/InfiniteTerrain.h"
+#include "Scenes/PBRInfiniteTerrain.h"
 #include "common/Render/RenderSystem.hpp"
 #include "common/Render/ForwardRenderSystem.hpp"
 
@@ -113,7 +114,8 @@ int main( void )
 
     renderer = new ForwardRenderSystem();
 
-    scene = makePBRGridScene(renderer);
+    scene = makePBRInfiniteTerrain(renderer);
+    // scene = makePBRGridScene(renderer);
     // scene = makeInfiniteTerrain();
 
     // For speed computation

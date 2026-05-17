@@ -1,3 +1,4 @@
+#pragma once
 #include "Light.hpp"
 
 class SpotLight : public Light {
@@ -10,5 +11,4 @@ public:
     virtual LightType getType() const override;
     glm::vec3 getDirection() const;
 };
-
 

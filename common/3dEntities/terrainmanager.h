@@ -27,6 +27,7 @@ public:
     int chunkRenderDistance = 3;
     float chunkSize = 30;
     Material* terrainMat;
+    bool usePBRChunks = false;
 private:
     glm::ivec3 prevCamPosition;
     Camera* cam;

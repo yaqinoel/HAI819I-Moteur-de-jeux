@@ -32,6 +32,13 @@ Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     return terrain;
 }
 
+Mesh* MakePBRVoxelChunk(int x, int y, int size, Material* const terrainMat){
+    ProceduralVoxelTerrain* terrain = new ProceduralVoxelTerrain(x*size, y*size, size, size, size, size, 20);
+    terrain->setMaterial(terrainMat);
+    terrain->name = "pbr voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
+    return terrain;
+}
+
 
 
 TerrainManager::TerrainManager() {
@@ -45,7 +52,9 @@ void TerrainManager::UpdateTerrain(glm::ivec3 newCamPosition){
             glm::vec3 chunkWorldPos = (glm::vec3)chunkPos*chunkSize;
             float chunkDistance = glm::length(chunkWorldPos-glm::vec3(cam->getGlobalPosition().x,0, cam->getGlobalPosition().z))-chunkSize;
             if(chunkDistance < chunkSize * chunkRenderDistance && chunks.find(chunkPos) == chunks.end()){
-                Mesh * chunk = MakeVoxelChunk(chunkPos.x, chunkPos.z, chunkSize, terrainMat);
+                Mesh * chunk = usePBRChunks
+                    ? MakePBRVoxelChunk(chunkPos.x, chunkPos.z, chunkSize, terrainMat)
+                    : MakeVoxelChunk(chunkPos.x, chunkPos.z, chunkSize, terrainMat);
                 instantiate(chunk, this);
                 chunks.insert({chunkPos, chunk});
             }
@@ -85,7 +94,9 @@ void TerrainManager::initTerrain(){
     for(int x = -chunkRenderDistance; x <= chunkRenderDistance; x ++){
         for(int y = -chunkRenderDistance; y <= chunkRenderDistance; y ++){
             glm::vec3 chunkPos = prevCamPosition + glm::ivec3(x,0, y);
-            Mesh * chunk = MakeVoxelChunk(prevCamPosition.x+x, prevCamPosition.z+y, chunkSize, terrainMat);
+            Mesh * chunk = usePBRChunks
+                ? MakePBRVoxelChunk(prevCamPosition.x+x, prevCamPosition.z+y, chunkSize, terrainMat)
+                : MakeVoxelChunk(prevCamPosition.x+x, prevCamPosition.z+y, chunkSize, terrainMat);
             instantiate(chunk, this);
             chunks.insert({chunkPos, chunk});
         }

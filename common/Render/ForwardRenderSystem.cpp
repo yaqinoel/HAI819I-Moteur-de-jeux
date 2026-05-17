@@ -17,6 +17,7 @@ ForwardRenderSystem::~ForwardRenderSystem() {
     if (shadowMap != 0) glDeleteTextures(1, &shadowMap);
     if (shadowFBO != 0) glDeleteFramebuffers(1, &shadowFBO);
     glDeleteTextures(MaxPointShadowMaps, pointShadowMaps);
+    if (dummyPointShadowMap != 0) glDeleteTextures(1, &dummyPointShadowMap);
     if (pointShadowFBO != 0) glDeleteFramebuffers(1, &pointShadowFBO);
 }
 
@@ -42,9 +43,14 @@ void ForwardRenderSystem::shadowMapPass(Scene* scene) {
 
     GLint oldViewport[4];
     GLint oldCullFaceMode = GL_BACK;
+    GLfloat oldPolygonOffsetFactor = 0.0f;
+    GLfloat oldPolygonOffsetUnits = 0.0f;
     GLboolean cullEnabled = glIsEnabled(GL_CULL_FACE);
+    GLboolean polygonOffsetEnabled = glIsEnabled(GL_POLYGON_OFFSET_FILL);
     glGetIntegerv(GL_VIEWPORT, oldViewport);
     glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
+    glGetFloatv(GL_POLYGON_OFFSET_FACTOR, &oldPolygonOffsetFactor);
+    glGetFloatv(GL_POLYGON_OFFSET_UNITS, &oldPolygonOffsetUnits);
 
     if (shadowLight) {
         initializeShadowMap();
@@ -89,7 +95,9 @@ void ForwardRenderSystem::shadowMapPass(Scene* scene) {
             glClear(GL_DEPTH_BUFFER_BIT);
 
             glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
+            glCullFace(GL_BACK);
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(2.0f, 4.0f);
 
             shadowDepthShader->use();
             shadowDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -161,6 +169,12 @@ void ForwardRenderSystem::shadowMapPass(Scene* scene) {
     } else {
         glDisable(GL_CULL_FACE);
     }
+    if (polygonOffsetEnabled) {
+        glEnable(GL_POLYGON_OFFSET_FILL);
+    } else {
+        glDisable(GL_POLYGON_OFFSET_FILL);
+    }
+    glPolygonOffset(oldPolygonOffsetFactor, oldPolygonOffsetUnits);
 
 }
 
@@ -176,7 +190,7 @@ void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
     Shader* lastShader = nullptr;
 
     for (Mesh* m : meshes) {
-        if (!m || !m->getVisible() || !m->meshDisplay || !m->material) continue;
+        if (!m || !m->getVisible() || !m->meshDisplay || !m->material || !m->material->shader) continue;
 
         Shader* currentShader = m->material->shader;
 
@@ -206,15 +220,18 @@ void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
                 glActiveTexture(GL_TEXTURE8);
                 glBindTexture(GL_TEXTURE_2D, shadowMap);
             }
+            initializeDummyPointShadowMap();
             currentShader->setInt("pointShadowCount", pointShadowCount);
             for (int i = 0; i < MaxPointShadowMaps; ++i) {
                 int slot = 9 + i;
                 currentShader->setInt("pointShadowMaps[" + std::to_string(i) + "]", slot);
                 currentShader->setVec3("pointShadowPositions[" + std::to_string(i) + "]", pointShadowPositions[i]);
                 currentShader->setFloat("pointShadowFarPlanes[" + std::to_string(i) + "]", pointShadowFarPlanes[i]);
+                glActiveTexture(GL_TEXTURE0 + slot);
                 if (i < pointShadowCount) {
-                    glActiveTexture(GL_TEXTURE0 + slot);
                     glBindTexture(GL_TEXTURE_CUBE_MAP, pointShadowMaps[i]);
+                } else {
+                    glBindTexture(GL_TEXTURE_CUBE_MAP, dummyPointShadowMap);
                 }
             }
 
@@ -260,6 +277,23 @@ void ForwardRenderSystem::initializePointShadowMaps() {
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void ForwardRenderSystem::initializeDummyPointShadowMap() {
+    if (dummyPointShadowMap != 0) return;
+
+    float farDepth = 1.0f;
+    glGenTextures(1, &dummyPointShadowMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, dummyPointShadowMap);
+    for (unsigned int face = 0; face < 6; ++face) {
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_DEPTH_COMPONENT,
+                     1, 1, 0, GL_DEPTH_COMPONENT, GL_FLOAT, &farDepth);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 void ForwardRenderSystem::initializeShadowMap() {

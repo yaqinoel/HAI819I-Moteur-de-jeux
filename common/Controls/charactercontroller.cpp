@@ -38,7 +38,7 @@ void CharacterController::process(float deltaTime){
         }
     }
     if (scene->inputPressed("action1")){
-        RigidBody3D* cube = makePhysicsCube();
+        RigidBody3D* cube = makePhysicsCube(projectileMaterial);
         cube->velocity = cam->forward()*20.0f+UP*7.0f;
         instantiate(cube);
         cube->setGlobalPosition(getGlobalPosition()+cam->forward()*1.0f+up()*0.7f);

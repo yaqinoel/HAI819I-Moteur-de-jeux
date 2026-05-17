@@ -3,9 +3,9 @@
 #include "Cube.h"
 #include <common/3dEntities/rigidbody3d.h>
 
-inline RigidBody3D* makePhysicsCube(){
+inline RigidBody3D* makePhysicsCube(Material* material = nullptr){
     RigidBody3D* physicsCube = new RigidBody3D();
-    Node3d* child = makeCube();
+    Node3d* child = makeCube(material);
     physicsCube->addChild(child);
     physicsCube->gravity = glm::vec3(0, -20, 0);
     physicsCube->name = "rigidbody cube";

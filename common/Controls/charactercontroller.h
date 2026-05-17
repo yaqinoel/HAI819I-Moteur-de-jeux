@@ -12,6 +12,7 @@ public:
     void process(float deltaTime) override;
     void physicsProcess() override;
     Camera* cam;
+    Material* projectileMaterial = nullptr;
 private:
     float speed = 5.0f;
     float jumpStrength = 7.0f;
@@ -20,4 +21,3 @@ private:
     glm::vec3 cameraForward = glm::vec3(1, 0, 0);
     bool jumpPressed = false;
 };
-
