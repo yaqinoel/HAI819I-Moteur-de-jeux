@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
+#include "common/Physics/physicstypes.h"
 #include "common/Utilities/rayintersection.h"
 #include "../Utilities/Geometry.h"
 
@@ -14,7 +15,8 @@ enum ShapeType{
     CONVEX,
     CUBE,
     SPHERE,
-    VOXEL
+    VOXEL,
+    SHAPE_COUNT
 };
 
 
@@ -24,6 +26,7 @@ public:
     Shape();
     virtual RayIntersection raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length)=0;
     virtual RayIntersection raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t layers);
+    virtual bool computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const;
     CollisionShape3D* collider = nullptr;
     float radius = 0;
     glm::mat3 inertia = glm::mat3(0); //calculated as if the total mass was 1

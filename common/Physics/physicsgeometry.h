@@ -21,6 +21,7 @@ struct OrientedBox {
 };
 
 bool isFiniteVec3(const glm::vec3& v);
+bool aabbOverlaps(const PhysicsAabb& a, const PhysicsAabb& b);
 int normalSlot(const glm::vec3& normal);
 bool makeBox(CollisionShape3D* collider, OrientedBox& outBox);
 OrientedBox makeStaticAabbBox(CollisionShape3D* collider, const glm::vec3& min, const glm::vec3& max);

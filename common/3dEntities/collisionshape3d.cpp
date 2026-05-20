@@ -23,6 +23,10 @@ void CollisionShape3D::SetShape(Shape* s){
     shape->setMass(mass);
 }
 
+bool CollisionShape3D::computeAabb(PhysicsAabb& outAabb) const {
+    return shape && shape->computeAabb(*this, outAabb);
+}
+
 void CollisionShape3D::setDebug(bool b) {
     debug = b;
     if(debugMesh != nullptr){

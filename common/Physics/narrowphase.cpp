@@ -17,34 +17,9 @@ float combinedFriction(RigidBody3D* a, RigidBody3D* b) {
     return a ? std::max(0.0f, a->friction) : 0.0f;
 }
 
-}
-
-void NarrowPhase::generateContacts(const std::vector<CollisionPair>& pairs,
-                                   std::vector<PhysicsContact>& outContacts) const {
-    for (const CollisionPair& pair : pairs)
-        collide(pair.colliderA, pair.colliderB, outContacts);
-}
-
-void NarrowPhase::collide(CollisionShape3D* colliderA,
-                          CollisionShape3D* colliderB,
-                          std::vector<PhysicsContact>& outContacts) const {
-    if (!colliderA || !colliderB || !colliderA->getShape() || !colliderB->getShape())
-        return;
-
-    Shape* shapeA = colliderA->getShape();
-    Shape* shapeB = colliderB->getShape();
-    if (shapeA->type == CUBE && shapeB->type == CUBE) {
-        addBoxBoxContacts(colliderA, colliderB, outContacts);
-    } else if (shapeA->type == CUBE && shapeB->type == VOXEL) {
-        addBoxVoxelContacts(colliderA, colliderB, outContacts);
-    } else if (shapeA->type == VOXEL && shapeB->type == CUBE) {
-        addBoxVoxelContacts(colliderB, colliderA, outContacts);
-    }
-}
-
-void NarrowPhase::addBoxBoxContacts(CollisionShape3D* colliderA,
-                                    CollisionShape3D* colliderB,
-                                    std::vector<PhysicsContact>& outContacts) const {
+void addBoxBoxContacts(CollisionShape3D* colliderA,
+                       CollisionShape3D* colliderB,
+                       std::vector<PhysicsContact>& outContacts) {
     OrientedBox boxA;
     OrientedBox boxB;
     if (!makeBox(colliderA, boxA) || !makeBox(colliderB, boxB))
@@ -89,9 +64,9 @@ void NarrowPhase::addBoxBoxContacts(CollisionShape3D* colliderA,
     outContacts.push_back(contact);
 }
 
-void NarrowPhase::addBoxVoxelContacts(CollisionShape3D* boxCollider,
-                                      CollisionShape3D* voxelCollider,
-                                      std::vector<PhysicsContact>& outContacts) const {
+void addBoxVoxelContacts(CollisionShape3D* boxCollider,
+                         CollisionShape3D* voxelCollider,
+                         std::vector<PhysicsContact>& outContacts) {
     if (!boxCollider || !boxCollider->rb || !voxelCollider)
         return;
 
@@ -100,7 +75,7 @@ void NarrowPhase::addBoxVoxelContacts(CollisionShape3D* boxCollider,
         return;
 
     PhysicsAabb broadAabb;
-    if (!boxAabb(boxCollider, broadAabb))
+    if (!boxCollider->computeAabb(broadAabb))
         return;
 
     VoxelShape* voxel = static_cast<VoxelShape*>(voxelCollider->getShape());
@@ -161,4 +136,30 @@ void NarrowPhase::addBoxVoxelContacts(CollisionShape3D* boxCollider,
         contactsByDirection[i].point = pointSums[i] / static_cast<float>(pointCounts[i]);
         outContacts.push_back(contactsByDirection[i]);
     }
+}
+
+void addVoxelBoxContacts(CollisionShape3D* voxelCollider,
+                         CollisionShape3D* boxCollider,
+                         std::vector<PhysicsContact>& outContacts) {
+    addBoxVoxelContacts(boxCollider, voxelCollider, outContacts);
+}
+
+}
+
+NarrowPhase::NarrowPhase() {
+    dispatcher.registerCollision(CUBE, CUBE, addBoxBoxContacts);
+    dispatcher.registerCollision(CUBE, VOXEL, addBoxVoxelContacts);
+    dispatcher.registerCollision(VOXEL, CUBE, addVoxelBoxContacts);
+}
+
+void NarrowPhase::generateContacts(const std::vector<CollisionPair>& pairs,
+                                   std::vector<PhysicsContact>& outContacts) const {
+    for (const CollisionPair& pair : pairs)
+        collide(pair.colliderA, pair.colliderB, outContacts);
+}
+
+void NarrowPhase::collide(CollisionShape3D* colliderA,
+                          CollisionShape3D* colliderB,
+                          std::vector<PhysicsContact>& outContacts) const {
+    dispatcher.dispatch(colliderA, colliderB, outContacts);
 }

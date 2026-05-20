@@ -1,5 +1,6 @@
 #include "broadphase.h"
 
+#include "physicsgeometry.h"
 #include "common/3dEntities/collisionshape3d.h"
 
 namespace {
@@ -30,6 +31,13 @@ void BruteForceBroadPhase::computePairs(const std::vector<CollisionShape3D*>& co
             CollisionShape3D* a = colliders[i];
             CollisionShape3D* b = colliders[j];
             if (!shouldTestPair(a, b))
+                continue;
+
+            PhysicsAabb aabbA;
+            PhysicsAabb aabbB;
+            if (!a->computeAabb(aabbA) || !b->computeAabb(aabbB))
+                continue;
+            if (!aabbOverlaps(aabbA, aabbB))
                 continue;
 
             CollisionPair pair;

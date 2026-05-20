@@ -11,6 +11,7 @@ public:
     bool active = true;
     void SetShape(Shape* s);
     Shape* getShape() const { return shape; }
+    bool computeAabb(PhysicsAabb& outAabb) const;
     void setDebug(bool b);
     glm::mat3 getInertia() {return shape->inertia;}
     RigidBody3D *rb = nullptr;

@@ -101,6 +101,7 @@ add_executable(Main
         common/Physics/physicssettings.h
         common/Physics/physicsgeometry.h common/Physics/physicsgeometry.cpp
         common/Physics/broadphase.h common/Physics/broadphase.cpp
+        common/Physics/collisiondispatcher.h common/Physics/collisiondispatcher.cpp
         common/Physics/narrowphase.h common/Physics/narrowphase.cpp
         common/Physics/contactsolver.h common/Physics/contactsolver.cpp
         common/Physics/contactcache.h common/Physics/contactcache.cpp

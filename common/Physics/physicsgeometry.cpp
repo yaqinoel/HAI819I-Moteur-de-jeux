@@ -15,6 +15,12 @@ bool isFiniteVec3(const glm::vec3& v) {
     return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
 }
 
+bool aabbOverlaps(const PhysicsAabb& a, const PhysicsAabb& b) {
+    return a.min.x <= b.max.x && a.max.x >= b.min.x
+        && a.min.y <= b.max.y && a.max.y >= b.min.y
+        && a.min.z <= b.max.z && a.max.z >= b.min.z;
+}
+
 int normalSlot(const glm::vec3& normal) {
     glm::vec3 absNormal = glm::abs(normal);
     if (absNormal.x >= absNormal.y && absNormal.x >= absNormal.z)

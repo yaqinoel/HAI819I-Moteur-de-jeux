@@ -1,5 +1,6 @@
 #include "cube.h"
 #include <cmath>
+#include <limits>
 
 
 Cube::Cube(float size_x, float size_y, float size_z, std::vector<Vertex>& ver, std::vector<Triangle>& tri) : Cube(size_x, size_y, size_z) {
@@ -44,6 +45,29 @@ Cube::Cube(float size_x, float size_y, float size_z){
     inertia[0][0] = mass * (size.y * size.y + size.z * size.z) / 12.0f;
     inertia[1][1] = mass * (size.x * size.x + size.z * size.z) / 12.0f;
     inertia[2][2] = mass * (size.x * size.x + size.y * size.y) / 12.0f;
+}
+
+bool Cube::computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const {
+    glm::mat4 model = collider.getGlobalMatrix();
+    outAabb.min = glm::vec3(std::numeric_limits<float>::infinity());
+    outAabb.max = glm::vec3(-std::numeric_limits<float>::infinity());
+
+    for (int x = -1; x <= 1; x += 2) {
+        for (int y = -1; y <= 1; y += 2) {
+            for (int z = -1; z <= 1; z += 2) {
+                glm::vec3 localCorner = glm::vec3(
+                    halfSize.x * static_cast<float>(x),
+                    halfSize.y * static_cast<float>(y),
+                    halfSize.z * static_cast<float>(z)
+                );
+                glm::vec3 worldCorner = glm::vec3(model * glm::vec4(localCorner, 1.0f));
+                outAabb.min = glm::min(outAabb.min, worldCorner);
+                outAabb.max = glm::max(outAabb.max, worldCorner);
+            }
+        }
+    }
+
+    return true;
 }
 
 void Cube::setMesh(std::vector<Vertex> &ver, std::vector<Triangle> &tri){
