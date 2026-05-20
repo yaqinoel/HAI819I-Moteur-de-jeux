@@ -12,7 +12,7 @@ public:
                               std::vector<CollisionPair>& outPairs) const = 0;
 };
 
-class BruteForceBroadPhase : public BroadPhase {
+class SweepAndPruneBroadPhase : public BroadPhase {
 public:
     void computePairs(const std::vector<CollisionShape3D*>& colliders,
                       std::vector<CollisionPair>& outPairs) const override;

@@ -18,7 +18,7 @@ public:
 
 private:
     std::vector<PhysicsContact> contacts;
-    BruteForceBroadPhase broadPhase;
+    SweepAndPruneBroadPhase broadPhase;
     NarrowPhase narrowPhase;
     ContactSolver contactSolver;
     ContactCache contactCache;
