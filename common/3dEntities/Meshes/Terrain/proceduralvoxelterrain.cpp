@@ -137,6 +137,6 @@ void ProceduralVoxelTerrain::InitMesh(int posX, int posY, int resX, int resY, fl
 
     VoxelShape* shape = new VoxelShape();
     shape->VoxelShape::InitMeshFromTerrain(resolution, resolution, resolution, chunkData);
-    collision->SetShape(shape);
+    collision->setShape(shape);
     collision->name = "collision mesh for position ("+std::to_string(posX)+","+std::to_string(posY)+")";
 }

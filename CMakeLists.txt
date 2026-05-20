@@ -118,6 +118,7 @@ add_executable(Main
         common/Shapes/terrainshape.h common/Shapes/terrainshape.cpp
         common/Shapes/meshshape.h common/Shapes/meshshape.cpp
         common/Shapes/sphere.h common/Shapes/sphere.cpp
+        common/Shapes/capsuleshape.h common/Shapes/capsuleshape.cpp
         common/Shapes/cube.h common/Shapes/cube.cpp
 
         Scenes/SolarSystem.h

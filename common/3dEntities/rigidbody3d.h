@@ -38,7 +38,7 @@ public:
     float sleepTimer = 0.0f;
     glm::mat3 inertia=glm::mat3(0);
     glm::mat3 inverseInertia=glm::mat3(0);
-    std::vector<CollisionShape3D*> collisions = std::vector<CollisionShape3D*>();
+    std::vector<CollisionShape3D*> collisionShapes = std::vector<CollisionShape3D*>();
     glm::vec3 getTorque(glm::vec3 point, glm::vec3 momentum){return glm::cross(point-getGlobalPosition(), momentum);}
     void applyImpulse(glm::vec3 impulse, glm::vec3 worldPoint);
 

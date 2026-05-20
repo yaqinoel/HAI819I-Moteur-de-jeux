@@ -19,7 +19,7 @@ inline Mesh* makeCube(){
 
     CollisionShape3D* collider = new CollisionShape3D();
     cube->addChild(collider);
-    collider->SetShape(shape);
+    collider->setShape(shape);
     collider->name = "cube collider";
     cube->name = "cube mesh";
 

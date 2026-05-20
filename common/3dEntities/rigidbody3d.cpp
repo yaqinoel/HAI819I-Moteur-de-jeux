@@ -102,7 +102,7 @@ void RigidBody3D::setLocalPosition(const glm::vec3 pos){
 }
 
 void RigidBody3D::addCollisionShape(CollisionShape3D* c){
-    collisions.push_back(c);
+    collisionShapes.push_back(c);
     c->rb = this;
     mass += c->mass;
     inertia += c->getInertia() + c->mass * glm::length2(c->getGlobalPosition()- getGlobalPosition());

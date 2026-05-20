@@ -15,6 +15,7 @@ enum ShapeType{
     CONVEX,
     CUBE,
     SPHERE,
+    CAPSULE,
     VOXEL,
     SHAPE_COUNT
 };

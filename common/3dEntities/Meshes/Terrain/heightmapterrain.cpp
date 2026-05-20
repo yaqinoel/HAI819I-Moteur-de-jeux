@@ -40,7 +40,7 @@ void HeightMapTerrain::InitMesh(int posX, int posY , int resX, int resY, float s
 
     TerrainShape* shape = new TerrainShape();
     shape->MeshShape::InitMesh(vertices, triangles);
-    collision->SetShape(shape);
+    collision->setShape(shape);
 
     _synchronized = false;
 }
@@ -58,7 +58,7 @@ void HeightMapTerrain::ApplyHeightMap(std::string hmapName){
 
     TerrainShape* shape = new TerrainShape();
     shape->MeshShape::InitMesh(vertices, triangles);
-    collision->SetShape(shape);
+    collision->setShape(shape);
 
     _synchronized = false;
 }

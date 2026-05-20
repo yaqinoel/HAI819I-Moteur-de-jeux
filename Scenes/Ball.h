@@ -18,7 +18,7 @@ Mesh* makeBall(){
     CollisionShape3D* collider = new CollisionShape3D();
     Shape* shape = new Sphere(1.1);
     ball->addChild(collider);
-    collider->SetShape(shape);
+    collider->setShape(shape);
     collider->setDebug(true);
     collider->name = "ball collider";
     ball->name = "ball";

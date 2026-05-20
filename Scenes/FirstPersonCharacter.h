@@ -14,7 +14,7 @@ CharacterController* makeFPSController(){
     CollisionShape3D* collider = new CollisionShape3D();
     character->addChild(collider);
     Shape* shape = new Cube(0.8, 1.9, 0.8, cube->vertices, cube->triangles);
-    collider->SetShape(shape);
+    collider->setShape(shape);
     collider->name = "character collider";
     character->name = "FPS character";
     character->addCollisionShape(collider);

@@ -17,7 +17,7 @@ RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 con
     }
 }
 
-void CollisionShape3D::SetShape(Shape* s){
+void CollisionShape3D::setShape(Shape* s){
     shape = s;
     s->collider = this;
     shape->setMass(mass);

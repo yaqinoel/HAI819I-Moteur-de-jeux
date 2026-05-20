@@ -9,7 +9,7 @@ public:
     CollisionShape3D();
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask);
     bool active = true;
-    void SetShape(Shape* s);
+    void setShape(Shape* s);
     Shape* getShape() const { return shape; }
     bool computeAabb(PhysicsAabb& outAabb) const;
     void setDebug(bool b);
