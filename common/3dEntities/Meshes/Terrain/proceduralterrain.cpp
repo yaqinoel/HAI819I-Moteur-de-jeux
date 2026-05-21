@@ -4,7 +4,7 @@
 
 
 ProceduralTerrain::ProceduralTerrain(){
-    collision = new CollisionShape3D();
+    collision = new Collider3D();
     instantiate(collision, this);
 }
 

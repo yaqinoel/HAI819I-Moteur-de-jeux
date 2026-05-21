@@ -1,8 +1,8 @@
 #pragma once
 
 #include <common/3dEntities/Meshes/lod.h>
-#include <common/3dEntities/collisionshape3d.h>
-#include <common/Shapes/sphere.h>
+#include <common/Physics/collider3d.h>
+#include <common/Physics/Shapes/sphere.h>
 #include <common/scene.h>
 #include <iostream>
 
@@ -15,7 +15,7 @@ Mesh* makeBall(){
     Material* ballmat = new Material(glm::vec3(1, 0, 0));
     ball->material = ballmat;
 
-    CollisionShape3D* collider = new CollisionShape3D();
+    Collider3D* collider = new Collider3D();
     Shape* shape = new Sphere(1.1);
     ball->addChild(collider);
     collider->setShape(shape);

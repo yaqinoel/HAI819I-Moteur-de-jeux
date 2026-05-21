@@ -46,7 +46,7 @@ Sphere::Sphere(float rad){
     inertia = glm::mat3(mass*rad*rad*2.0/5.0);
 }
 
-bool Sphere::computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const {
+bool Sphere::computeAabb(const Collider3D& collider, PhysicsAabb& outAabb) const {
     glm::vec3 center = collider.getGlobalPosition();
     glm::vec3 extents(radius);
     outAabb.min = center - extents;

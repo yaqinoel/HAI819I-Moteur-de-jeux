@@ -5,9 +5,9 @@
 #include <limits>
 #include <glm/gtx/norm.hpp>
 #include "physicssettings.h"
-#include "common/3dEntities/collisionshape3d.h"
-#include "common/Shapes/cube.h"
-#include "common/Shapes/shape.h"
+#include "collider3d.h"
+#include "common/Physics/Shapes/cube.h"
+#include "Shapes/shape.h"
 
 using namespace PhysicsSettings;
 
@@ -30,7 +30,7 @@ int normalSlot(const glm::vec3& normal) {
     return normal.z >= 0.0f ? 4 : 5;
 }
 
-bool makeBox(CollisionShape3D* collider, OrientedBox& outBox) {
+bool makeBox(Collider3D* collider, OrientedBox& outBox) {
     if (!collider || !collider->getShape() || collider->getShape()->type != CUBE)
         return false;
 
@@ -54,7 +54,7 @@ bool makeBox(CollisionShape3D* collider, OrientedBox& outBox) {
     return true;
 }
 
-OrientedBox makeStaticAabbBox(CollisionShape3D* collider, const glm::vec3& min, const glm::vec3& max) {
+OrientedBox makeStaticAabbBox(Collider3D* collider, const glm::vec3& min, const glm::vec3& max) {
     OrientedBox box;
     box.collider = collider;
     box.body = nullptr;
@@ -82,7 +82,7 @@ std::array<glm::vec3, 8> boxCorners(const OrientedBox& box) {
     return corners;
 }
 
-bool boxAabb(CollisionShape3D* collider, PhysicsAabb& outAabb) {
+bool boxAabb(Collider3D* collider, PhysicsAabb& outAabb) {
     OrientedBox box;
     if (!makeBox(collider, box))
         return false;

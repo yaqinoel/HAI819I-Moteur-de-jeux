@@ -1,6 +1,6 @@
 #pragma once
 #include <common/3dEntities/Mesh.hpp>
-#include <common/3dEntities/collisionshape3d.h>
+#include <common/Physics/collider3d.h>
 #include <common/Controls/charactercontroller.h>
 
 CharacterController* makeKnight(){

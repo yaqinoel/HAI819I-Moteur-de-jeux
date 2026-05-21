@@ -5,8 +5,8 @@
 #include <glm/gtx/norm.hpp>
 #include "contactsolver.h"
 #include "physicssettings.h"
-#include "common/3dEntities/collisionshape3d.h"
-#include "common/3dEntities/rigidbody3d.h"
+#include "collider3d.h"
+#include "rigidbody3d.h"
 
 using namespace PhysicsSettings;
 
@@ -74,7 +74,7 @@ void updateSleepState(RigidBody3D* body, float dt) {
 }
 
 void PhysicsWorld::step(const std::vector<RigidBody3D*>& rigidBodies,
-                        const std::vector<CollisionShape3D*>& colliders,
+                        const std::vector<Collider3D*>& colliders,
                         float fixedDeltaTime) {
     if (fixedDeltaTime <= 0.0f)
         return;
@@ -145,7 +145,7 @@ void PhysicsWorld::syncBodies(const std::vector<RigidBody3D*>& rigidBodies) cons
     }
 }
 
-void PhysicsWorld::collectContacts(const std::vector<CollisionShape3D*>& colliders,
+void PhysicsWorld::collectContacts(const std::vector<Collider3D*>& colliders,
                                    std::vector<PhysicsContact>& outContacts) const {
     std::vector<CollisionPair> pairs;
     broadPhase.computePairs(colliders, pairs);

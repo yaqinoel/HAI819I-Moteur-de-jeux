@@ -1,7 +1,7 @@
 #include "collisiondispatcher.h"
 
 #include <cstddef>
-#include "common/3dEntities/collisionshape3d.h"
+#include "collider3d.h"
 
 namespace {
 
@@ -28,8 +28,8 @@ void CollisionDispatcher::registerCollision(ShapeType typeA, ShapeType typeB, Co
     table[typeIndex(typeA)][typeIndex(typeB)] = collisionFn;
 }
 
-bool CollisionDispatcher::dispatch(CollisionShape3D* colliderA,
-                                   CollisionShape3D* colliderB,
+bool CollisionDispatcher::dispatch(Collider3D* colliderA,
+                                   Collider3D* colliderB,
                                    std::vector<PhysicsContact>& outContacts) const {
     if (!colliderA || !colliderB || !colliderA->getShape() || !colliderB->getShape())
         return false;

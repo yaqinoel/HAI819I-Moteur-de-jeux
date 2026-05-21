@@ -1,9 +1,9 @@
 #pragma once
 
 #include "shape.h"
-#include "../Utilities/Geometry.h"
+#include "common/Utilities/Geometry.h"
 #include <embree4/rtcore.h>
-#include "../3dEntities/collisionshape3d.h"
+#include "../collider3d.h"
 
 class MeshShape : public Shape
 {

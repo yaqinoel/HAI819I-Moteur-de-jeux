@@ -2,8 +2,8 @@
 #include "node.h"
 #include "3dEntities/Mesh.hpp"
 #include "3dEntities/camera.h"
-#include "3dEntities/rigidbody3d.h"
-#include "3dEntities/collisionshape3d.h"
+#include "Physics/rigidbody3d.h"
+#include "Physics/collider3d.h"
 #include <ctime>
 
 Scene::Scene(Node* node)
@@ -39,7 +39,7 @@ void Scene::addToTree(Node* node){
     if (RigidBody3D* r = dynamic_cast<RigidBody3D*>(node)) {
         rigidBodies.push_back(r);
     }
-    if (CollisionShape3D* c = dynamic_cast<CollisionShape3D*>(node)) {
+    if (Collider3D* c = dynamic_cast<Collider3D*>(node)) {
         colliders.push_back(c);
     }
     for(Node* child: node->getChildren()){
@@ -97,7 +97,7 @@ void Scene::removeFromTree(Node* node){
     if (RigidBody3D* r = dynamic_cast<RigidBody3D*>(node)) {
         rigidBodies.erase(std::remove(rigidBodies.begin(), rigidBodies.end(), r), rigidBodies.end());
     }
-    if (CollisionShape3D* c = dynamic_cast<CollisionShape3D*>(node)) {
+    if (Collider3D* c = dynamic_cast<Collider3D*>(node)) {
         colliders.erase(std::remove(colliders.begin(), colliders.end(), c), colliders.end());
     }
     node->removeParent();
@@ -117,7 +117,7 @@ RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &directi
     RayIntersection closestIntersection;
     closestIntersection.t = FLT_MAX;
     closestIntersection.intersectionExists = false;
-    for (CollisionShape3D* c: colliders)
+    for (Collider3D* c: colliders)
     {
         if(c != nullptr && c->getVisible()){
             RayIntersection newIntersection = c->raycast(origin, direction, length, mask);

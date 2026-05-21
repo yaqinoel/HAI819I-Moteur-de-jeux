@@ -3,13 +3,13 @@
 #include <glm/glm.hpp>
 #include "common/Materials/material.h"
 
-class CollisionShape3D;
+class Collider3D;
 
 class RayIntersection
 {
 public:
     bool intersectionExists;
-    CollisionShape3D* collider;
+    Collider3D* collider;
     float t;
     Material material;
     glm::vec3 point;

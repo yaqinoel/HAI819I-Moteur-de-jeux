@@ -11,5 +11,5 @@ public:
     void ApplyHeightMap(std::string hmapName);
 private:
     std::string hmapName;
-    CollisionShape3D* collision = nullptr;
+    Collider3D* collision = nullptr;
 };

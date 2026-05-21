@@ -93,8 +93,8 @@ add_executable(Main
         common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp
 
         common/3dEntities/Mesh.cpp
-        common/3dEntities/rigidbody3d.h common/3dEntities/rigidbody3d.cpp
-        common/3dEntities/collisionshape3d.h common/3dEntities/collisionshape3d.cpp
+        common/Physics/rigidbody3d.h common/Physics/rigidbody3d.cpp
+        common/Physics/collider3d.h common/Physics/collider3d.cpp
         common/3dEntities/terrainmanager.h common/3dEntities/terrainmanager.cpp
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
         common/Physics/physicstypes.h
@@ -114,12 +114,12 @@ add_executable(Main
         common/Materials/terrainmaterial.h common/Materials/terrainmaterial.cpp
         common/scene.h common/scene.cpp
 
-        common/Shapes/shape.h common/Shapes/shape.cpp
-        common/Shapes/terrainshape.h common/Shapes/terrainshape.cpp
-        common/Shapes/meshshape.h common/Shapes/meshshape.cpp
-        common/Shapes/sphere.h common/Shapes/sphere.cpp
-        common/Shapes/capsuleshape.h common/Shapes/capsuleshape.cpp
-        common/Shapes/cube.h common/Shapes/cube.cpp
+        common/Physics/Shapes/shape.h common/Physics/Shapes/shape.cpp
+        common/Physics/Shapes/terrainshape.h common/Physics/Shapes/terrainshape.cpp
+        common/Physics/Shapes/meshshape.h common/Physics/Shapes/meshshape.cpp
+        common/Physics/Shapes/sphere.h common/Physics/Shapes/sphere.cpp
+        common/Physics/Shapes/capsuleshape.h common/Physics/Shapes/capsuleshape.cpp
+        common/Physics/Shapes/cube.h common/Physics/Shapes/cube.cpp
 
         Scenes/SolarSystem.h
         Scenes/InfiniteTerrain.h
@@ -130,7 +130,7 @@ add_executable(Main
         Scenes/PhysicsCube.h
         common/Utilities/InputManager.h
         common/Controls/hoveringcontroller.h common/Controls/hoveringcontroller.cpp
-        common/Shapes/voxelshape.h common/Shapes/voxelshape.cpp
+        common/Physics/Shapes/voxelshape.h common/Physics/Shapes/voxelshape.cpp
         Scenes/FirstPersonCharacter.h
 
 
@@ -154,7 +154,7 @@ SOURCE_GROUP(common/3dEntities/Meshes/ REGULAR_EXPRESSION ".*/common/3dEntities/
 SOURCE_GROUP(common/3dEntities/Meshes/Terrain REGULAR_EXPRESSION ".*/common/3dEntities/Meshes/Terrain.*" )
 SOURCE_GROUP(common/Controls REGULAR_EXPRESSION ".*/common/Controls/.*" )
 SOURCE_GROUP(common/Materials REGULAR_EXPRESSION ".*/common/Materials/.*" )
-SOURCE_GROUP(common/Shapes REGULAR_EXPRESSION ".*/common/Shapes/.*" )
+SOURCE_GROUP(common/Physics/Shapes REGULAR_EXPRESSION ".*/common/Physics/Shapes/.*" )
 SOURCE_GROUP(common/Utilities REGULAR_EXPRESSION ".*/common/Utilities/.*" )
 SOURCE_GROUP(scenes REGULAR_EXPRESSION ".*/Scenes/.*" )
 SOURCE_GROUP(shaders REGULAR_EXPRESSION ".*/.*shader$" )

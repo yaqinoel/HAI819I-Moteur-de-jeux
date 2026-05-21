@@ -4,7 +4,7 @@
 #include "collisiondispatcher.h"
 #include "physicstypes.h"
 
-class CollisionShape3D;
+class Collider3D;
 
 class NarrowPhase {
 public:
@@ -12,8 +12,8 @@ public:
 
     void generateContacts(const std::vector<CollisionPair>& pairs,
                           std::vector<PhysicsContact>& outContacts) const;
-    void collide(CollisionShape3D* colliderA,
-                 CollisionShape3D* colliderB,
+    void collide(Collider3D* colliderA,
+                 Collider3D* colliderB,
                  std::vector<PhysicsContact>& outContacts) const;
 
 private:

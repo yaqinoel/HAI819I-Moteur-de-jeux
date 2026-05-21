@@ -3,23 +3,23 @@
 #include <algorithm>
 #include <cstddef>
 #include "physicsgeometry.h"
-#include "common/3dEntities/collisionshape3d.h"
+#include "collider3d.h"
 
 namespace {
 
 struct SapProxy {
-    CollisionShape3D* collider = nullptr;
+    Collider3D* collider = nullptr;
     PhysicsAabb aabb;
 };
 
-bool isValidCollider(CollisionShape3D* collider) {
+bool isValidCollider(Collider3D* collider) {
     return collider
         && collider->active
         && collider->getVisible()
         && collider->getShape();
 }
 
-bool shouldTestPair(CollisionShape3D* a, CollisionShape3D* b) {
+bool shouldTestPair(Collider3D* a, Collider3D* b) {
     if (!a || !b || a == b)
         return false;
     if (!isValidCollider(a) || !isValidCollider(b))
@@ -34,12 +34,12 @@ bool shouldTestPair(CollisionShape3D* a, CollisionShape3D* b) {
 
 }
 
-void SweepAndPruneBroadPhase::computePairs(const std::vector<CollisionShape3D*>& colliders,
+void SweepAndPruneBroadPhase::computePairs(const std::vector<Collider3D*>& colliders,
                                            std::vector<CollisionPair>& outPairs) const {
     std::vector<SapProxy> proxies;
     proxies.reserve(colliders.size());
 
-    for (CollisionShape3D* collider : colliders) {
+    for (Collider3D* collider : colliders) {
         if (!isValidCollider(collider))
             continue;
 

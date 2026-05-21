@@ -1,6 +1,9 @@
 #pragma once
 
-#include "node3d.h"
+#include <vector>
+#include "../3dEntities/node3d.h"
+
+class Collider3D;
 
 class RigidBody3D: public Node3d
 {
@@ -27,7 +30,7 @@ public:
     void Translate(const glm::vec3 translation) override;
     void setGlobalPosition(const glm::vec3 &globPos) override;
     void setGlobalRotation(const glm::quat &globRot) override;
-    void addCollisionShape(CollisionShape3D* c);
+    void addCollider(Collider3D* c);
     glm::vec3 getMomentum(){return velocity * mass;}
     float getKineticEnergy(){return 0.5f*mass*glm::dot(velocity,velocity);}
     glm::vec3 velocity = glm::vec3(0);
@@ -38,7 +41,7 @@ public:
     float sleepTimer = 0.0f;
     glm::mat3 inertia=glm::mat3(0);
     glm::mat3 inverseInertia=glm::mat3(0);
-    std::vector<CollisionShape3D*> collisionShapes = std::vector<CollisionShape3D*>();
+    std::vector<Collider3D*> colliders = std::vector<Collider3D*>();
     glm::vec3 getTorque(glm::vec3 point, glm::vec3 momentum){return glm::cross(point-getGlobalPosition(), momentum);}
     void applyImpulse(glm::vec3 impulse, glm::vec3 worldPoint);
 

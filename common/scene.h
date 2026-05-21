@@ -14,6 +14,7 @@ class Node;
 class Mesh;
 class Camera;
 class RigidBody3D;
+class Collider3D;
 
 class Scene
 {
@@ -35,7 +36,7 @@ private:
     std::vector<Mesh*> meshes = std::vector<Mesh*>();
     std::vector<Node*> nodes = std::vector<Node*>();
     std::vector<RigidBody3D*> rigidBodies = std::vector<RigidBody3D*>();
-    std::vector<CollisionShape3D*> colliders = std::vector<CollisionShape3D*>();
+    std::vector<Collider3D*> colliders = std::vector<Collider3D*>();
     std::vector<Camera*> cameras = std::vector<Camera*>();
     PhysicsWorld physicsWorld;
     void addToTree(Node* node);

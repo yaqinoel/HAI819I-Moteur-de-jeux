@@ -2,7 +2,7 @@
 
 #include <common/3dEntities/Mesh.hpp>
 #include <common/3dEntities/terrainmanager.h>
-#include <common/3dEntities/rigidbody3d.h>
+#include <common/Physics/rigidbody3d.h>
 
 class HoveringController : public RigidBody3D
 {

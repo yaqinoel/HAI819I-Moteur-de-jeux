@@ -5,7 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/norm.hpp>
 #include "physicssettings.h"
-#include "common/3dEntities/rigidbody3d.h"
+#include "rigidbody3d.h"
 
 using namespace PhysicsSettings;
 

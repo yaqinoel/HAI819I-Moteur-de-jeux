@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../common/3dEntities/Mesh.hpp"
-#include "../common/3dEntities/collisionshape3d.h"
-#include "../common/Shapes/cube.h"
+#include "../common/Physics/collider3d.h"
+#include "../common/Physics/Shapes/cube.h"
 
 
 inline Mesh* makeCube(){
@@ -17,7 +17,7 @@ inline Mesh* makeCube(){
     tex.setPixelArt(true);
     cubeMat->addTexture("texture0", tex);
 
-    CollisionShape3D* collider = new CollisionShape3D();
+    Collider3D* collider = new Collider3D();
     cube->addChild(collider);
     collider->setShape(shape);
     collider->name = "cube collider";

@@ -1,15 +1,15 @@
-#include "collisionshape3d.h"
+#include "collider3d.h"
 #include "../3dEntities/Mesh.hpp"
 
-CollisionShape3D::CollisionShape3D()
+Collider3D::Collider3D()
 {
 }
-RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask){
+RayIntersection Collider3D::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask){
     if(shape != nullptr){
         return shape->raycast(origin, direction, length, mask);
     }
     else{
-        std::cerr << "Error no shape associated with the CollisionShape" << std::endl;
+        std::cerr << "Error no shape associated with the Collider3D" << std::endl;
         RayIntersection closestIntersection;
         closestIntersection.t = FLT_MAX;
         closestIntersection.intersectionExists = false;
@@ -17,17 +17,17 @@ RayIntersection CollisionShape3D::raycast(glm::vec3 const &origin, glm::vec3 con
     }
 }
 
-void CollisionShape3D::setShape(Shape* s){
+void Collider3D::setShape(Shape* s){
     shape = s;
     s->collider = this;
     shape->setMass(mass);
 }
 
-bool CollisionShape3D::computeAabb(PhysicsAabb& outAabb) const {
+bool Collider3D::computeAabb(PhysicsAabb& outAabb) const {
     return shape && shape->computeAabb(*this, outAabb);
 }
 
-void CollisionShape3D::setDebug(bool b) {
+void Collider3D::setDebug(bool b) {
     debug = b;
     if(debugMesh != nullptr){
         debugMesh->setVisible(b);

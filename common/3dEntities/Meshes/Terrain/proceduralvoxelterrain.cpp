@@ -1,10 +1,10 @@
 #include "proceduralvoxelterrain.h"
 
-#include <common/Shapes/voxelshape.h>
+#include <common/Physics/Shapes/voxelshape.h>
 
 ProceduralVoxelTerrain::ProceduralVoxelTerrain()
 {
-    collision = new CollisionShape3D();
+    collision = new Collider3D();
     instantiate(collision, this);
     texSize = glm::ivec2(2, 1);
     texCoord.insert({1, glm::vec2(0, 0)});

@@ -1,8 +1,8 @@
 #pragma once
 #include "../../Mesh.hpp"
 #include <string>
-#include "../../collisionshape3d.h"
-#include "../../../Shapes/terrainshape.h"
+#include "../../../Physics/collider3d.h"
+#include "../../../Physics/Shapes/terrainshape.h"
 
 class Terrain  : public Mesh
 {

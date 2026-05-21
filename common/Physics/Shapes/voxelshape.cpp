@@ -23,7 +23,7 @@ glm::vec3 VoxelShape::cellMax(int x, int y, int z) const {
     return cellMin(x, y, z) + glm::vec3(voxelSize);
 }
 
-bool VoxelShape::computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const {
+bool VoxelShape::computeAabb(const Collider3D& collider, PhysicsAabb& outAabb) const {
     glm::vec3 origin = collider.getGlobalPosition() + glm::vec3(voxelSize * 0.5f);
     outAabb.min = origin;
     outAabb.max = origin + glm::vec3(width, height, depth) * voxelSize;

@@ -7,13 +7,13 @@
 #include "narrowphase.h"
 #include "physicstypes.h"
 
-class CollisionShape3D;
+class Collider3D;
 class RigidBody3D;
 
 class PhysicsWorld {
 public:
     void step(const std::vector<RigidBody3D*>& rigidBodies,
-              const std::vector<CollisionShape3D*>& colliders,
+              const std::vector<Collider3D*>& colliders,
               float fixedDeltaTime);
 
 private:
@@ -24,7 +24,7 @@ private:
     ContactCache contactCache;
 
     void syncBodies(const std::vector<RigidBody3D*>& rigidBodies) const;
-    void collectContacts(const std::vector<CollisionShape3D*>& colliders,
+    void collectContacts(const std::vector<Collider3D*>& colliders,
                          std::vector<PhysicsContact>& outContacts) const;
     void wakeImpactedSleepingBodies(const std::vector<PhysicsContact>& contactsToCheck) const;
     void wakeUnstableSleepingBodies(const std::vector<RigidBody3D*>& rigidBodies,

@@ -47,7 +47,7 @@ Cube::Cube(float size_x, float size_y, float size_z){
     inertia[2][2] = mass * (size.x * size.x + size.y * size.y) / 12.0f;
 }
 
-bool Cube::computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const {
+bool Cube::computeAabb(const Collider3D& collider, PhysicsAabb& outAabb) const {
     glm::mat4 model = collider.getGlobalMatrix();
     outAabb.min = glm::vec3(std::numeric_limits<float>::infinity());
     outAabb.max = glm::vec3(-std::numeric_limits<float>::infinity());

@@ -9,7 +9,7 @@ public:
     void InitMesh(int width, int height, int depth, std::vector<unsigned short int> voxelData);
     void InitMeshFromTerrain(int width, int height, int depth, std::vector<unsigned short int> voxelData);
     virtual RayIntersection raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length) override ;
-    bool computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const override;
+    bool computeAabb(const Collider3D& collider, PhysicsAabb& outAabb) const override;
     bool isSolid(int x, int y, int z) const;
     glm::ivec3 worldToCell(const glm::vec3& worldPoint) const;
     glm::vec3 cellMin(int x, int y, int z) const;

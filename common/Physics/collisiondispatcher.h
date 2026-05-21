@@ -3,19 +3,19 @@
 #include <array>
 #include <vector>
 #include "physicstypes.h"
-#include "common/Shapes/shape.h"
+#include "Shapes/shape.h"
 
-class CollisionShape3D;
+class Collider3D;
 
-using CollisionFn = void (*)(CollisionShape3D*, CollisionShape3D*, std::vector<PhysicsContact>&);
+using CollisionFn = void (*)(Collider3D*, Collider3D*, std::vector<PhysicsContact>&);
 
 class CollisionDispatcher {
 public:
     CollisionDispatcher();
 
     void registerCollision(ShapeType typeA, ShapeType typeB, CollisionFn collisionFn);
-    bool dispatch(CollisionShape3D* colliderA,
-                  CollisionShape3D* colliderB,
+    bool dispatch(Collider3D* colliderA,
+                  Collider3D* colliderB,
                   std::vector<PhysicsContact>& outContacts) const;
 
 private:

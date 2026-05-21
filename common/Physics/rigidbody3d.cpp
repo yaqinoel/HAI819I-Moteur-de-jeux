@@ -1,5 +1,5 @@
 #include "rigidbody3d.h"
-#include "collisionshape3d.h"
+#include "collider3d.h"
 
 RigidBody3D::RigidBody3D()
 {
@@ -101,8 +101,8 @@ void RigidBody3D::setLocalPosition(const glm::vec3 pos){
     markDirty();
 }
 
-void RigidBody3D::addCollisionShape(CollisionShape3D* c){
-    collisionShapes.push_back(c);
+void RigidBody3D::addCollider(Collider3D* c){
+    colliders.push_back(c);
     c->rb = this;
     mass += c->mass;
     inertia += c->getInertia() + c->mass * glm::length2(c->getGlobalPosition()- getGlobalPosition());

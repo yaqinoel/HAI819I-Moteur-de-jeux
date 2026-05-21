@@ -94,7 +94,7 @@ CapsuleShape::CapsuleShape(float radius, float height) {
     }
 }
 
-bool CapsuleShape::computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const {
+bool CapsuleShape::computeAabb(const Collider3D& collider, PhysicsAabb& outAabb) const {
     glm::vec3 center = collider.getGlobalPosition();
     glm::vec3 axis = collider.getGlobalRotation() * glm::vec3(0.0f, 1.0f, 0.0f);
     if (glm::length2(axis) <= kRayEpsilon)

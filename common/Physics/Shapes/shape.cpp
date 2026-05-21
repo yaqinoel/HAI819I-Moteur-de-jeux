@@ -1,7 +1,7 @@
 #include "shape.h"
 
 #include <limits>
-#include "common/3dEntities/collisionshape3d.h"
+#include "../collider3d.h"
 
 Shape::Shape()
 {
@@ -13,7 +13,7 @@ RayIntersection Shape::raycast( glm::vec3 const &origin, glm::vec3 const &direct
     else return this->raycast(origin, direction, length);
 }
 
-bool Shape::computeAabb(const CollisionShape3D& collider, PhysicsAabb& outAabb) const {
+bool Shape::computeAabb(const Collider3D& collider, PhysicsAabb& outAabb) const {
     glm::mat4 model = collider.getGlobalMatrix();
 
     if (!vertices.empty()) {

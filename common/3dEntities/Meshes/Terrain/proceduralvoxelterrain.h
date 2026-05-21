@@ -26,6 +26,6 @@ private:
     //std::vector<std::vector<std::vector<unsigned short int>>> chunkData = std::vector<std::vector<std::vector<unsigned short int>>>();
     std::vector<unsigned short int> chunkData = std::vector<unsigned short int>();
     void printSlice(int z);
-    CollisionShape3D* collision = nullptr;
+    Collider3D* collision = nullptr;
 };
 

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 
-class CollisionShape3D;
+class Collider3D;
 class RigidBody3D;
 
 struct PhysicsAabb {
@@ -12,15 +12,15 @@ struct PhysicsAabb {
 };
 
 struct CollisionPair {
-    CollisionShape3D* colliderA = nullptr;
-    CollisionShape3D* colliderB = nullptr;
+    Collider3D* colliderA = nullptr;
+    Collider3D* colliderB = nullptr;
 };
 
 struct PhysicsContact {
     RigidBody3D* bodyA = nullptr;
     RigidBody3D* bodyB = nullptr;
-    CollisionShape3D* colliderA = nullptr;
-    CollisionShape3D* colliderB = nullptr;
+    Collider3D* colliderA = nullptr;
+    Collider3D* colliderB = nullptr;
     glm::vec3 normal = glm::vec3(0.0f);
     glm::vec3 point = glm::vec3(0.0f);
     float penetration = 0.0f;

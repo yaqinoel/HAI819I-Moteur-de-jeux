@@ -1,12 +1,15 @@
 #pragma once
 
-#include "node3d.h"
-#include "../Shapes/shape.h"
+#include "../3dEntities/node3d.h"
+#include "Shapes/shape.h"
 
-class CollisionShape3D : public Node3d
+class Mesh;
+class RigidBody3D;
+
+class Collider3D : public Node3d
 {
 public:
-    CollisionShape3D();
+    Collider3D();
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask);
     bool active = true;
     void setShape(Shape* s);

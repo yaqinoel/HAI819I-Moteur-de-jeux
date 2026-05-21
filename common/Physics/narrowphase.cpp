@@ -6,12 +6,12 @@
 #include <limits>
 #include <glm/gtx/norm.hpp>
 #include "physicsgeometry.h"
-#include "common/3dEntities/collisionshape3d.h"
-#include "common/3dEntities/rigidbody3d.h"
-#include "common/Shapes/capsuleshape.h"
-#include "common/Shapes/shape.h"
-#include "common/Shapes/sphere.h"
-#include "common/Shapes/voxelshape.h"
+#include "collider3d.h"
+#include "rigidbody3d.h"
+#include "common/Physics/Shapes/capsuleshape.h"
+#include "Shapes/shape.h"
+#include "common/Physics/Shapes/sphere.h"
+#include "common/Physics/Shapes/voxelshape.h"
 
 namespace {
 
@@ -27,8 +27,8 @@ struct ContactCandidate {
     float penetration = 0.0f;
 };
 
-bool buildContact(CollisionShape3D* colliderA,
-                  CollisionShape3D* colliderB,
+bool buildContact(Collider3D* colliderA,
+                  Collider3D* colliderB,
                   const glm::vec3& normalFromBToA,
                   const glm::vec3& point,
                   float penetration,
@@ -68,8 +68,8 @@ bool buildContact(CollisionShape3D* colliderA,
     return true;
 }
 
-void pushContact(CollisionShape3D* colliderA,
-                 CollisionShape3D* colliderB,
+void pushContact(Collider3D* colliderA,
+                 Collider3D* colliderB,
                  const glm::vec3& normalFromBToA,
                  const glm::vec3& point,
                  float penetration,
@@ -132,7 +132,7 @@ bool nearestBoxFace(const OrientedBox& box,
     return distanceToFace < std::numeric_limits<float>::infinity() && isFiniteVec3(normal);
 }
 
-void capsuleSegment(CollisionShape3D* collider,
+void capsuleSegment(Collider3D* collider,
                     CapsuleShape* capsule,
                     glm::vec3& segmentA,
                     glm::vec3& segmentB) {
@@ -222,7 +222,7 @@ void closestSegmentBox(const glm::vec3& segmentA,
     pointOnBox = closestPointOnBox(box, pointOnSegment);
 }
 
-bool sphereBoxCandidate(CollisionShape3D* sphereCollider,
+bool sphereBoxCandidate(Collider3D* sphereCollider,
                         Sphere* sphere,
                         const OrientedBox& box,
                         ContactCandidate& outCandidate) {
@@ -255,7 +255,7 @@ bool sphereBoxCandidate(CollisionShape3D* sphereCollider,
     return true;
 }
 
-bool capsuleBoxCandidate(CollisionShape3D* capsuleCollider,
+bool capsuleBoxCandidate(Collider3D* capsuleCollider,
                          CapsuleShape* capsule,
                          const OrientedBox& box,
                          ContactCandidate& outCandidate) {
@@ -294,8 +294,8 @@ bool capsuleBoxCandidate(CollisionShape3D* capsuleCollider,
 }
 
 template <typename CandidateFn>
-void addShapeVoxelContacts(CollisionShape3D* dynamicCollider,
-                           CollisionShape3D* voxelCollider,
+void addShapeVoxelContacts(Collider3D* dynamicCollider,
+                           Collider3D* voxelCollider,
                            CandidateFn&& candidateFn,
                            std::vector<PhysicsContact>& outContacts) {
     if (!dynamicCollider || !dynamicCollider->rb || !voxelCollider)
@@ -364,8 +364,8 @@ void addShapeVoxelContacts(CollisionShape3D* dynamicCollider,
     }
 }
 
-void addBoxBoxContacts(CollisionShape3D* colliderA,
-                       CollisionShape3D* colliderB,
+void addBoxBoxContacts(Collider3D* colliderA,
+                       Collider3D* colliderB,
                        std::vector<PhysicsContact>& outContacts) {
     OrientedBox boxA;
     OrientedBox boxB;
@@ -411,8 +411,8 @@ void addBoxBoxContacts(CollisionShape3D* colliderA,
     outContacts.push_back(contact);
 }
 
-void addBoxVoxelContacts(CollisionShape3D* boxCollider,
-                         CollisionShape3D* voxelCollider,
+void addBoxVoxelContacts(Collider3D* boxCollider,
+                         Collider3D* voxelCollider,
                          std::vector<PhysicsContact>& outContacts) {
     if (!boxCollider || !boxCollider->rb || !voxelCollider)
         return;
@@ -485,14 +485,14 @@ void addBoxVoxelContacts(CollisionShape3D* boxCollider,
     }
 }
 
-void addVoxelBoxContacts(CollisionShape3D* voxelCollider,
-                         CollisionShape3D* boxCollider,
+void addVoxelBoxContacts(Collider3D* voxelCollider,
+                         Collider3D* boxCollider,
                          std::vector<PhysicsContact>& outContacts) {
     addBoxVoxelContacts(boxCollider, voxelCollider, outContacts);
 }
 
-void addSphereSphereContacts(CollisionShape3D* colliderA,
-                             CollisionShape3D* colliderB,
+void addSphereSphereContacts(Collider3D* colliderA,
+                             Collider3D* colliderB,
                              std::vector<PhysicsContact>& outContacts) {
     Sphere* sphereA = static_cast<Sphere*>(colliderA->getShape());
     Sphere* sphereB = static_cast<Sphere*>(colliderB->getShape());
@@ -513,8 +513,8 @@ void addSphereSphereContacts(CollisionShape3D* colliderA,
     pushContact(colliderA, colliderB, normal, (pointA + pointB) * 0.5f, penetration, outContacts);
 }
 
-void addSphereBoxContacts(CollisionShape3D* sphereCollider,
-                          CollisionShape3D* boxCollider,
+void addSphereBoxContacts(Collider3D* sphereCollider,
+                          Collider3D* boxCollider,
                           std::vector<PhysicsContact>& outContacts) {
     OrientedBox box;
     if (!makeBox(boxCollider, box))
@@ -527,14 +527,14 @@ void addSphereBoxContacts(CollisionShape3D* sphereCollider,
     pushContact(sphereCollider, boxCollider, candidate.normal, candidate.point, candidate.penetration, outContacts);
 }
 
-void addBoxSphereContacts(CollisionShape3D* boxCollider,
-                          CollisionShape3D* sphereCollider,
+void addBoxSphereContacts(Collider3D* boxCollider,
+                          Collider3D* sphereCollider,
                           std::vector<PhysicsContact>& outContacts) {
     addSphereBoxContacts(sphereCollider, boxCollider, outContacts);
 }
 
-void addSphereVoxelContacts(CollisionShape3D* sphereCollider,
-                            CollisionShape3D* voxelCollider,
+void addSphereVoxelContacts(Collider3D* sphereCollider,
+                            Collider3D* voxelCollider,
                             std::vector<PhysicsContact>& outContacts) {
     Sphere* sphere = static_cast<Sphere*>(sphereCollider->getShape());
     addShapeVoxelContacts(
@@ -546,14 +546,14 @@ void addSphereVoxelContacts(CollisionShape3D* sphereCollider,
         outContacts);
 }
 
-void addVoxelSphereContacts(CollisionShape3D* voxelCollider,
-                            CollisionShape3D* sphereCollider,
+void addVoxelSphereContacts(Collider3D* voxelCollider,
+                            Collider3D* sphereCollider,
                             std::vector<PhysicsContact>& outContacts) {
     addSphereVoxelContacts(sphereCollider, voxelCollider, outContacts);
 }
 
-void addCapsuleSphereContacts(CollisionShape3D* capsuleCollider,
-                              CollisionShape3D* sphereCollider,
+void addCapsuleSphereContacts(Collider3D* capsuleCollider,
+                              Collider3D* sphereCollider,
                               std::vector<PhysicsContact>& outContacts) {
     CapsuleShape* capsule = static_cast<CapsuleShape*>(capsuleCollider->getShape());
     Sphere* sphere = static_cast<Sphere*>(sphereCollider->getShape());
@@ -578,14 +578,14 @@ void addCapsuleSphereContacts(CollisionShape3D* capsuleCollider,
     pushContact(capsuleCollider, sphereCollider, normal, (pointA + pointB) * 0.5f, penetration, outContacts);
 }
 
-void addSphereCapsuleContacts(CollisionShape3D* sphereCollider,
-                              CollisionShape3D* capsuleCollider,
+void addSphereCapsuleContacts(Collider3D* sphereCollider,
+                              Collider3D* capsuleCollider,
                               std::vector<PhysicsContact>& outContacts) {
     addCapsuleSphereContacts(capsuleCollider, sphereCollider, outContacts);
 }
 
-void addCapsuleCapsuleContacts(CollisionShape3D* colliderA,
-                               CollisionShape3D* colliderB,
+void addCapsuleCapsuleContacts(Collider3D* colliderA,
+                               Collider3D* colliderB,
                                std::vector<PhysicsContact>& outContacts) {
     CapsuleShape* capsuleA = static_cast<CapsuleShape*>(colliderA->getShape());
     CapsuleShape* capsuleB = static_cast<CapsuleShape*>(colliderB->getShape());
@@ -615,8 +615,8 @@ void addCapsuleCapsuleContacts(CollisionShape3D* colliderA,
     pushContact(colliderA, colliderB, normal, (surfaceA + surfaceB) * 0.5f, penetration, outContacts);
 }
 
-void addCapsuleBoxContacts(CollisionShape3D* capsuleCollider,
-                           CollisionShape3D* boxCollider,
+void addCapsuleBoxContacts(Collider3D* capsuleCollider,
+                           Collider3D* boxCollider,
                            std::vector<PhysicsContact>& outContacts) {
     OrientedBox box;
     if (!makeBox(boxCollider, box))
@@ -629,14 +629,14 @@ void addCapsuleBoxContacts(CollisionShape3D* capsuleCollider,
     pushContact(capsuleCollider, boxCollider, candidate.normal, candidate.point, candidate.penetration, outContacts);
 }
 
-void addBoxCapsuleContacts(CollisionShape3D* boxCollider,
-                           CollisionShape3D* capsuleCollider,
+void addBoxCapsuleContacts(Collider3D* boxCollider,
+                           Collider3D* capsuleCollider,
                            std::vector<PhysicsContact>& outContacts) {
     addCapsuleBoxContacts(capsuleCollider, boxCollider, outContacts);
 }
 
-void addCapsuleVoxelContacts(CollisionShape3D* capsuleCollider,
-                             CollisionShape3D* voxelCollider,
+void addCapsuleVoxelContacts(Collider3D* capsuleCollider,
+                             Collider3D* voxelCollider,
                              std::vector<PhysicsContact>& outContacts) {
     CapsuleShape* capsule = static_cast<CapsuleShape*>(capsuleCollider->getShape());
     addShapeVoxelContacts(
@@ -648,8 +648,8 @@ void addCapsuleVoxelContacts(CollisionShape3D* capsuleCollider,
         outContacts);
 }
 
-void addVoxelCapsuleContacts(CollisionShape3D* voxelCollider,
-                             CollisionShape3D* capsuleCollider,
+void addVoxelCapsuleContacts(Collider3D* voxelCollider,
+                             Collider3D* capsuleCollider,
                              std::vector<PhysicsContact>& outContacts) {
     addCapsuleVoxelContacts(capsuleCollider, voxelCollider, outContacts);
 }
@@ -680,8 +680,8 @@ void NarrowPhase::generateContacts(const std::vector<CollisionPair>& pairs,
         collide(pair.colliderA, pair.colliderB, outContacts);
 }
 
-void NarrowPhase::collide(CollisionShape3D* colliderA,
-                          CollisionShape3D* colliderB,
+void NarrowPhase::collide(Collider3D* colliderA,
+                          Collider3D* colliderB,
                           std::vector<PhysicsContact>& outContacts) const {
     dispatcher.dispatch(colliderA, colliderB, outContacts);
 }
