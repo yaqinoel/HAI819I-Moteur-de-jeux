@@ -99,11 +99,11 @@ add_executable(Main
         common/3dEntities/Meshes/lod.h common/3dEntities/Meshes/lod.cpp
         common/Physics/physicstypes.h
         common/Physics/physicssettings.h
-        common/Physics/physicsgeometry.h common/Physics/physicsgeometry.cpp
-        common/Physics/broadphase.h common/Physics/broadphase.cpp
+        common/Physics/Collision/physicsgeometry.h common/Physics/Collision/physicsgeometry.cpp
+        common/Physics/Collision/broadphase.h common/Physics/Collision/broadphase.cpp
         common/Physics/collisiondispatcher.h common/Physics/collisiondispatcher.cpp
-        common/Physics/narrowphase.h common/Physics/narrowphase.cpp
-        common/Physics/contactsolver.h common/Physics/contactsolver.cpp
+        common/Physics/Collision/narrowphase.h common/Physics/Collision/narrowphase.cpp
+        common/Physics/Collision/contactsolver.h common/Physics/Collision/contactsolver.cpp
         common/Physics/contactcache.h common/Physics/contactcache.cpp
         common/Physics/physicsworld.h common/Physics/physicsworld.cpp
         common/Utilities/rayintersection.h
@@ -154,6 +154,7 @@ SOURCE_GROUP(common/3dEntities/Meshes/ REGULAR_EXPRESSION ".*/common/3dEntities/
 SOURCE_GROUP(common/3dEntities/Meshes/Terrain REGULAR_EXPRESSION ".*/common/3dEntities/Meshes/Terrain.*" )
 SOURCE_GROUP(common/Controls REGULAR_EXPRESSION ".*/common/Controls/.*" )
 SOURCE_GROUP(common/Materials REGULAR_EXPRESSION ".*/common/Materials/.*" )
+SOURCE_GROUP(common/Physics/Collision REGULAR_EXPRESSION ".*/common/Physics/Collision/.*" )
 SOURCE_GROUP(common/Physics/Shapes REGULAR_EXPRESSION ".*/common/Physics/Shapes/.*" )
 SOURCE_GROUP(common/Utilities REGULAR_EXPRESSION ".*/common/Utilities/.*" )
 SOURCE_GROUP(scenes REGULAR_EXPRESSION ".*/Scenes/.*" )

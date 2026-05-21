@@ -1,10 +1,10 @@
 #pragma once
 
 #include <vector>
-#include "broadphase.h"
+#include "Collision/broadphase.h"
+#include "Collision/contactsolver.h"
+#include "Collision/narrowphase.h"
 #include "contactcache.h"
-#include "contactsolver.h"
-#include "narrowphase.h"
 #include "physicstypes.h"
 
 class Collider3D;

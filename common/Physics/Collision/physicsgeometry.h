@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 #include <glm/glm.hpp>
-#include "physicstypes.h"
+#include "../physicstypes.h"
 
 class Collider3D;
 class RigidBody3D;

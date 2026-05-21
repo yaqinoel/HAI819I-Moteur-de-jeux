@@ -6,10 +6,10 @@
 #include <limits>
 #include <glm/gtx/norm.hpp>
 #include "physicsgeometry.h"
-#include "collider3d.h"
-#include "rigidbody3d.h"
+#include "../collider3d.h"
+#include "../rigidbody3d.h"
 #include "common/Physics/Shapes/capsuleshape.h"
-#include "Shapes/shape.h"
+#include "common/Physics/Shapes/shape.h"
 #include "common/Physics/Shapes/sphere.h"
 #include "common/Physics/Shapes/voxelshape.h"
 

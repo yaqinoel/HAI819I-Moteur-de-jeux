@@ -1,7 +1,7 @@
 #include "contactcache.h"
 
 #include <cstdint>
-#include "physicsgeometry.h"
+#include "Collision/physicsgeometry.h"
 #include "physicssettings.h"
 
 using namespace PhysicsSettings;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "physicstypes.h"
+#include "../physicstypes.h"
 
 class Collider3D;
 

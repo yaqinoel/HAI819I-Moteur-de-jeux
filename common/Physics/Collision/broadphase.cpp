@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include "physicsgeometry.h"
-#include "collider3d.h"
+#include "../collider3d.h"
 
 namespace {
 

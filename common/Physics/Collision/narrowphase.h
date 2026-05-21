@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "collisiondispatcher.h"
-#include "physicstypes.h"
+#include "../collisiondispatcher.h"
+#include "../physicstypes.h"
 
 class Collider3D;
 

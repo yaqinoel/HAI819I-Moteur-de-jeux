@@ -3,7 +3,7 @@
 #include <cmath>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/norm.hpp>
-#include "contactsolver.h"
+#include "Collision/contactsolver.h"
 #include "physicssettings.h"
 #include "collider3d.h"
 #include "rigidbody3d.h"

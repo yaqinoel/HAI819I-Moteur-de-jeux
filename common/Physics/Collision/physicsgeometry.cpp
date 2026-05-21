@@ -4,10 +4,10 @@
 #include <cmath>
 #include <limits>
 #include <glm/gtx/norm.hpp>
-#include "physicssettings.h"
-#include "collider3d.h"
+#include "../physicssettings.h"
+#include "../collider3d.h"
 #include "common/Physics/Shapes/cube.h"
-#include "Shapes/shape.h"
+#include "common/Physics/Shapes/shape.h"
 
 using namespace PhysicsSettings;
 
