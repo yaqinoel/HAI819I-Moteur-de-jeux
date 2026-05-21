@@ -28,6 +28,7 @@ public:
         inputs.insert({"right", new InputState(GLFW_KEY_D)});
         inputs.insert({"backwards", new InputState(GLFW_KEY_S)});
         inputs.insert({"forward", new InputState(GLFW_KEY_W)});
+        inputs.insert({"action2", new InputState(GLFW_KEY_Q)});
     }
     void UpdateInputs(){
         GLFWwindow* window = glfwGetCurrentContext();
