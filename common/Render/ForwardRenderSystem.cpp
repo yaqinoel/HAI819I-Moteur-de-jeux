@@ -6,6 +6,7 @@
 #include "common/3dEntities/Lights/Light.hpp"
 #include "common/3dEntities/Lights/DirectionalLight.hpp"
 #include "common/3dEntities/Lights/PointLight.hpp"
+#include "common/Materials/material.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -198,17 +199,6 @@ void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
             currentShader->use();
 
             uploadLights(currentShader, lights);
-            if (scene->iblEnvironment && scene->iblEnvironment->isReady()) {
-                scene->iblEnvironment->bindIrradianceMap(5);
-                scene->iblEnvironment->bindPrefilterMap(6);
-                scene->iblEnvironment->bindBRDFLUT(7);
-                currentShader->setInt("irradianceMap", 5);
-                currentShader->setInt("prefilterMap", 6);
-                currentShader->setInt("brdfLUT", 7);
-                currentShader->setInt("useIBL", 1);
-            } else {
-                currentShader->setInt("useIBL", 0);
-            }
             currentShader->setMat4("view", camera->getViewMatrix());
             currentShader->setMat4("projection", camera->getProjectionMatrix());
             currentShader->setVec3("camPos", camera->getGlobalPosition());
@@ -238,11 +228,28 @@ void ForwardRenderSystem::colorPass(Scene* scene, Camera* camera) {
             lastShader = currentShader;
         }
 
-        currentShader->setInt("has_albedoMap", 0);
-        currentShader->setInt("has_normalMap", 0);
-        currentShader->setInt("has_metallicMap", 0);
-        currentShader->setInt("has_roughnessMap", 0);
-        currentShader->setInt("has_aoMap", 0);
+        if (m->material->isPBR()) {
+            if (scene->iblEnvironment && scene->iblEnvironment->isReady()) {
+                scene->iblEnvironment->bindIrradianceMap(5);
+                scene->iblEnvironment->bindPrefilterMap(6);
+                scene->iblEnvironment->bindBRDFLUT(7);
+                currentShader->setInt("irradianceMap", 5);
+                currentShader->setInt("prefilterMap", 6);
+                currentShader->setInt("brdfLUT", 7);
+                currentShader->setInt("useIBL", 1);
+            } else {
+                currentShader->setInt("useIBL", 0);
+            }
+
+            currentShader->setInt("has_albedoMap", 0);
+            currentShader->setInt("has_normalMap", 0);
+            currentShader->setInt("has_metallicMap", 0);
+            currentShader->setInt("has_roughnessMap", 0);
+            currentShader->setInt("has_aoMap", 0);
+        } else {
+            currentShader->setInt("useIBL", 0);
+        }
+
         m->material->bind();
         currentShader->setMat4("model", m->getGlobalMatrix());
         m->drawOnly();

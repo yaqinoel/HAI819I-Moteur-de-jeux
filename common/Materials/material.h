@@ -10,6 +10,13 @@
 
 #include "../Render/Shader.hpp"
 
+enum class ShadingModel
+{
+    Unlit,
+    BlinnPhong,
+    PBR
+};
+
 class Material
 {
 public:
@@ -17,6 +24,7 @@ public:
     Material(glm::vec3 albedo, float amb = 0.1f, float dif = 0.6f, float spec = 0.5f, float shin = 1);
     Material(Shader* sha, glm::vec3 albedo, float amb = 0.1f, float dif = 0.6f, float spec = 0.5f, float shin = 1);
     Shader* shader = nullptr;
+    ShadingModel shadingModel = ShadingModel::BlinnPhong;
     glm::vec3 albedo;
     float ambient;
     float diffuse;
@@ -31,6 +39,7 @@ public:
     virtual void bind() const;
     virtual void setShader(GLuint shaderPID) const;
     void setLit(int lit);
+    bool isPBR() const;
 private:
     mutable GLuint albedoUniform;
     mutable GLuint ambientUniform;

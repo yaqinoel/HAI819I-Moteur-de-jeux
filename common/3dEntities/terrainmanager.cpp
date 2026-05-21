@@ -20,8 +20,12 @@ Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
 
 Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     ProceduralVoxelTerrain* terrain = new ProceduralVoxelTerrain(x*size, y*size, size, size, size, size, 20);
-    terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
-    Material* mat = new Material(glm::vec3(1, 0., 0.));
+    Material* mat = new Material(glm::vec3(1, 0.0f, 0.0f));
+    if (terrainMat && terrainMat->shader) {
+        mat->shader = terrainMat->shader;
+    } else {
+        terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+    }
     Texture tex = Texture("../Resources/Textures/Environement/BlocTextures.png");
     tex.setPixelArt(true);
     mat->addTexture("texture0", tex);

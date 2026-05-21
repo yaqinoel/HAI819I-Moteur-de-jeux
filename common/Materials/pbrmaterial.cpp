@@ -3,6 +3,7 @@
 
 PBRMaterial::PBRMaterial()
 {
+    shadingModel = ShadingModel::PBR;
     albedo = glm::vec3(1.0f);
     metallic = 0.0f;
     roughness = 0.5f;
@@ -12,6 +13,7 @@ PBRMaterial::PBRMaterial()
 PBRMaterial::PBRMaterial(glm::vec3 alb, float met, float rough, float ambientOcclusion)
     :Material(alb)
 {
+    shadingModel = ShadingModel::PBR;
     metallic = met;
     roughness = rough;
     ao = ambientOcclusion;
@@ -20,6 +22,7 @@ PBRMaterial::PBRMaterial(glm::vec3 alb, float met, float rough, float ambientOcc
 PBRMaterial::PBRMaterial(Shader* sha, glm::vec3 alb, float met, float rough, float ambientOcclusion)
     : Material(sha, alb)
 {
+    shadingModel = ShadingModel::PBR;
     metallic = met;
     roughness = rough;
     ao = ambientOcclusion;
@@ -68,6 +71,7 @@ void PBRMaterial::bind() const {
     if (!shader) return;
 
     shader->use();
+    shader->setInt("shadingModel", static_cast<int>(shadingModel));
 
     shader->setInt("has_albedoMap", 0);
     shader->setInt("has_normalMap", 0);

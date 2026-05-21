@@ -4,6 +4,11 @@
 
 Material::Material()
 {
+    albedo = glm::vec3(1.0f);
+    ambient = 0.1f;
+    diffuse = 0.6f;
+    specular = 0.5f;
+    shininess = 1.0f;
 }
 
 Material::Material(glm::vec3 alb, float amb, float dif, float spec, float shin){
@@ -41,6 +46,15 @@ void Material::setShader(GLuint shaderPID) const{
 
 void Material::setLit(int l) {
     lit = l;
+    if (lit == 0) {
+        shadingModel = ShadingModel::Unlit;
+    } else if (shadingModel == ShadingModel::Unlit) {
+        shadingModel = ShadingModel::BlinnPhong;
+    }
+}
+
+bool Material::isPBR() const {
+    return shadingModel == ShadingModel::PBR;
 }
 
 void Material::render(GLuint shaderPID) const{
@@ -68,6 +82,9 @@ void Material::render(GLuint shaderPID) const{
 void Material::bind() const {
     if (!shader) return;
     shader->use();
+    shader->setInt("hasTexture", 0);
+    shader->setInt("shadingModel", static_cast<int>(shadingModel));
+
     int i = 0;
     for (const auto& [name, texture] : texmap) {
         texture.bind(i);
