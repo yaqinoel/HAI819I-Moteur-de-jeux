@@ -11,7 +11,9 @@ Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
     for(int i = 0; i < 5; i ++){
         Terrain* terrain = new ProceduralTerrain(x*size, y*size, 64/pow(2, i), 64/pow(2, i), size, size, 20);
         terrain->setMaterial(terrainMat);
-        terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain_HeightMap.glsl");
+        if (!terrainMat || !terrainMat->shader) {
+            terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain_HeightMap.glsl");
+        }
         lod->addLOD(terrain, 40*i);
         terrain->name = "lod "+std::to_string(i);
     }

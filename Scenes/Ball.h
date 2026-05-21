@@ -7,13 +7,17 @@
 #include <iostream>
 
 
-Mesh* makeBall(){
+Mesh* makeBall(Material* material = nullptr){
     Mesh* ball = new Mesh();
 
     ball->openOBJ("../Resources/Models/obj/sphere.obj");
-    ball->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_lit.glsl");
-    Material* ballmat = new Material(glm::vec3(1, 0, 0));
-    ball->material = ballmat;
+    if (material) {
+        ball->material = material;
+    } else {
+        ball->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_lit.glsl");
+        Material* ballmat = new Material(glm::vec3(1, 0, 0));
+        ball->material = ballmat;
+    }
 
     CollisionShape3D* collider = new CollisionShape3D();
     Shape* shape = new Sphere(1.1);

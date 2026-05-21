@@ -27,9 +27,13 @@ Scene* makeInfiniteTerrain(RenderSystem* renderer = nullptr){
     scene->mainCamera = cam;
 
     root->name = "scene root";
+    Shader* standardShader = renderer
+        ? renderer->getOrCreateShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl")
+        : nullptr;
+
     TerrainMaterial* mat = new TerrainMaterial(glm::vec3(1, 0, 0));
     if (renderer) {
-        mat->shader = renderer->getOrCreateShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        mat->shader = standardShader;
     }
     mat->setLit(0);
     mat->addTexture("texture0", Texture("../Resources/Textures/Environement/grass.png"));
@@ -40,7 +44,7 @@ Scene* makeInfiniteTerrain(RenderSystem* renderer = nullptr){
 
     Material* projectileMat = new Material(glm::vec3(1.0f));
     if (renderer) {
-        projectileMat->shader = renderer->getOrCreateShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
+        projectileMat->shader = standardShader;
     }
     projectileMat->setLit(0);
     Texture projectileTexture("../Resources/Textures/Environement/grassCubeTexSharp.png");

@@ -1,4 +1,6 @@
 // Include standard headers
+#include "Scenes/Ball.h"
+#include "Scenes/Cube.h"
 #include "Scenes/SolarSystem.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +33,7 @@ GLFWwindow* window;
 #include <common/vboindexer.hpp>
 #include <common/3dEntities/Mesh.hpp>
 #include <common/Controls/cameracontrols.h>
+#include <common/Controls/freecamera.h>
 #include <common/Materials/material.h>
 #include <common/3dEntities/Meshes/planet.h>
 
