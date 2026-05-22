@@ -141,6 +141,14 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 N, vec3 L)
     return shadow / 9.0;
 }
 
+float SamplePointShadowMap(int lightIndex, vec3 sampleDirection)
+{
+    if (lightIndex == 0) return texture(pointShadowMaps[0], sampleDirection).r;
+    if (lightIndex == 1) return texture(pointShadowMaps[1], sampleDirection).r;
+    if (lightIndex == 2) return texture(pointShadowMaps[2], sampleDirection).r;
+    return texture(pointShadowMaps[3], sampleDirection).r;
+}
+
 float PointShadowCalculation(int lightIndex, vec3 fragPos)
 {
     if (lightIndex >= pointShadowCount) {
@@ -154,7 +162,7 @@ float PointShadowCalculation(int lightIndex, vec3 fragPos)
         return 0.0;
     }
 
-    float closestDepth = texture(pointShadowMaps[lightIndex], fragToLight).r;
+    float closestDepth = SamplePointShadowMap(lightIndex, fragToLight);
     closestDepth *= farPlane;
 
     float bias = 0.10;
