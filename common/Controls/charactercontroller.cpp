@@ -91,7 +91,7 @@ void CharacterController::process(float deltaTime){
             cameraForward,
             projectileSpawnDistance + projectileHalfExtent + projectileSpawnPadding,
             1ULL
-        );
+            );
         if (spawnRaycast.intersectionExists) {
             spawnDistance = spawnRaycast.t - projectileHalfExtent - projectileSpawnPadding;
         }
@@ -127,6 +127,16 @@ void CharacterController::process(float deltaTime){
             {
                 glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter);
                 voxel->removeTile(worldVoxelCenter);
+            }
+        }
+        if (scene->inputPressed("action2")){
+            ProceduralVoxelTerrain* voxel = dynamic_cast<ProceduralVoxelTerrain*>(collider->getParent());
+            if (voxel)
+            {
+                glm::vec3 localHit_out = localHit - glm::inverse(colliderRot) * (camera_forward * 0.01f)*2.0f;
+                glm::vec3 selectedLocalCenter_out = glm::round(localHit_out);
+                glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter_out);
+                voxel->addTile(worldVoxelCenter, 2);
             }
         }
     }

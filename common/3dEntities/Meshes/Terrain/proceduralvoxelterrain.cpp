@@ -94,6 +94,36 @@ void ProceduralVoxelTerrain::removeTile(glm::vec3 world_position){
     }
 }
 
+void ProceduralVoxelTerrain::addTile(glm::vec3 world_position, int v){
+    glm::vec4 local = getInverseGlobalMatrix() * glm::vec4(world_position, 1.0);
+    glm::ivec3 ilocal = glm::ivec3(local[0], local[1], local[2]);
+    shape->set(ilocal.x, ilocal.y, ilocal.z, v);
+    (*edited)[world_position] = v;
+    InitData();
+    ResetMesh();
+    synchronize();
+    // if(ilocal.x == 1){
+    //     neighbour_X->InitData();
+    //     neighbour_X->ResetMesh();
+    //     neighbour_X->synchronize();
+    // }
+    // if(ilocal.x == sizeX){
+    //     neighbourX->InitData();
+    //     neighbourX->ResetMesh();
+    //     neighbourX->synchronize();
+    // }
+    // if(ilocal.z == 1){
+    //     neighbour_Z->InitData();
+    //     neighbour_Z->ResetMesh();
+    //     neighbour_Z->synchronize();
+    // }
+    // if(ilocal.z == sizeZ){
+    //     neighbourZ->InitData();
+    //     neighbourZ->ResetMesh();
+    //     neighbourZ->synchronize();
+    // }
+}
+
 void ProceduralVoxelTerrain::CreateTopSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);

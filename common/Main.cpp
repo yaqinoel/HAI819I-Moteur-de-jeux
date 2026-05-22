@@ -117,9 +117,9 @@ int main( void )
 
     renderer = new ForwardRenderSystem();
 
-    scene = makePBRInfiniteTerrain(renderer);
+    // scene = makePBRInfiniteTerrain(renderer);
     // scene = makePBRGridScene(renderer);
-    // scene = makeInfiniteTerrain(renderer);
+    scene = makeInfiniteTerrain(renderer);
 
     // For speed computation
     double lastTime = glfwGetTime();
