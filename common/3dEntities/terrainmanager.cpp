@@ -11,9 +11,6 @@ Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
     for(int i = 0; i < 5; i ++){
         Terrain* terrain = new ProceduralTerrain(x*size, y*size, 64/pow(2, i), 64/pow(2, i), size, size, 20);
         terrain->setMaterial(terrainMat);
-        if (!terrainMat || !terrainMat->shader) {
-            terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_Terrain_HeightMap.glsl");
-        }
         lod->addLOD(terrain, 40*i);
         terrain->name = "lod "+std::to_string(i);
     }
@@ -25,8 +22,6 @@ Mesh* MakeVoxelChunk(int x, int y, int size, Material* const terrainMat){
     Material* mat = new Material(glm::vec3(1, 0.0f, 0.0f));
     if (terrainMat && terrainMat->shader) {
         mat->shader = terrainMat->shader;
-    } else {
-        terrain->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
     }
     Texture tex = Texture("../Resources/Textures/Environement/BlocTextures.png");
     tex.setPixelArt(true);

@@ -342,63 +342,6 @@ void Mesh::setMaterial(Material* material) {
     this->material = material;
 }
 
-void Mesh::setShader(std::string vertex_shader, std::string fragment_shader){
-    shaderPID = LoadShaders(vertex_shader.c_str(), fragment_shader.c_str());
-    modelMatrixUniform = glGetUniformLocation(shaderPID, "model");
-    viewMatrixUniform = glGetUniformLocation(shaderPID, "view");
-    projectionMatrixUniform = glGetUniformLocation(shaderPID, "projection");
-    viewUniform = glGetUniformLocation(shaderPID, "viewVector");
-}
-
-void Mesh::setShader(GLuint shader) {
-    shaderPID = shader;
-    modelMatrixUniform = glGetUniformLocation(shaderPID, "model");
-    viewMatrixUniform = glGetUniformLocation(shaderPID, "view");
-    projectionMatrixUniform = glGetUniformLocation(shaderPID, "projection");
-    viewUniform = glGetUniformLocation(shaderPID, "viewVector");
-}
-
-void Mesh::render(const Camera* camera) const{
-
-    if (vertices.empty()) {
-        _synchronized = true ;
-        return;
-    }
-    if(!meshDisplay){
-        return;
-    }
-    if (!_synchronized){
-        synchronize();
-        return;
-    }
-    else{
-        glUseProgram(shaderPID);
-    }
-    glBindVertexArray(_VAO);
-
-
-    material->render(shaderPID);
-    glm::mat4 model = getGlobalMatrix();
-    glUniformMatrix4fv(modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(model));
-
-    glm::mat4 View = camera->getViewMatrix();
-    glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(View));
-
-    glm::mat4 Projection = camera->getProjectionMatrix();
-    glUniformMatrix4fv(projectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(Projection));
-
-    glUniform3fv(viewUniform, 1, glm::value_ptr(camera->forward()));
-
-    if(getVisible())
-        glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, (void*)0 );
-
-    setUniforms();
-
-    glUseProgram(0);
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
 void Mesh::drawOnly() const {
     if (vertices.empty()) {
         _synchronized = true;
@@ -415,4 +358,3 @@ void Mesh::drawOnly() const {
     glBindVertexArray(0);
 
 }
-

@@ -165,7 +165,7 @@ bool IBLEnvironment::initialize() {
     brdfShader->use();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     renderQuad();
-    saveBRDFLUTDebugImage(brdfLUTTexture);
+    // saveBRDFLUTDebugImage(brdfLUTTexture);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);

@@ -31,7 +31,6 @@ public:
     void updateLights(float deltaTime);
     void physicsProcess();
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask = ~0ULL);
-    void render(float alpha);
     void updateInterpolation(float alpha);
     void ping(){std::cout << "scene ping" << std::endl;}
     Camera* mainCamera = nullptr;

@@ -190,22 +190,6 @@ void Scene::solvePositionConstraints() {
     }
 }
 
-void Scene::render(float alpha){
-    if(cameras.size() > 0){
-        if(mainCamera == nullptr) mainCamera = *cameras.begin();
-        for(RigidBody3D* rb : rigidBodies){
-            if(rb != nullptr && rb->getVisible()){
-                rb->interpolate(alpha);
-            }
-        }
-        for(Mesh* m: meshes){
-            if(m != nullptr && m->getVisible()){
-                m->render(mainCamera);
-            }
-        }
-    }
-}
-
 void Scene::updateInterpolation(float alpha) {
     for(RigidBody3D* rb : rigidBodies) {
         if(rb && rb->getVisible()) {

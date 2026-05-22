@@ -35,20 +35,9 @@ public:
     std::map<std::string, Texture> texmap;
 
     void addTexture(const std::string & name, const Texture & texture);
-    virtual void render(GLuint shaderPID) const;
     virtual void bind() const;
-    virtual void setShader(GLuint shaderPID) const;
     void setLit(int lit);
     bool isPBR() const;
-private:
-    mutable GLuint albedoUniform;
-    mutable GLuint ambientUniform;
-    mutable GLuint diffuseUniform;
-    mutable GLuint specularUniform;
-    mutable GLuint shininessUniform;
-    mutable GLuint scaleUniform;
-    mutable GLuint litUniform;
-    mutable bool shaderSet = false;
 };
 
 #endif // MATERIAL_H

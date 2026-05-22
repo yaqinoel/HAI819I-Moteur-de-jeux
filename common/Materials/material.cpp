@@ -32,18 +32,6 @@ void Material::addTexture(const std::string & name, const Texture & texture){
     texmap.insert({name, texture});
 }
 
-void Material::setShader(GLuint shaderPID) const{
-    albedoUniform = glGetUniformLocation(shaderPID, "material.albedo");
-    ambientUniform = glGetUniformLocation(shaderPID, "material.ambiant");
-    diffuseUniform = glGetUniformLocation(shaderPID, "material.diffuse");
-    specularUniform = glGetUniformLocation(shaderPID, "material.specular");
-    shininessUniform = glGetUniformLocation(shaderPID, "material.shininess");
-    scaleUniform = glGetUniformLocation(shaderPID, "scale");
-    litUniform = glGetUniformLocation(shaderPID, "lit");
-    shaderSet = true;
-}
-
-
 void Material::setLit(int l) {
     lit = l;
     if (lit == 0) {
@@ -55,28 +43,6 @@ void Material::setLit(int l) {
 
 bool Material::isPBR() const {
     return shadingModel == ShadingModel::PBR;
-}
-
-void Material::render(GLuint shaderPID) const{
-    int i = 0;
-    for(const auto&[name, texture]:texmap){
-        texture.bind(i);
-        GLuint textureUniformLocation = glGetUniformLocation(shaderPID, name.c_str());
-        glUniform1i(textureUniformLocation, i);
-        i++;
-        GLuint hasTexture = glGetUniformLocation(shaderPID, "hasTexture");
-        glUniform1i(hasTexture, 1);
-    }
-    if(!shaderSet){
-        setShader(shaderPID);
-    }
-    glUniform1i(litUniform, lit);
-    glUniform3fv(albedoUniform,1, glm::value_ptr(albedo));
-    glUniform1f(ambientUniform, ambient);
-    glUniform1f(diffuseUniform, diffuse);
-    glUniform1f(specularUniform, specular);
-    glUniform1f(shininessUniform, shininess);
-    glUniform1f(scaleUniform, scale);
 }
 
 void Material::bind() const {
@@ -94,11 +60,10 @@ void Material::bind() const {
     }
 
     shader->setVec3("material.albedo", albedo);
-    shader->setFloat("material.ambiant", ambient);
+    shader->setFloat("material.ambient", ambient);
     shader->setFloat("material.diffuse", diffuse);
     shader->setFloat("material.specular", specular);
     shader->setFloat("material.shininess", shininess);
     shader->setFloat("scale", scale);
     shader->setInt("lit", lit);
-    shaderSet = true;
 }

@@ -32,7 +32,7 @@ void CollisionShape3D::SetShape(Shape* s){
     shape->setMass(mass);
 }
 
-void CollisionShape3D::setDebug(bool b) {
+void CollisionShape3D::setDebug(bool b, Shader* debugShader) {
     debug = b;
     if(debugMesh != nullptr){
         debugMesh->setVisible(b);
@@ -41,7 +41,7 @@ void CollisionShape3D::setDebug(bool b) {
         debugMesh = new Mesh(shape->getVertices(), shape->getTriangles());
         debugMesh->name = "debug mesh";
         Material* mat = new Material();
-        debugMesh->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_shape.glsl");
+        mat->shader = debugShader;
         debugMesh->setMaterial(mat);
         instantiate(debugMesh, this);
     }

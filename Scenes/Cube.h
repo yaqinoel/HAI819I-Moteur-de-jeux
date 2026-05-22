@@ -14,7 +14,6 @@ inline Mesh* makeCube(Material* material = nullptr){
     if (material) {
         cube->material = material;
     } else {
-        cube->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
         Material* cubeMat = new Material(glm::vec3(1, 1, 1));
         cubeMat->setLit(false);
         cubeMat->addTexture("texture0", tex);

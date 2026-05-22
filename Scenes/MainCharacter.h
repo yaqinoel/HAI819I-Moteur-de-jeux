@@ -12,8 +12,6 @@ CharacterController* makeKnight(Shader* standardShader = nullptr){
     Material* mat = new Material(glm::vec3(0.5, 0.5, 0.5));
     if (standardShader) {
         mat->shader = standardShader;
-    } else {
-        mesh->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
     }
     Texture tex = Texture("../Resources/Textures/Characters/LightTextureKnight.png");
     mat->addTexture("texture0", tex);

@@ -24,7 +24,6 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
     scene->mainCamera = cameraNode;
     scene->instantiate(cameraNode);
 
-    // GLuint pbrShader = LoadShaders("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
     Shader* uniPbrShader = renderer->getOrCreateShader("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
 
     // PBRMaterial* rustIronMat = new PBRMaterial(uniPbrShader, glm::vec3(1.0f), 0.0f, 0.5f, 1.0f);
@@ -63,7 +62,6 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
             sphereNode->name = "Sphere(" + std::to_string(row) + "," + std::to_string(col) + ")";
 
             Mesh* instancedMesh = new Mesh(*baseSphereMesh);
-            // instancedMesh->setShader(pbrShader);
             float metallic = (float)row / (float)nrRows;
             float roughness = glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f);
             PBRMaterial* material = new PBRMaterial(uniPbrShader, glm::vec3(0.5f, 0.0f, 0.0f), metallic, roughness, 1.0f);
@@ -72,7 +70,6 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
 
             // for(Mesh* m : baseSphere->meshes) {
             //     Mesh* instancedMesh = new Mesh(*m);
-            //     instancedMesh->setShader(pbrShader);
             //     instancedMesh->setMaterial(rustIronMat);
             //     sphereNode->addChild(instancedMesh);
             // }

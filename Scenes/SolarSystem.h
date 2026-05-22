@@ -8,10 +8,9 @@
 #include <common/Render/Shader.hpp>
 
 inline void setStandardShader(Mesh* mesh, Material* material, Shader* standardShader) {
+    (void)mesh;
     if (standardShader) {
         material->shader = standardShader;
-    } else {
-        mesh->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
     }
 }
 
