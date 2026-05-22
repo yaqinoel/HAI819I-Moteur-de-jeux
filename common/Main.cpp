@@ -1,6 +1,7 @@
 // Include standard headers
+#include "Scenes/Ball.h"
+#include "Scenes/Cube.h"
 #include "Scenes/SolarSystem.h"
-#include "Scenes/InfiniteTerrain.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,6 +10,13 @@
 
 // Include GLFW
 #include <GLFW/glfw3.h>
+
+#include "Scenes/PBRGridScene.h"
+#include "Scenes/InfiniteTerrain.h"
+#include "Scenes/PBRInfiniteTerrain.h"
+#include "common/Render/RenderSystem.hpp"
+#include "common/Render/ForwardRenderSystem.hpp"
+
 GLFWwindow* window;
 
 // Include GLM
@@ -25,6 +33,7 @@ GLFWwindow* window;
 #include <common/vboindexer.hpp>
 #include <common/3dEntities/Mesh.hpp>
 #include <common/Controls/cameracontrols.h>
+#include <common/Controls/freecamera.h>
 #include <common/Materials/material.h>
 #include <common/3dEntities/Meshes/planet.h>
 
@@ -47,6 +56,8 @@ Scene* scene;
 int resX = 4;
 int resY = 4;
 float rotSpeed = 1;
+
+RenderSystem* renderer;
 
 int main( void )
 {
@@ -99,11 +110,16 @@ int main( void )
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
     glDepthFunc(GL_LESS);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    scene = makeInfiniteTerrain();
+    renderer = new ForwardRenderSystem();
+
+    scene = makePBRInfiniteTerrain(renderer);
+    // scene = makePBRGridScene(renderer);
+    // scene = makeInfiniteTerrain(renderer);
 
     // For speed computation
     double lastTime = glfwGetTime();
@@ -133,7 +149,10 @@ int main( void )
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         float alpha = accumulator / physicsStep;
-        scene->render(alpha);
+        scene->updateInterpolation(alpha);
+        scene->lateProcess(deltaTime);
+        renderer->render(scene);
+        scene->renderLines();
 
         // Swap buffers
         glfwSwapBuffers(window);
@@ -144,6 +163,7 @@ int main( void )
 
 
     delete(scene);
+    delete(renderer);
     scene = nullptr;
     // Close OpenGL window and terminate GLFW
     glfwTerminate();

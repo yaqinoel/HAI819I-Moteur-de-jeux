@@ -6,7 +6,11 @@ Collider3D::Collider3D()
 }
 RayIntersection Collider3D::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask){
     if(shape != nullptr){
-        return shape->raycast(origin, direction, length, mask);
+        RayIntersection intersection = shape->raycast(origin, direction, length, mask);
+        if (intersection.intersectionExists && intersection.collider == nullptr) {
+            intersection.collider = this;
+        }
+        return intersection;
     }
     else{
         std::cerr << "Error no shape associated with the Collider3D" << std::endl;
@@ -27,7 +31,7 @@ bool Collider3D::computeAabb(PhysicsAabb& outAabb) const {
     return shape && shape->computeAabb(*this, outAabb);
 }
 
-void Collider3D::setDebug(bool b) {
+void Collider3D::setDebug(bool b, Shader* debugShader) {
     debug = b;
     if(debugMesh != nullptr){
         debugMesh->setVisible(b);
@@ -36,7 +40,7 @@ void Collider3D::setDebug(bool b) {
         debugMesh = new Mesh(shape->getVertices(), shape->getTriangles());
         debugMesh->name = "debug mesh";
         Material* mat = new Material();
-        debugMesh->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader_shape.glsl");
+        mat->shader = debugShader;
         debugMesh->setMaterial(mat);
         instantiate(debugMesh, this);
     }

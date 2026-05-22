@@ -29,7 +29,6 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <common/shader.hpp>
 #include <embree4/rtcore.h>
 #include "common/Utilities/rayintersection.h"
 #include "../Utilities/Geometry.h"
@@ -59,8 +58,7 @@ public:
     void setTriangles(std::vector<glm::ivec3> vec);
     void openOFF(const std::string &filename, unsigned int normWeight = 1);
     void openOBJ(const std::string &filename);
-    void render(const Camera* camera) const;
-    void setShader(std::string vertex_shader, std::string fragment_shader);
+    void drawOnly() const;
     void clear ();
     void clearGeometry ();
     void clearTopology ();
@@ -71,7 +69,7 @@ public:
     virtual void setUniforms() const {}
     std::vector<Vertex> vertices;
     std::vector<Triangle> triangles;
-    Material* material;
+    Material* material = nullptr;
     std::map<std::string, Texture> mymap;
     glm::vec3 getBarycentre(const int triangleIndex);
 
@@ -89,13 +87,6 @@ protected:
     mutable GLuint _VBO;
     mutable GLuint _VAO;
     mutable GLuint _EBO;
-
-    mutable GLuint shaderPID;
-    mutable GLuint viewUniform;
-    mutable GLuint modelMatrixUniform;
-    mutable GLuint viewMatrixUniform;
-    mutable GLuint projectionMatrixUniform;
-
 };
 
 // Some Emacs-Hints -- please don't remove:

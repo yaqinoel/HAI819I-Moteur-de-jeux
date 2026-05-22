@@ -22,8 +22,6 @@ void main(){
         vertices_normals_fragment = mat3(transpose(inverse(model))) * vertices_normals;
         vertices_texCoord_fragment = vertices_texCoord;
 
-        // TODO : Output position of the vertex, in clip space : MVP * position
-        //gl_Position = vec4(vertices_position_modelspace,1) * model;
         gl_Position = projection * view * model * vec4(vertices_position_modelspace,1);
 }
 

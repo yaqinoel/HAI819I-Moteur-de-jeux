@@ -59,5 +59,5 @@ void main()
     // Combine with texture
     vec4 textureColor = hasTexture != 0 ? texture(texture0, vertices_texCoord_fragment) : vec4(1.0);
     if(lit == 1) color = vec4(litColor * textureColor.rgb, textureColor.a);
-    else color = textureColor;
+    else color = hasTexture != 0 ? textureColor : vec4(material.albedo, 1.0);
 }

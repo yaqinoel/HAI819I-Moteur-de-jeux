@@ -33,12 +33,15 @@ if(INCLUDE_DISTRIB)
         add_subdirectory(distrib)
 endif(INCLUDE_DISTRIB)
 
-
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL " " FORCE)
 
 include_directories(
         external/glfw-3.1.2/include/
         external/glm-0.9.7.1/
         external/glew-1.13.0/include/
+        external/assimp/include/
+        ${CMAKE_BINARY_DIR}/external/assimp/include/
         .
 )
 
@@ -49,6 +52,7 @@ set(ALL_LIBS
         glfw
         GLEW_1130
         embree
+        assimp
 )
 
 add_definitions(
@@ -69,13 +73,16 @@ add_executable(Main
         
         common/Materials/material.h common/Materials/material.cpp
         common/Materials/texture.h common/Materials/texture.cpp
+        common/Materials/pbrmaterial.h common/Materials/pbrmaterial.cpp
 
 
         common/Controls/cameracontrols.cpp common/Controls/cameracontrols.h
+        common/Controls/freecamera.cpp common/Controls/freecamera.h
 
         common/3dEntities/node3d.h common/3dEntities/node3d.cpp
         common/3dEntities/camera.h common/3dEntities/camera.cpp
         common/3dEntities/Mesh.hpp
+        common/3dEntities/Model.hpp common/3dEntities/Model.cpp
 
         common/3dEntities/Meshes/Terrain/proceduralterrain.h common/3dEntities/Meshes/Terrain/proceduralterrain.cpp
         common/3dEntities/Meshes/Terrain/heightmapterrain.h common/3dEntities/Meshes/Terrain/heightmapterrain.cpp
@@ -88,9 +95,26 @@ add_executable(Main
         Shaders/fragment_shader_lit.glsl
         Shaders/fragment_shader_Terrain_HeightMap.glsl
         Shaders/fragment_shader_Terrain_Noise.glsl
+        Shaders/cubemap_capture.vert
+        Shaders/equirectangular_to_cubemap.frag
+        Shaders/irradiance_convolution.frag
+        Shaders/prefilter_environment.frag
+        Shaders/brdf.vert
+        Shaders/brdf.frag
+        Shaders/skybox.vert
+        Shaders/skybox.frag
+        Shaders/shadow_depth.vert
+        Shaders/shadow_depth.frag
+        Shaders/point_shadow_depth.vert
+        Shaders/point_shadow_depth.frag
         
         external/stb_image/stb_image.h external/stb_image/stb_image.cpp
         common/3dEntities/Meshes/planet.h common/3dEntities/Meshes/planet.cpp
+
+        common/3dEntities/Lights/Light.hpp common/3dEntities/Lights/Light.cpp
+        common/3dEntities/Lights/DirectionalLight.hpp common/3dEntities/Lights/DirectionalLight.cpp
+        common/3dEntities/Lights/PointLight.hpp common/3dEntities/Lights/PointLight.cpp
+        common/3dEntities/Lights/SpotLight.hpp common/3dEntities/Lights/SpotLight.cpp
 
         common/3dEntities/Mesh.cpp
         common/Physics/rigidbody3d.h common/Physics/rigidbody3d.cpp
@@ -106,6 +130,12 @@ add_executable(Main
         common/Physics/Collision/contactsolver.h common/Physics/Collision/contactsolver.cpp
         common/Physics/contactcache.h common/Physics/contactcache.cpp
         common/Physics/physicsworld.h common/Physics/physicsworld.cpp
+
+        common/Render/Shader.hpp common/Render/Shader.cpp
+        common/Render/RenderSystem.hpp common/Render/RenderSystem.cpp
+        common/Render/ForwardRenderSystem.hpp common/Render/ForwardRenderSystem.cpp
+        common/Render/IBLEnvironment.hpp common/Render/IBLEnvironment.cpp
+
         common/Utilities/rayintersection.h
         common/Utilities/PerlinNoise.h
         common/Utilities/Geometry.h
@@ -123,6 +153,8 @@ add_executable(Main
 
         Scenes/SolarSystem.h
         Scenes/InfiniteTerrain.h
+        Scenes/PBRInfiniteTerrain.h
+        Scenes/PBRGridScene.h
         Scenes/Ball.h
         Scenes/Cube.h
         Scenes/MainCharacter.h
@@ -132,6 +164,10 @@ add_executable(Main
         common/Controls/hoveringcontroller.h common/Controls/hoveringcontroller.cpp
         common/Physics/Shapes/voxelshape.h common/Physics/Shapes/voxelshape.cpp
         Scenes/FirstPersonCharacter.h
+        Shaders/vertex_shader_line.glsl
+        Shaders/fragment_shader_line.glsl
+        common/Utilities/hash.h
+
 
 
 

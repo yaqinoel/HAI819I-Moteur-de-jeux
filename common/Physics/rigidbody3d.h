@@ -44,6 +44,8 @@ public:
     std::vector<Collider3D*> colliders = std::vector<Collider3D*>();
     glm::vec3 getTorque(glm::vec3 point, glm::vec3 momentum){return glm::cross(point-getGlobalPosition(), momentum);}
     void applyImpulse(glm::vec3 impulse, glm::vec3 worldPoint);
+    glm::vec3 solverTempPosition = glm::vec3(0.0f);
+    inline glm::vec3 getCurrentPosition() const { return currentPosition; }
 
     glm::vec3 unlockedRotation = glm::vec3(1);
     void setUnlockedRotation(bool x, bool y, bool z){unlockedRotation.x = x; unlockedRotation.y = y; unlockedRotation.z = z;}

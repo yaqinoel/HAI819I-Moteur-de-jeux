@@ -22,18 +22,5 @@ CharacterController* makeFPSController(){
     character->setUnlockedRotation(false, false, false);
     character->friction = 0.0f;
 
-
-
-    // cube->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
-    // Material* cubeMat = new Material(glm::vec3(1, 1, 1));
-    // cubeMat->setLit(false);
-    // cube->material = cubeMat;
-    // Texture tex = Texture("../Resources/Textures/Environement/grassCubeTexSharp.png");
-    // tex.setPixelArt(true);
-    // cubeMat->addTexture("texture0", tex);
-    // character->addChild(cube);
-
-
-
     return character;
 }

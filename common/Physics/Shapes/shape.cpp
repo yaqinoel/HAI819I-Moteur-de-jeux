@@ -9,8 +9,13 @@ Shape::Shape()
 }
 
 RayIntersection Shape::raycast( glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t layers){
-    if((layers & collider->collisionLayers) == 0) return RayIntersection();
-    else return this->raycast(origin, direction, length);
+    if(!collider || (layers & collider->collisionLayers) == 0) return RayIntersection();
+
+    RayIntersection intersection = this->raycast(origin, direction, length);
+    if (intersection.intersectionExists && intersection.collider == nullptr) {
+        intersection.collider = collider;
+    }
+    return intersection;
 }
 
 bool Shape::computeAabb(const Collider3D& collider, PhysicsAabb& outAabb) const {

@@ -5,6 +5,7 @@
 
 class Mesh;
 class RigidBody3D;
+class Shader;
 
 class Collider3D : public Node3d
 {
@@ -13,9 +14,10 @@ public:
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask);
     bool active = true;
     void setShape(Shape* s);
+    void SetShape(Shape* s) { setShape(s); }
     Shape* getShape() const { return shape; }
     bool computeAabb(PhysicsAabb& outAabb) const;
-    void setDebug(bool b);
+    void setDebug(bool b, Shader* debugShader = nullptr);
     glm::mat3 getInertia() {return shape->inertia;}
     RigidBody3D *rb = nullptr;
     float mass = 1000;

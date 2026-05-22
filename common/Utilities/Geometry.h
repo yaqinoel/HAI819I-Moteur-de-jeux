@@ -31,36 +31,50 @@ struct Vertex {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texCoord;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
 
     inline Vertex () {
         position = glm::vec3(0);
         normal = glm::vec3(0);
         texCoord = glm::vec2(0);
+        tangent = glm::vec3(0);
+        bitangent = glm::vec3(0);
     }
     inline Vertex (const Vertex & v) {
         position = v.position;
         normal = v.normal;
         texCoord = v.texCoord;
+        tangent = v.tangent;
+        bitangent = v.bitangent;
     }
     inline Vertex (glm::vec3 p, glm::vec3 n, glm::vec2 tc) {
         position = p;
         normal = glm::normalize(n);
         texCoord = tc;
+        tangent = glm::vec3(0);
+        bitangent = glm::vec3(0);
     }
     inline Vertex (glm::vec3 p, glm::vec2 tc) {
         position = p;
         normal = glm::normalize(p);
         texCoord = tc;
+        tangent = glm::vec3(0);
+        bitangent = glm::vec3(0);
     }
     inline Vertex (glm::vec3 p, glm::vec3 n) {
         position = p;
         normal = n;
         texCoord = glm::vec2(0);
+        tangent = glm::vec3(0);
+        bitangent = glm::vec3(0);
     }
     inline Vertex (glm::vec3 p) {
         position = p;
         normal = glm::normalize(p);
         texCoord = glm::vec2(0);
+        tangent = glm::vec3(0);
+        bitangent = glm::vec3(0);
     }
 };
 

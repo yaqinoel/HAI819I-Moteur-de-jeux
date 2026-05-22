@@ -29,6 +29,7 @@ public:
     Node* getParent() const;
     virtual void setParent(Node* p);
     virtual void process(float deltaTime){}
+    virtual void lateProcess(float deltaTime){}
     virtual glm::mat4 getGlobalMatrix() const=0;
     std::string name;
     Scene* scene = nullptr;

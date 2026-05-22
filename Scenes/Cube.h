@@ -5,17 +5,20 @@
 #include "../common/Physics/Shapes/cube.h"
 
 
-inline Mesh* makeCube(){
+inline Mesh* makeCube(Material* material = nullptr){
     Mesh* cube = new Mesh();
 
     Shape* shape = new Cube(1, 1, 1, cube->vertices, cube->triangles);
-    cube->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
-    Material* cubeMat = new Material(glm::vec3(1, 1, 1));
-    cubeMat->setLit(false);
-    cube->material = cubeMat;
     Texture tex = Texture("../Resources/Textures/Environement/grassCubeTexSharp.png");
     tex.setPixelArt(true);
-    cubeMat->addTexture("texture0", tex);
+    if (material) {
+        cube->material = material;
+    } else {
+        Material* cubeMat = new Material(glm::vec3(1, 1, 1));
+        cubeMat->setLit(false);
+        cubeMat->addTexture("texture0", tex);
+        cube->material = cubeMat;
+    }
 
     Collider3D* collider = new Collider3D();
     cube->addChild(collider);

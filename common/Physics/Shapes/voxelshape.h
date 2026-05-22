@@ -18,6 +18,7 @@ public:
     int getHeight() const { return height; }
     int getDepth() const { return depth; }
     float getVoxelSize() const { return voxelSize; }
+    void set(int x, int y, int z, uint8_t v) { setCell(x - 1, y - 1, z - 1, v); }
 private:
     std::vector<uint8_t> voxels;
     float voxelSize = 1.0f;
@@ -26,5 +27,5 @@ private:
     int depth = 0;
     int index(int x, int y, int z) const { return x*height*depth+y*depth+z; }
     uint8_t get(int x, int y, int z) const {return voxels[x*height*depth+y*depth+z];}
-    void set(int x, int y, int z, uint8_t v) {voxels[x*height*depth+y*depth+z] = v;}
+    void setCell(int x, int y, int z, uint8_t v) { voxels[index(x, y, z)] = v; }
 };

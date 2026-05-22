@@ -2,14 +2,17 @@
 #include <common/3dEntities/Mesh.hpp>
 #include <common/Physics/collider3d.h>
 #include <common/Controls/charactercontroller.h>
+#include <common/Render/Shader.hpp>
 
-CharacterController* makeKnight(){
+CharacterController* makeKnight(Shader* standardShader = nullptr){
     CharacterController* knight = new CharacterController();
     knight->gravity = glm::vec3(0, -20, 0);
     Mesh* mesh = new Mesh();
     //mesh->openOBJ("../Resources/Models/obj/Knight.obj");
-    mesh->setShader("../Shaders/vertex_shader.glsl", "../Shaders/fragment_shader.glsl");
     Material* mat = new Material(glm::vec3(0.5, 0.5, 0.5));
+    if (standardShader) {
+        mat->shader = standardShader;
+    }
     Texture tex = Texture("../Resources/Textures/Characters/LightTextureKnight.png");
     mat->addTexture("texture0", tex);
     mat->setLit(0);
