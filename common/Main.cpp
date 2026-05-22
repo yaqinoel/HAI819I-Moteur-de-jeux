@@ -17,7 +17,6 @@
 #include "common/Render/RenderSystem.hpp"
 #include "common/Render/ForwardRenderSystem.hpp"
 
-GLFWwindow* window;
 
 // Include GLM
 #include <glm/glm.hpp>
@@ -37,11 +36,12 @@ GLFWwindow* window;
 #include <common/Materials/material.h>
 #include <common/3dEntities/Meshes/planet.h>
 
+GLFWwindow* window;
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1000;
+const unsigned int SCR_HEIGHT = 800;
 
 //CameraControls* cam = new CameraControls(4.0f, 3.0f, 45.0f, 0.1f, 100.0f, glm::vec3(0, 9, -10));
 // timing
@@ -75,7 +75,7 @@ int main( void )
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Open a window and create its OpenGL context
-    window = glfwCreateWindow( 1024, 768, "TP1 - GLFW", NULL, NULL);
+    window = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT, "PHYSICRAFT", NULL, NULL);
     if( window == NULL ){
         fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
         getchar();
@@ -96,11 +96,10 @@ int main( void )
     // Ensure we can capture the escape key being pressed below
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     // Hide the mouse and enable unlimited mouvement
-    //  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Set the mouse at the center of the screen
     glfwPollEvents();
-    glfwSetCursorPos(window, 1024/2, 768/2);
+    glfwSetCursorPos(window, SCR_WIDTH/2, SCR_HEIGHT/2);
 
     glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
     glEnable(GL_CULL_FACE);
@@ -117,9 +116,9 @@ int main( void )
 
     renderer = new ForwardRenderSystem();
 
-    // scene = makePBRInfiniteTerrain(renderer);
+    scene = makePBRInfiniteTerrain(renderer);
     // scene = makePBRGridScene(renderer);
-    scene = makeInfiniteTerrain(renderer);
+    // scene = makeInfiniteTerrain(renderer);
 
     // For speed computation
     double lastTime = glfwGetTime();
@@ -127,6 +126,8 @@ int main( void )
 
     float physicsStep = scene->fixedDeltaTime;
     double accumulator = 0.0;
+
+
     do{
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -153,13 +154,13 @@ int main( void )
         scene->lateProcess(deltaTime);
         renderer->render(scene);
         scene->renderLines();
+        renderer->renderGUI(scene);
 
         // Swap buffers
         glfwSwapBuffers(window);
 
-    } // Check if the ESC key was pressed or the window was closed
-    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
-           glfwWindowShouldClose(window) == 0 );
+    }
+    while( glfwWindowShouldClose(window) == 0 );
 
 
     delete(scene);

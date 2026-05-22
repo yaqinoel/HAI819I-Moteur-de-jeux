@@ -47,7 +47,18 @@ void drawCube(Scene *scene, glm::vec3 center, glm::quat rotation)
 void CharacterController::process(float deltaTime){
     RigidBody3D::process(deltaTime);
     GLFWwindow* window = glfwGetCurrentContext();
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    if(!paused)glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    if (scene->inputPressed("escape")){
+        paused = !paused;
+        cam->paused = paused;
+    }
+
+    if(paused) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        return;
+    }
+
     //rotation
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
@@ -59,7 +70,6 @@ void CharacterController::process(float deltaTime){
     if (glm::dot(planarCameraForward, planarCameraForward) > 0.0001f) {
         cameraForwardxz = glm::normalize(planarCameraForward);
     }
-    //setForward(cameraForward);
 
     if (scene->inputHeld("forward")){
         axialInputs.x += 1;
@@ -144,7 +154,7 @@ void CharacterController::process(float deltaTime){
 
 void CharacterController::lateProcess(float deltaTime){
     (void)deltaTime;
-    if (selectedCollider == nullptr || !selectedCollider->getVisible()) {
+    if (selectedCollider == nullptr || !selectedCollider->getVisible() || paused) {
         return;
     }
 
@@ -156,6 +166,7 @@ void CharacterController::lateProcess(float deltaTime){
 
 void CharacterController::physicsProcess(){
     RigidBody3D::physicsProcess();
+    if(paused)return;
     glm::vec3 planarVelocity = (axialInputs.x * cameraForwardxz + axialInputs.y * cam->right());
     if(planarVelocity != glm::vec3(0)) planarVelocity = glm::normalize(planarVelocity)*speed;
 

@@ -59,3 +59,7 @@ void RenderSystem::uploadLights(Shader* shader, const std::vector<Light*>& light
     shader->setInt("pointLightCount", pointLightCount);
     shader->setInt("directionalLightCount", directionalLightCount);
 }
+
+void RenderSystem::renderGUI(Scene* scene){
+    gui->Draw();
+}

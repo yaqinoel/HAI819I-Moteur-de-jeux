@@ -350,7 +350,6 @@ void Mesh::drawOnly() const {
 
     if (!_synchronized) {
         synchronize();
-        return;
     }
 
     glBindVertexArray(_VAO);

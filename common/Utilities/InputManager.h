@@ -33,6 +33,7 @@ public:
         inputs.insert({"backwards", new InputState(GLFW_KEY_S)});
         inputs.insert({"forward", new InputState(GLFW_KEY_W)});
         inputs.insert({"action4", new InputState(GLFW_KEY_Q)});
+        inputs.insert({"escape", new InputState(GLFW_KEY_ESCAPE)});
     }void UpdateInputs()
     {
         GLFWwindow* window = glfwGetCurrentContext();

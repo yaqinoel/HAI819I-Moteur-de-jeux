@@ -167,6 +167,7 @@ add_executable(Main
         Shaders/vertex_shader_line.glsl
         Shaders/fragment_shader_line.glsl
         common/Utilities/hash.h
+        common/GUI/gui.h common/GUI/gui.cpp
 
 
 
@@ -188,6 +189,7 @@ SOURCE_GROUP(common REGULAR_EXPRESSION ".*/common/.*" )
 SOURCE_GROUP(common/3dEntities REGULAR_EXPRESSION ".*/common/3dEntities/.*" )
 SOURCE_GROUP(common/3dEntities/Meshes/ REGULAR_EXPRESSION ".*/common/3dEntities/Meshes/.*" )
 SOURCE_GROUP(common/3dEntities/Meshes/Terrain REGULAR_EXPRESSION ".*/common/3dEntities/Meshes/Terrain.*" )
+SOURCE_GROUP(common/3dEntities/Lights REGULAR_EXPRESSION ".*/common/3dEntities/Lights/.*" )
 SOURCE_GROUP(common/Controls REGULAR_EXPRESSION ".*/common/Controls/.*" )
 SOURCE_GROUP(common/Materials REGULAR_EXPRESSION ".*/common/Materials/.*" )
 SOURCE_GROUP(common/Physics/Collision REGULAR_EXPRESSION ".*/common/Physics/Collision/.*" )
@@ -195,6 +197,7 @@ SOURCE_GROUP(common/Physics/Shapes REGULAR_EXPRESSION ".*/common/Physics/Shapes/
 SOURCE_GROUP(common/Utilities REGULAR_EXPRESSION ".*/common/Utilities/.*" )
 SOURCE_GROUP(common/Physics/ REGULAR_EXPRESSION ".*/common/Physics/.*" )
 SOURCE_GROUP(common/Render/ REGULAR_EXPRESSION ".*/common/Render/.*" )
+SOURCE_GROUP(common/GUI/ REGULAR_EXPRESSION ".*/common/GUI/.*" )
 SOURCE_GROUP(scenes REGULAR_EXPRESSION ".*/Scenes/.*" )
 SOURCE_GROUP(shaders REGULAR_EXPRESSION ".*/.*shader$" )
 

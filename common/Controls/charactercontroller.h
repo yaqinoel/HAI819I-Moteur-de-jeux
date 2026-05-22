@@ -1,5 +1,7 @@
 #pragma once
 
+#include "cameracontrols.h"
+
 #include <common/3dEntities/Mesh.hpp>
 #include <common/3dEntities/terrainmanager.h>
 #include <common/Physics/rigidbody3d.h>
@@ -12,8 +14,9 @@ public:
     void process(float deltaTime) override;
     void lateProcess(float deltaTime) override;
     void physicsProcess() override;
-    Camera* cam;
+    CameraControls* cam;
     Material* projectileMaterial = nullptr;
+    bool paused = false;
 private:
     float speed = 5.0f;
     float jumpStrength = 7.0f;

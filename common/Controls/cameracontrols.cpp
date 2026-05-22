@@ -25,7 +25,6 @@ void CameraControls::process(float deltaTime){
         lastY = ypos;
         firstMouse = false;
     }
-
     float xoffset = float(lastX - xpos);
     float yoffset = float(lastY - ypos);
 
@@ -35,6 +34,8 @@ void CameraControls::process(float deltaTime){
     float sensitivityFactor = sensitivity * deltaTime;
     xoffset *= sensitivityFactor;
     yoffset *= sensitivityFactor;
+    if(paused) return;
+
 
     glm::vec3 f = forward();
     glm::vec3 flatForward = glm::normalize(glm::vec3(f.x, 0, f.z));

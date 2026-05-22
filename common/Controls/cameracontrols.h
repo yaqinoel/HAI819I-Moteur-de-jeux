@@ -21,6 +21,7 @@ public:
     float speed = 5.0f;
     float sensitivity = 15.0f;
 
+    bool paused;
     Node3d* targetNode = nullptr;
 
     double lastX = 0.0;

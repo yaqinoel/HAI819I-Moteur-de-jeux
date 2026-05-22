@@ -50,11 +50,13 @@ public:
     int nbChannels;
     bool sharp = false;
     float scale = 1.0f;
+    std::string path;
 
     Texture(const std::string path, bool isPixelArt = false){
-        loadTexture(path);
         sharp = isPixelArt;
+        loadTexture(path);
     }
+
     Texture(const Texture & other) : data(other.data),
     width(other.width),
     height(other.height),
@@ -88,15 +90,15 @@ public:
     ~Texture(){if (__synchronized) unsynchronize();}
 
     void loadTexture(const std::string path){
-        constexpr int CHANNELS = 3;
-        unsigned char * new_data = stbi_load(path.c_str(), &width, &height, &nbChannels, CHANNELS);
+        this->path = path;
+        unsigned char* new_data = stbi_load(path.c_str(), &width, &height, &nbChannels, 0);
         if (!new_data){
             std::cout << "[Texture] Problème du chargement de la texture à " << path << " (impossible de charger les données)" << std::endl;
             return;
         }
 
-        data.resize(width * height * CHANNELS);
-        memcpy(data.data(), new_data, width * height * CHANNELS);
+        data.resize(width * height * nbChannels);
+        memcpy(data.data(), new_data, width * height * nbChannels);
         stbi_image_free(new_data);
         synchronize();
     }
@@ -141,8 +143,16 @@ public:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         }
+        GLenum format = GL_RGB;
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,  data.data());
+        if (nbChannels == 4)
+            format = GL_RGBA;
+        else if (nbChannels == 3)
+            format = GL_RGB;
+        else if (nbChannels == 1)
+            format = GL_RED;
+
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data.data());
         glGenerateMipmap(GL_TEXTURE_2D); 
     }
 
