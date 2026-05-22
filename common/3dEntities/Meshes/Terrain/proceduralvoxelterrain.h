@@ -21,7 +21,7 @@ public:
     std::map<int, glm::ivec2> texCoord = std::map<int, glm::ivec2>();
     unsigned short int getData(int x, int y, int z);
     void setData(int x, int y, int z, unsigned short int v);
-    void removeTile(glm::vec3 world_position);
+    int removeTile(glm::vec3 world_position);
     void addTile(glm::vec3 world_position, int v);
     ProceduralVoxelTerrain * neighbourX;
     ProceduralVoxelTerrain * neighbour_X;

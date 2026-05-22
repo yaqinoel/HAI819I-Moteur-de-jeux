@@ -41,7 +41,9 @@ public:
     InputManager* inputManager = new InputManager();
     bool inputHeld(std::string input){return inputManager->inputs[input]->currentlyHeld;}
     bool inputPressed(std::string input){return inputManager->inputs[input]->justPressed;}
+    bool inputReleased(std::string input){return inputManager->inputs[input]->justReleased;}
     constexpr static float fixedDeltaTime = 0.03f;
+    bool gameExited = false;
 private:
     std::vector<Mesh*> meshes = std::vector<Mesh*>();
     std::vector<Light*> lights = std::vector<Light*>();

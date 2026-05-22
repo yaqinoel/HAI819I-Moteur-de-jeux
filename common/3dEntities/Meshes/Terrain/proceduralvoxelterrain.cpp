@@ -64,9 +64,18 @@ void ProceduralVoxelTerrain::InitData() {
     }
 }
 
-void ProceduralVoxelTerrain::removeTile(glm::vec3 world_position){
+int voxel_conversion(int v){
+    switch(v){
+        case 1: return 2; break;
+        default: return v;
+    }
+}
+
+
+int ProceduralVoxelTerrain::removeTile(glm::vec3 world_position){
     glm::vec4 local = getInverseGlobalMatrix() * glm::vec4(world_position, 1.0);
     glm::ivec3 ilocal = glm::ivec3(local[0], local[1], local[2]);
+    int val = getData(ilocal.x, ilocal.y, ilocal.z);
     shape->set(ilocal.x, ilocal.y, ilocal.z, 0);
     (*edited)[world_position] = 0;
     InitData();
@@ -92,6 +101,7 @@ void ProceduralVoxelTerrain::removeTile(glm::vec3 world_position){
         neighbourZ->ResetMesh();
         neighbourZ->synchronize();
     }
+    return voxel_conversion(val);
 }
 
 void ProceduralVoxelTerrain::addTile(glm::vec3 world_position, int v){

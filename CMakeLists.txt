@@ -169,8 +169,8 @@ add_executable(Main
         common/Utilities/hash.h
         common/GUI/gui.h common/GUI/gui.cpp
         textrenderer.h
-        common/GUI/textrenderer.h common/GUI/textrenderer.cpp
-        common/GUI/stb_easy_font.h
+
+
 
 
 

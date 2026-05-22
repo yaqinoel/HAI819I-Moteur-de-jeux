@@ -95,6 +95,7 @@ void TextRenderer::SetupMesh()
 
 void TextRenderer::Draw()
 {
+    std::cout << "drawing text" << std::endl;
     GLFWwindow* window = glfwGetCurrentContext();
 
     int width, height;

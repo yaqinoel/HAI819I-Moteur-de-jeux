@@ -160,7 +160,7 @@ int main( void )
         glfwSwapBuffers(window);
 
     }
-    while( glfwWindowShouldClose(window) == 0 );
+    while( glfwWindowShouldClose(window) == 0 && scene->gameExited == false);
 
 
     delete(scene);

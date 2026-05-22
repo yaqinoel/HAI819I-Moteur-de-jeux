@@ -17,6 +17,11 @@ public:
     CameraControls* cam;
     Material* projectileMaterial = nullptr;
     bool paused;
+    int current_inventory_case_selected = 0;
+    std::vector<glm::ivec2> inventory;
+    const int inventory_size = 40;
+    bool add_in_inventory(glm::ivec2 obj, int start=0);
+    int remove_one_in_inventory();
 private:
     float speed = 5.0f;
     float jumpStrength = 7.0f;

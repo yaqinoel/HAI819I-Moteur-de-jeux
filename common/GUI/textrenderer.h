@@ -4,6 +4,16 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+struct Character
+{
+    GLuint TextureID;
+
+    glm::ivec2 Size;
+    glm::ivec2 Bearing;
+
+    GLuint Advance;
+};
+
 class TextRenderer
 {
 public:

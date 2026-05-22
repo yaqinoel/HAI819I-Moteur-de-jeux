@@ -1,10 +1,9 @@
 #include "gui.h"
 
 
-void debugClick(){
-    std::cout << "clicked" << std::endl;
+void exit(Scene *scene){
+    scene->gameExited = true;
 }
-
 
 GUI::GUI(CharacterController *player, Scene *scene){
     this->player = player;
@@ -14,11 +13,62 @@ GUI::GUI(CharacterController *player, Scene *scene){
 
     glfwGetWindowSize(window, &width, &height);
     float ratio = width/(height*1.0);
+
+    //ingame
     elements.push_back(new gui_element("../Resources/Textures/GUI/Crosshair.png", glm::vec2(0.02f, 0.02f*ratio), glm::vec2(0), scene, true));
+    for(int i = 0; i < 10; i ++){
+        gui_element *new_case = new gui_element("../Resources/Textures/GUI/InventoryCase.png", glm::vec2(0.05f, 0.05f*ratio), glm::vec2(-0.5f + 0.1*i, -1.0+0.05f*ratio), scene, true);
+        inventory_ingame.push_back(new_case);
+        elements.push_back(new_case);
+    }
+    for(int i = 0; i < 10; i ++){
+        gui_element *new_case = new gui_element("../Resources/Textures/GUI/InventorySelect.png", glm::vec2(0.055f, 0.055f*ratio), glm::vec2(-0.5f + 0.1*i, -1.0+0.05f*ratio), scene, false);
+        inventory_selected.push_back(new_case);
+        elements.push_back(new_case);
+    }
+
+    //inventory
+    for(int i = 0; i < 10; i ++){
+        glm::vec2 pos = glm::vec2(-0.5f + 0.1*i, -1.0+0.05f*ratio);
+        gui_icon *new_icon = new gui_icon("../Resources/Textures/GUI/blocs/Dirt_type2.png", glm::vec2(0.045f, 0.045f*ratio), pos, scene, false);
+        new_icon->nbr1 = new gui_element("../Resources/Textures/GUI/numbers/nbr_00.png", glm::vec2(0.015f, 0.025f*ratio), pos+glm::vec2(0.0, -0.025), scene, true);
+        new_icon->nbr2 = new gui_element("../Resources/Textures/GUI/numbers/nbr_00.png", glm::vec2(0.015f, 0.025f*ratio), pos+glm::vec2(0.035, -0.025), scene, true);
+        elements.push_back(new_icon);
+        inventory.push_back(new_icon);
+    }
+
+    //main menu
     main_menu = new gui_element("../Resources/Textures/GUI/MenuOut.png", glm::vec2(0.9f, 0.75f*ratio), glm::vec2(0), scene, false);
-    main_menu->onClick = debugClick;
-    main_menu->text = new TextRenderer("Menu", glm::vec2(0, 0.5), 10);
+    gui_element *exit_button = new gui_element("../Resources/Textures/GUI/exitButton.png", glm::vec2(0.25f, 0.15f*ratio), glm::vec2(0, 0.5), scene, true);
+    main_menu->sub_elements.push_back(exit_button);
+    exit_button->onClick = [scene](){exit(scene);};
     elements.push_back(main_menu);
+
+}
+
+void gui_icon::setQuantity(int newval){
+    if(quantity == newval) return;
+    quantity = newval;
+    nbr1->visible = newval >= 10;
+    nbr1->change_tex(GUI::nbr_to_string(newval/10));
+    nbr2->change_tex(GUI::nbr_to_string(newval%10));
+
+}
+
+std::string GUI::nbr_to_string(int i){
+    switch(i){
+    case(0): return "../Resources/Textures/GUI/numbers/nbr_00.png"; break;
+    case(1): return "../Resources/Textures/GUI/numbers/nbr_01.png"; break;
+    case(2): return "../Resources/Textures/GUI/numbers/nbr_02.png"; break;
+    case(3): return "../Resources/Textures/GUI/numbers/nbr_03.png"; break;
+    case(4): return "../Resources/Textures/GUI/numbers/nbr_04.png"; break;
+    case(5): return "../Resources/Textures/GUI/numbers/nbr_05.png"; break;
+    case(6): return "../Resources/Textures/GUI/numbers/nbr_06.png"; break;
+    case(7): return "../Resources/Textures/GUI/numbers/nbr_07.png"; break;
+    case(8): return "../Resources/Textures/GUI/numbers/nbr_08.png"; break;
+    case(9): return "../Resources/Textures/GUI/numbers/nbr_09.png"; break;
+    default: return "../Resources/Textures/GUI/numbers/nbr_00.png"; break;
+    }
 }
 
 void gui_element::TestHovered(GLFWwindow* window)
@@ -50,7 +100,7 @@ void gui_element::TestHovered(GLFWwindow* window)
 
 bool gui_element::IsClicked(GLFWwindow* window)
 {
-    return ( hovered && scene->inputPressed("action1"));
+    return ( hovered && scene->inputReleased("action1"));
 }
 
 GUI::~GUI()
@@ -60,14 +110,32 @@ GUI::~GUI()
     }
 }
 
+void GUI::update_inventory(){
+    for(int i = 0; i < inventory.size(); i ++){
+        glm::ivec2 obj = player->inventory[i];
+        if(obj[1] > 0){
+            inventory[i]->visible = true;
+            inventory[i]->setType(obj[0]);
+            inventory[i]->setQuantity(obj[1]);
+        }
+        else{
+            inventory[i]->visible = false;
+        }
+    }
+}
+
 void GUI::Draw(){
+    update_inventory();
+    for(gui_element *e : inventory_selected){
+        e->visible = false;
+    }
+    inventory_selected[player->current_inventory_case_selected]->visible = true;
     main_menu->visible = player->paused;
     for(gui_element *e : elements){
         if(e->visible){
             e->Draw();
-            if(e->text != nullptr) e->text->Draw();
             e->TestHovered(window);
-            if(e->IsClicked(window)) e->onClick();
+            if(e->IsClicked(window) and e->onClick) e->onClick();
         }
     }
 }
@@ -77,10 +145,10 @@ void gui_element::SetupMesh()
     float vertices[] =
         {
             // positions                                            // tex coords
-            m_position.x-m_size.x, m_position.y-m_size.y,           0.0f, 0.0f,
-            m_position.x+m_size.x, m_position.y-m_size.y,           1.0f, 0.0f,
-            m_position.x+m_size.x,  m_position.y+m_size.y,           1.0f, 1.0f,
-            m_position.x-m_size.x,  m_position.y+m_size.y,           0.0f, 1.0f
+            m_position.x-m_size.x, m_position.y-m_size.y,           0.0f, 1.0f,
+            m_position.x+m_size.x, m_position.y-m_size.y,           1.0f, 1.0f,
+            m_position.x+m_size.x,  m_position.y+m_size.y,           1.0f, 0.0f,
+            m_position.x-m_size.x,  m_position.y+m_size.y,           0.0f, 0.0f
         };
 
     unsigned int indices[] =
@@ -221,9 +289,8 @@ void gui_element::Draw()
         GLFWwindow *window = glfwGetCurrentContext();
         if(e->visible){
             e->Draw();
-            if(e->text != nullptr) e->text->Draw();
             e->TestHovered(window);
-            if(e->IsClicked(window)) e->onClick();
+            if(e->IsClicked(window) and e->onClick) e->onClick();
         }
     }
 }

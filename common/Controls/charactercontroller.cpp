@@ -6,6 +6,9 @@
 CharacterController::CharacterController() {
     canSleep = false;
     paused = false;
+    for(int i = 0; i < inventory_size; i ++){
+        inventory.push_back(glm::vec2(0, 0));
+    }
 }
 void drawCube(Scene *scene, glm::vec3 center, glm::quat rotation)
 {
@@ -45,6 +48,29 @@ void drawCube(Scene *scene, glm::vec3 center, glm::quat rotation)
     scene->drawLine(p011, p001);
 }
 
+bool CharacterController::add_in_inventory(glm::ivec2 obj, int start){
+    for(int i = start; i < inventory_size; i ++){
+        if(inventory[i][1] == 0){
+            inventory[i] = obj;
+            return true;
+        }
+        if(inventory[i][0] == obj[0]){
+            glm::ivec2 remaining = glm::ivec2(obj[0], 0);
+            remaining[1] = (inventory[i][1]+obj[1])%64;
+            inventory[i][1] += obj[1] - remaining[1];
+            return add_in_inventory(remaining);
+        }
+    }
+    return false;
+}
+
+int CharacterController::remove_one_in_inventory(){
+    int v = inventory[current_inventory_case_selected][0];
+    inventory[current_inventory_case_selected][1]--;
+    if(inventory[current_inventory_case_selected][1] <= 0) inventory[current_inventory_case_selected] = glm::ivec2(0, 0);
+    return v;
+}
+
 void CharacterController::process(float deltaTime){
     RigidBody3D::process(deltaTime);
     GLFWwindow* window = glfwGetCurrentContext();
@@ -72,6 +98,13 @@ void CharacterController::process(float deltaTime){
         cameraForwardxz = glm::normalize(planarCameraForward);
     }
 
+    if(scene->inputPressed("wheelUp")){
+        current_inventory_case_selected = (current_inventory_case_selected+1)%10;
+    }
+    if(scene->inputPressed("wheelDown")){
+        current_inventory_case_selected = (current_inventory_case_selected+9)%10;
+    }
+
     if (scene->inputHeld("forward")){
         axialInputs.x += 1;
     }
@@ -90,7 +123,7 @@ void CharacterController::process(float deltaTime){
             jumpPressed = true;
         }
     }
-    if (scene->inputPressed("action3")){
+    if (scene->inputPressed("action3") && inventory[current_inventory_case_selected][1] > 0){
         const float projectileSpawnDistance = 2.0f;
         const float projectileHalfExtent = 0.5f;
         const float projectileSpawnPadding = 0.15f;
@@ -116,6 +149,7 @@ void CharacterController::process(float deltaTime){
         cube->setForward(cameraForwardxz);
         cube->velocity = cameraForward * 20.0f + UP * 7.0f;
         instantiate(cube);
+        remove_one_in_inventory();
     }
 
     glm::vec3 ray_start = cam->getGlobalPosition();
@@ -137,17 +171,17 @@ void CharacterController::process(float deltaTime){
             if (voxel)
             {
                 glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter);
-                voxel->removeTile(worldVoxelCenter);
+                add_in_inventory(glm::vec2(voxel->removeTile(worldVoxelCenter), 1));
             }
         }
-        if (scene->inputPressed("action2")){
+        if (scene->inputPressed("action2") && inventory[current_inventory_case_selected][1] > 0){
             ProceduralVoxelTerrain* voxel = dynamic_cast<ProceduralVoxelTerrain*>(collider->getParent());
             if (voxel)
             {
                 glm::vec3 localHit_out = localHit - glm::inverse(colliderRot) * (camera_forward * 0.01f)*2.0f;
                 glm::vec3 selectedLocalCenter_out = glm::round(localHit_out);
                 glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter_out);
-                voxel->addTile(worldVoxelCenter, 2);
+                voxel->addTile(worldVoxelCenter, remove_one_in_inventory());
             }
         }
     }
