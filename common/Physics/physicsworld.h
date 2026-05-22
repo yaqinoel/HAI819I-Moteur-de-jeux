@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <cstdint>
+#include <glm/gtc/quaternion.hpp>
 #include "Collision/broadphase.h"
 #include "Collision/contactsolver.h"
 #include "Collision/narrowphase.h"
@@ -15,6 +17,11 @@ public:
     void step(const std::vector<RigidBody3D*>& rigidBodies,
               const std::vector<Collider3D*>& colliders,
               float fixedDeltaTime);
+    std::vector<Collider3D*> cubeOverlapTest(const glm::vec3& center,
+                                      const glm::quat& rotation,
+                                      const glm::vec3& size,
+                                      const std::vector<Collider3D*>& colliders,
+                                      std::uint64_t mask = ~0ULL) const;
 
 private:
     std::vector<PhysicsContact> contacts;

@@ -147,7 +147,17 @@ void CharacterController::process(float deltaTime){
                 glm::vec3 localHit_out = localHit - glm::inverse(colliderRot) * (camera_forward * 0.01f)*2.0f;
                 glm::vec3 selectedLocalCenter_out = glm::round(localHit_out);
                 glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter_out);
-                voxel->addTile(worldVoxelCenter, 2);
+                auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.99f),1ULL); // without character
+                // auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.99f)); // with all
+                std::cout << "cube hits: " << hits.size() << std::endl;
+                for (Collider3D* hit : hits) {
+                    if (hit) {
+                        std::cout << "  hit: " << hit->name << std::endl;
+                    }
+                }
+                if (hits.empty()) {
+                    voxel->addTile(worldVoxelCenter, 2);
+                }
             }
         }
     }
