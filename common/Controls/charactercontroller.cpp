@@ -5,6 +5,7 @@
 
 CharacterController::CharacterController() {
     canSleep = false;
+    paused = false;
 }
 void drawCube(Scene *scene, glm::vec3 center, glm::quat rotation)
 {

@@ -57,7 +57,7 @@ Scene* makePBRInfiniteTerrain(RenderSystem* renderer) {
     scene->instantiate(sunLight);
 
 
-    GUI *gui = new GUI(character);
+    GUI *gui = new GUI(character, scene);
     renderer->gui = gui;
 
     return scene;

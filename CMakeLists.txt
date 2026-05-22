@@ -168,6 +168,9 @@ add_executable(Main
         Shaders/fragment_shader_line.glsl
         common/Utilities/hash.h
         common/GUI/gui.h common/GUI/gui.cpp
+        textrenderer.h
+        common/GUI/textrenderer.h common/GUI/textrenderer.cpp
+        common/GUI/stb_easy_font.h
 
 
 

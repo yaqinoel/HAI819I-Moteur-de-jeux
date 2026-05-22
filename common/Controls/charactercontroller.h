@@ -16,7 +16,7 @@ public:
     void physicsProcess() override;
     CameraControls* cam;
     Material* projectileMaterial = nullptr;
-    bool paused = false;
+    bool paused;
 private:
     float speed = 5.0f;
     float jumpStrength = 7.0f;
