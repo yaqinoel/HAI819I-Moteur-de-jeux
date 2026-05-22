@@ -7,6 +7,7 @@
 #include "physicssettings.h"
 #include "collider3d.h"
 #include "rigidbody3d.h"
+#include "Shapes/cube.h"
 
 using namespace PhysicsSettings;
 
@@ -136,6 +137,58 @@ void PhysicsWorld::step(const std::vector<RigidBody3D*>& rigidBodies,
         stabilizeBody(body);
         updateSleepState(body, fixedDeltaTime);
     }
+}
+
+std::vector<Collider3D*> PhysicsWorld::cubeOverlapTest(const glm::vec3& center,
+                                                const glm::quat& rotation,
+                                                const glm::vec3& size,
+                                                const std::vector<Collider3D*>& colliders,
+                                                std::uint64_t mask) const {
+    std::vector<Collider3D*> hits;
+    if (size.x <= 0.0f || size.y <= 0.0f || size.z <= 0.0f)
+        return hits;
+
+    Cube queryShape(size.x, size.y, size.z);
+    Collider3D queryCollider;
+    RigidBody3D queryBody;
+    queryBody.mass = 1.0f;
+
+    queryCollider.setShape(&queryShape);
+    queryCollider.rb = &queryBody;
+    queryCollider.collisionLayers = 0ULL;
+    queryCollider.collisionDetectionLayers = mask;
+    queryCollider.setGlobalPosition(center);
+    queryCollider.setGlobalRotation(rotation);
+    queryBody.setPhysicsPosition(center);
+    queryBody.setPhysicsRotation(rotation);
+
+    std::vector<Collider3D*> queryColliders = colliders;
+    queryColliders.push_back(&queryCollider);
+
+    std::vector<CollisionPair> pairs;
+    broadPhase.computePairs(queryColliders, pairs);
+
+    for (const CollisionPair& pair : pairs) {
+        Collider3D* other = nullptr;
+        if (pair.colliderA == &queryCollider)
+            other = pair.colliderB;
+        else if (pair.colliderB == &queryCollider)
+            other = pair.colliderA;
+        else
+            continue;
+
+        if (!other || other == &queryCollider)
+            continue;
+        if ((mask & other->collisionLayers) == 0)
+            continue;
+
+        std::vector<PhysicsContact> queryContacts;
+        narrowPhase.collide(&queryCollider, other, queryContacts);
+        if (!queryContacts.empty())
+            hits.push_back(other);
+    }
+
+    return hits;
 }
 
 void PhysicsWorld::syncBodies(const std::vector<RigidBody3D*>& rigidBodies) const {

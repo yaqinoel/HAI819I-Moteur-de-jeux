@@ -5,6 +5,7 @@
 #include "iostream"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <GLFW/glfw3.h>
 #include <common/Utilities/InputManager.h>
 #include <common/Physics/physicsworld.h>
@@ -34,6 +35,7 @@ public:
     void drawLine(glm::vec3 line_start, glm::vec3 line_end, glm::vec3 color = glm::vec3(0));
     void renderLines();
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask = ~0ULL);
+    std::vector<Collider3D*> cubeOverlapTest(const glm::vec3& center, const glm::quat& rotation, const glm::vec3& size, uint64_t mask = ~0ULL);
     void updateInterpolation(float alpha);
     void ping(){std::cout << "scene ping" << std::endl;}
     Camera* mainCamera = nullptr;

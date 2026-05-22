@@ -142,7 +142,7 @@ void Scene::remove(Node * node){
 }
 
 RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask) {
-    std::clock_t start = std::clock();
+    // std::clock_t start = std::clock();
     RayIntersection closestIntersection;
     closestIntersection.t = FLT_MAX;
     closestIntersection.intersectionExists = false;
@@ -162,6 +162,9 @@ RayIntersection Scene::raycast(glm::vec3 const &origin, glm::vec3 const &directi
     return closestIntersection;
 }
 
+std::vector<Collider3D*> Scene::cubeOverlapTest(const glm::vec3& center, const glm::quat& rotation, const glm::vec3& size, uint64_t mask) {
+    return physicsWorld.cubeOverlapTest(center, rotation, size, colliders, mask);
+}
 
 void Scene::drawLine(glm::vec3 line_start, glm::vec3 line_end, glm::vec3 color){
     lines.push_back(line_start);

@@ -55,10 +55,15 @@ bool CharacterController::add_in_inventory(glm::ivec2 obj, int start){
             return true;
         }
         if(inventory[i][0] == obj[0]){
+            int tot = inventory[i][1]+obj[1];
+            if(tot <= 64){
+                inventory[i][1] = tot;
+                return true;
+            }
             glm::ivec2 remaining = glm::ivec2(obj[0], 0);
-            remaining[1] = (inventory[i][1]+obj[1])%64;
+            remaining[1] = (tot)%64;
             inventory[i][1] += obj[1] - remaining[1];
-            return add_in_inventory(remaining);
+            return add_in_inventory(remaining, start+1);
         }
     }
     return false;
@@ -181,7 +186,11 @@ void CharacterController::process(float deltaTime){
                 glm::vec3 localHit_out = localHit - glm::inverse(colliderRot) * (camera_forward * 0.01f)*2.0f;
                 glm::vec3 selectedLocalCenter_out = glm::round(localHit_out);
                 glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter_out);
-                voxel->addTile(worldVoxelCenter, remove_one_in_inventory());
+                // auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.99f),1ULL); // without character
+                auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.99f)); // with all
+                if (hits.empty()) {
+                    voxel->addTile(worldVoxelCenter, remove_one_in_inventory());
+                }
             }
         }
     }

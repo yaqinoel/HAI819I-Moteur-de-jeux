@@ -56,8 +56,10 @@ void VoxelShape::InitMeshFromTerrain(int width, int height, int depth, std::vect
     }
 }
 
+
 RayIntersection VoxelShape::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length)
 {
+
     RayIntersection intersection;
     intersection.intersectionExists = false;
     if(direction == glm::vec3(0) || length <= 0) return intersection;
@@ -127,7 +129,13 @@ RayIntersection VoxelShape::raycast(glm::vec3 const &origin, glm::vec3 const &di
                 return intersection;
             }
         }
-        else if (t > 0) break;
+        else
+        {
+            bool pastX = (x < 0 && stepX < 0) || (x >= width  && stepX > 0);
+            bool pastY = (y < 0 && stepY < 0) || (y >= height && stepY > 0);
+            bool pastZ = (z < 0 && stepZ < 0) || (z >= depth  && stepZ > 0);
+            if (pastX || pastY || pastZ) break;
+        }
 
         if (tMaxX < tMaxY && tMaxX < tMaxZ)
         {

@@ -5,6 +5,7 @@ Collider3D::Collider3D()
 {
 }
 RayIntersection Collider3D::raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask){
+
     if(shape != nullptr){
         RayIntersection intersection = shape->raycast(origin, direction, length, mask);
         if (intersection.intersectionExists && intersection.collider == nullptr) {
