@@ -6,9 +6,13 @@ ProceduralVoxelTerrain::ProceduralVoxelTerrain()
 {
     collision = new Collider3D();
     instantiate(collision, this);
-    texSize = glm::ivec2(2, 1);
-    texCoord.insert({1, glm::vec2(0, 0)});
-    texCoord.insert({2, glm::vec2(1, 0)});
+    texSize = glm::ivec2(3, 2);
+    texCoord.insert({1, glm::vec2(0, 0)});//grass
+    texCoord.insert({2, glm::vec2(1, 0)});//dirt
+    texCoord.insert({3, glm::vec2(0, 1)});//stone
+    texCoord.insert({4, glm::vec2(1, 1)});//cobble
+    texCoord.insert({5, glm::vec2(2, 0)});//wood
+    texCoord.insert({6, glm::vec2(2, 1)});//leaves
 }
 ProceduralVoxelTerrain::ProceduralVoxelTerrain(int posX, int posY, int resX, int resY, float sizeX, float sizeY, float sizeZ, std::unordered_map<glm::ivec3, int, IVec3Hash> *edited) : ProceduralVoxelTerrain()
 {
@@ -41,7 +45,8 @@ void ProceduralVoxelTerrain::InitData() {
         for (int z = 0; z < resolution; z++) {
             float worldX = x-1 + pos.x;
             float worldZ = z-1 + pos.z;
-            int height = roundf(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency)) * sizeX);
+            int height = roundf(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency)) * sizeY);
+            int rockHeight = height-3+floor(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency*2.0f)) * 4.5);
             for (int y = 0; y < resolution; y++) {
                 glm::vec4 global = getGlobalMatrix() * glm::vec4(x, y, z, 1.0);
                 glm::ivec3 iglobal = glm::ivec3(global[0], global[1], global[2]);
@@ -50,7 +55,10 @@ void ProceduralVoxelTerrain::InitData() {
                 }
                 else{
                     setData(x, y, z, 0);
-                    if(height >= y-1){
+                    if(rockHeight >= y){
+                        setData(x, y, z, 3);
+                    }
+                    else if(height >= y-1){
                         if((height >= y)){
                             setData(x, y, z, 2);
                         }

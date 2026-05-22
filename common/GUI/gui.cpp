@@ -55,6 +55,12 @@ void gui_icon::setQuantity(int newval){
 
 }
 
+void gui_icon::setType(int newval){
+    if(bloc_type == newval) return;
+    bloc_type = newval;
+    change_tex(GUI::type_to_string(newval));
+}
+
 std::string GUI::nbr_to_string(int i){
     switch(i){
     case(0): return "../Resources/Textures/GUI/numbers/nbr_00.png"; break;
@@ -68,6 +74,13 @@ std::string GUI::nbr_to_string(int i){
     case(8): return "../Resources/Textures/GUI/numbers/nbr_08.png"; break;
     case(9): return "../Resources/Textures/GUI/numbers/nbr_09.png"; break;
     default: return "../Resources/Textures/GUI/numbers/nbr_00.png"; break;
+    }
+}
+
+std::string GUI::type_to_string(int i){
+    switch(i){
+    case(3): return "../Resources/Textures/GUI/blocs/Stone_type3.png"; break;
+    default: return "../Resources/Textures/GUI/blocs/Dirt_type2.png"; break;
     }
 }
 

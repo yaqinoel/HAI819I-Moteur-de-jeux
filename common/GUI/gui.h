@@ -51,8 +51,8 @@ struct gui_element{
 };
 
 struct gui_icon : public gui_element{
-    int bloc_type = 2;
-    int quantity = 0;
+    int bloc_type = -1;
+    int quantity = -1;
     gui_element *nbr1 = nullptr;
     gui_element *nbr2 = nullptr;
     gui_icon(const std::string& texturePath, glm::vec2 size, glm::vec2 m_position, Scene* scene, bool visible):
@@ -63,10 +63,7 @@ struct gui_icon : public gui_element{
     }
     void Draw() override{gui_element::Draw(); if(nbr1->visible)nbr1->Draw(); if(nbr2->visible)nbr2->Draw();}
     void setQuantity(int newval);
-    void setType(int newval){
-        if(bloc_type == newval) return;
-        bloc_type = newval;
-    }
+    void setType(int newval);
 };
 
 class GUI
@@ -77,6 +74,7 @@ public:
 
     void Draw();
     static std::string nbr_to_string(int i);
+    static std::string type_to_string(int i);
 private:
     void update_inventory();
     CharacterController *player;
