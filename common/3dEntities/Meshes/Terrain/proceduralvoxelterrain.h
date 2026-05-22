@@ -1,19 +1,31 @@
 #pragma once
 #include "terrain.h"
 
+#include <unordered_map>
+
+#include <common/Utilities/hash.h>
+
 class ProceduralVoxelTerrain : public Terrain
 {
 public:
     ProceduralVoxelTerrain();
-    ProceduralVoxelTerrain(int posX, int posY, int resX = 128, int resY = 128, float sizeX = 16, float sizeY = 16, float sizeZ = 16);
-    void InitMesh(int posX, int posY, int resX = 128, int resY = 128, float sizeX = 16, float sizeY = 16, float sizeZ = 16) override;
-    void InitData(glm::ivec3 pos, int res, int size);
+    ProceduralVoxelTerrain(int posX, int posY, int resX = 128, int resY = 128, float sizeX = 16, float sizeY = 16, float sizeZ = 16, std::unordered_map<glm::ivec3, int, IVec3Hash> *edited = nullptr);
+    void InitData();
     void InitMesh();
+    void ResetMesh();
     std::vector<Mesh*> cubes = std::vector<Mesh*>();
     glm::ivec2 texSize = glm::ivec2(1, 1);
     std::map<int, glm::ivec2> texCoord = std::map<int, glm::ivec2>();
-    unsigned short int getData(int x, int y, int z){return chunkData[x*resolution*resolution+y*resolution+z];}
-    void setData(int x, int y, int z, unsigned short int v){chunkData[x*resolution*resolution+y*resolution+z] = v;}
+    unsigned short int getData(int x, int y, int z);
+    void setData(int x, int y, int z, unsigned short int v);
+    void removeTile(glm::vec3 world_position);
+    ProceduralVoxelTerrain * neighbourX;
+    ProceduralVoxelTerrain * neighbour_X;
+    ProceduralVoxelTerrain * neighbourZ;
+    ProceduralVoxelTerrain * neighbour_Z;
+    std::unordered_map<glm::ivec3, int, IVec3Hash> *edited;
+
+
 private:
     void CreateTopSquare(int x, int y, int z);
     void CreateBottomSquare(int x, int y, int z);
@@ -23,9 +35,9 @@ private:
     void CreateBackSquare(int x, int y, int z);
     int resolution = 0;
     float frequency;
-    //std::vector<std::vector<std::vector<unsigned short int>>> chunkData = std::vector<std::vector<std::vector<unsigned short int>>>();
     std::vector<unsigned short int> chunkData = std::vector<unsigned short int>();
     void printSlice(int z);
+    VoxelShape* shape;
     CollisionShape3D* collision = nullptr;
 };
 

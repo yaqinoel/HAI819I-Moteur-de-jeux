@@ -31,7 +31,7 @@ CharacterController* makeFPSController(){
     Texture tex = Texture("../Resources/Textures/Environement/grassCubeTexSharp.png");
     tex.setPixelArt(true);
     cubeMat->addTexture("texture0", tex);
-    character->addChild(cube);
+    // character->addChild(cube);
 
 
 

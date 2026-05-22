@@ -151,6 +151,7 @@ RayIntersection Cube::raycast( glm::vec3 const &origin, glm::vec3 const &directi
     intersection.t = tWorld;
     intersection.point = worldPoint;
     intersection.normal = worldNormal;
+    intersection.collider = collider;
 
     return intersection;
 }

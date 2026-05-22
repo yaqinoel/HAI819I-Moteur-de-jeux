@@ -17,7 +17,7 @@ private:
     float jumpStrength = 7.0f;
     glm::vec2 axialInputs = glm::vec2(0);
     bool onground = false;
-    glm::vec3 cameraForward = glm::vec3(1, 0, 0);
+    glm::vec3 cameraForwardxz = glm::vec3(1, 0, 0);
     bool jumpPressed = false;
 };
 

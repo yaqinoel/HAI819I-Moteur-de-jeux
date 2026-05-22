@@ -324,6 +324,7 @@ void Mesh::render(const Camera* camera) const{
     if(getVisible())
         glDrawElements(GL_TRIANGLES, triangles.size()*3, GL_UNSIGNED_INT, (void*)0 );
 
+
     setUniforms();
 
     glUseProgram(0);

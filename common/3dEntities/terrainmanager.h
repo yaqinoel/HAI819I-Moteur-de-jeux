@@ -5,9 +5,10 @@
 #include "node3d.h"
 #include "camera.h"
 #include <map>
+#include <unordered_map>
+#include <common/Utilities/hash.h>
 
-#include <future>
-
+class ProceduralVoxelTerrain;
 struct ivec3Compare {
     bool operator()(const glm::ivec3& a, const glm::ivec3& b) const {
         if (a.x != b.x) return a.x < b.x;
@@ -27,11 +28,13 @@ public:
     int chunkRenderDistance = 3;
     float chunkSize = 30;
     Material* terrainMat;
+    std::unordered_map<glm::ivec3, int, IVec3Hash> *edited = new std::unordered_map<glm::ivec3, int, IVec3Hash>();
 private:
+    ProceduralVoxelTerrain* MakeVoxelChunk(int x, int y);
     glm::ivec3 prevCamPosition;
     Camera* cam;
     //std::vector<std::vector<Mesh*>> chunks = std::vector<std::vector<Mesh*>>();
     void printchunks();
-    std::mutex terrainMutex;
-    std::map<glm::ivec3, Mesh*, ivec3Compare> chunks = std::map<glm::ivec3, Mesh*, ivec3Compare>();
+    std::vector<glm::ivec3> not_initiated = std::vector<glm::ivec3>();
+    std::map<glm::ivec3, ProceduralVoxelTerrain*, ivec3Compare> chunks = std::map<glm::ivec3, ProceduralVoxelTerrain*, ivec3Compare>();
 };

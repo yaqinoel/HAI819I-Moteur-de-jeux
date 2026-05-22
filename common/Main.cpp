@@ -133,6 +133,7 @@ int main( void )
         // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         float alpha = accumulator / physicsStep;
+
         scene->render(alpha);
 
         // Swap buffers
