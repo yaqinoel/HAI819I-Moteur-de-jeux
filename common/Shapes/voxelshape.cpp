@@ -25,7 +25,7 @@ void VoxelShape::InitMeshFromTerrain(int width, int height, int depth, std::vect
     for (int x = 1; x < width-1; x++) {
         for (int y = 1; y < height-1; y++) {
             for (int z = 1; z < depth-1; z++) {
-                set(x-1, y-1, z-1, voxelData[x*width*height+ y*height+ z]);
+                set(x, y, z, voxelData[x*width*height+ y*height+ z]);
             }
         }
     }

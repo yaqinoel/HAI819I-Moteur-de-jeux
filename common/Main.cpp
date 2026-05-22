@@ -151,6 +151,7 @@ int main( void )
         float alpha = accumulator / physicsStep;
         scene->updateInterpolation(alpha);
         renderer->render(scene);
+        scene->renderLines();
 
         // Swap buffers
         glfwSwapBuffers(window);

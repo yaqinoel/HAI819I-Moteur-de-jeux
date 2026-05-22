@@ -157,6 +157,10 @@ add_executable(Main
         common/Constraint/contactconstraint.h common/Constraint/contactconstraint.cpp
         common/Shapes/voxelshape.h common/Shapes/voxelshape.cpp
         Scenes/FirstPersonCharacter.h
+        Shaders/vertex_shader_line.glsl
+        Shaders/fragment_shader_line.glsl
+        common/Utilities/hash.h
+
 
 
 

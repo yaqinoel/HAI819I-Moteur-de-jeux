@@ -30,6 +30,8 @@ public:
     void process(float deltaTime);
     void updateLights(float deltaTime);
     void physicsProcess();
+    void drawLine(glm::vec3 line_start, glm::vec3 line_end, glm::vec3 color = glm::vec3(0));
+    void renderLines();
     RayIntersection raycast(glm::vec3 const &origin, glm::vec3 const &direction, float const &length, uint64_t mask = ~0ULL);
     void updateInterpolation(float alpha);
     void ping(){std::cout << "scene ping" << std::endl;}
@@ -55,4 +57,13 @@ private:
     void removeFromTree(Node* node);
     void solvePositionConstraints();
     Node* root = nullptr;
+    void setShader();
+    std::vector<glm::vec3> lines = std::vector<glm::vec3>();
+
+
+    mutable GLuint shaderPID;
+    mutable GLuint modelMatrixUniform;
+    mutable GLuint viewMatrixUniform;
+    mutable GLuint projectionMatrixUniform;
+    mutable GLuint lineColorUniform;
 };
