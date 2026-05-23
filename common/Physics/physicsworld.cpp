@@ -51,8 +51,11 @@ void stabilizeBody(RigidBody3D* body) {
         body->angularVelocity = glm::vec3(0.0f);
 
     if (body->isOnGround()) {
-        if (std::abs(body->velocity.y) < kRestingVerticalSpeed)
+        float absVy = std::abs(body->velocity.y);
+        if (absVy < kRestingVerticalSpeed)
             body->velocity.y = 0.0f;
+        else if (absVy < 0.3f)
+            body->velocity.y *= 0.5f;
 
         // Only damp horizontal velocity when body is nearly at rest
         float speed2 = glm::length2(body->velocity);

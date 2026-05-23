@@ -120,9 +120,9 @@ void ContactSolver::solveVelocities(std::vector<PhysicsContact>& contacts) const
 
         // Damp micro-bounces: if normal speed is very small, scale it down
         // to prevent oscillation on face-to-face contact
-        constexpr float kMicroBounceThreshold = 0.08f;
-        constexpr float kMicroBounceDamping = 0.5f;
-        if (std::abs(normalSpeed) < kMicroBounceThreshold && contact.penetration < 0.03f)
+        constexpr float kMicroBounceThreshold = 0.1f;
+        constexpr float kMicroBounceDamping = 0.4f;
+        if (std::abs(normalSpeed) < kMicroBounceThreshold && contact.penetration < 0.08f)
             normalSpeed *= kMicroBounceDamping;
 
         float effectiveMass = contactEffectiveMass(contact.bodyA, contact.bodyB, contact.point, contact.normal);
