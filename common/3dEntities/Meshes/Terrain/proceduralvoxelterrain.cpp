@@ -1,6 +1,6 @@
 #include "proceduralvoxelterrain.h"
 
-#include <common/Physics/Shapes/voxelshape.h>
+#include <common/Physics/Shapes/terrainvoxelshape.h>
 
 ProceduralVoxelTerrain::ProceduralVoxelTerrain()
 {
@@ -239,8 +239,8 @@ void ProceduralVoxelTerrain::InitMesh(){
     //printSlice(6);
     ResetMesh();
 
-    shape = new VoxelShape();
-    shape->VoxelShape::InitMeshFromTerrain(resolution, resolution, resolution, chunkData);
+    shape = new TerrainVoxelShape();
+    shape->InitMeshFromTerrain(resolution, resolution, resolution, chunkData);
     collision->setShape(shape);
     collision->name = "collision mesh for position ("+std::to_string(getLocalPosition().x)+","+std::to_string(getLocalPosition().z)+")";
 }

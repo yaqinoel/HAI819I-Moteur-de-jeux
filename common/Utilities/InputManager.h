@@ -37,6 +37,7 @@ public:
         inputs.insert({"action1", new InputState(GLFW_MOUSE_BUTTON_LEFT, true)});
         inputs.insert({"action2", new InputState(GLFW_MOUSE_BUTTON_RIGHT, true)});
         inputs.insert({"action3", new InputState(GLFW_KEY_E)});
+        inputs.insert({"action5", new InputState(GLFW_KEY_V)});
         inputs.insert({"jump", new InputState(GLFW_KEY_SPACE)});
         inputs.insert({"down", new InputState(GLFW_KEY_LEFT_SHIFT)});
         inputs.insert({"left", new InputState(GLFW_KEY_A)});

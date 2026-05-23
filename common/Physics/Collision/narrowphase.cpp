@@ -11,6 +11,7 @@
 #include "common/Physics/Shapes/capsuleshape.h"
 #include "common/Physics/Shapes/shape.h"
 #include "common/Physics/Shapes/sphere.h"
+#include "common/Physics/Shapes/terrainvoxelshape.h"
 #include "common/Physics/Shapes/voxelshape.h"
 
 namespace {
@@ -25,6 +26,51 @@ struct ContactCandidate {
     glm::vec3 normal = glm::vec3(0.0f);
     glm::vec3 point = glm::vec3(0.0f);
     float penetration = 0.0f;
+};
+
+bool buildContact(Collider3D* colliderA,
+                  Collider3D* colliderB,
+                  const glm::vec3& normalFromBToA,
+                  const glm::vec3& point,
+                  float penetration,
+                  PhysicsContact& outContact);
+
+class DirectionalContactAccumulator {
+public:
+    void add(Collider3D* colliderA,
+             Collider3D* colliderB,
+             const glm::vec3& normalFromBToA,
+             const glm::vec3& point,
+             float penetration) {
+        int slot = normalSlot(normalFromBToA);
+        PhysicsContact contact;
+        if (!buildContact(colliderA, colliderB, normalFromBToA, point, penetration, contact))
+            return;
+
+        pointSums[slot] += point;
+        pointCounts[slot]++;
+
+        if (pointCounts[slot] == 1 || penetration > contactsByDirection[slot].penetration) {
+            contactsByDirection[slot] = contact;
+        }
+    }
+
+    void flush(std::vector<PhysicsContact>& outContacts) {
+        for (size_t i = 0; i < contactsByDirection.size(); ++i) {
+            if (pointCounts[i] <= 0)
+                continue;
+            contactsByDirection[i].point = pointSums[i] / static_cast<float>(pointCounts[i]);
+            outContacts.push_back(contactsByDirection[i]);
+        }
+    }
+
+private:
+    std::array<PhysicsContact, 6> contactsByDirection;
+    std::array<glm::vec3, 6> pointSums = {
+        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f),
+        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)
+    };
+    std::array<int, 6> pointCounts = {0, 0, 0, 0, 0, 0};
 };
 
 bool buildContact(Collider3D* colliderA,
@@ -77,6 +123,42 @@ void pushContact(Collider3D* colliderA,
     PhysicsContact contact;
     if (buildContact(colliderA, colliderB, normalFromBToA, point, penetration, contact))
         outContacts.push_back(contact);
+}
+
+bool voxelCellRangeForAabb(VoxelShape* voxel,
+                           Collider3D* voxelCollider,
+                           const PhysicsAabb& worldAabb,
+                           glm::ivec3& minCell,
+                           glm::ivec3& maxCell) {
+    if (!voxel || !voxelCollider)
+        return false;
+
+    minCell = glm::ivec3(std::numeric_limits<int>::max());
+    maxCell = glm::ivec3(std::numeric_limits<int>::lowest());
+
+    for (int x = 0; x <= 1; ++x) {
+        for (int y = 0; y <= 1; ++y) {
+            for (int z = 0; z <= 1; ++z) {
+                glm::vec3 corner(
+                    x == 0 ? worldAabb.min.x : worldAabb.max.x,
+                    y == 0 ? worldAabb.min.y : worldAabb.max.y,
+                    z == 0 ? worldAabb.min.z : worldAabb.max.z
+                );
+                glm::ivec3 cell = voxel->worldToCell(*voxelCollider, corner);
+                minCell = glm::min(minCell, cell);
+                maxCell = glm::max(maxCell, cell);
+            }
+        }
+    }
+
+    minCell.x = std::max(0, minCell.x);
+    minCell.y = std::max(0, minCell.y);
+    minCell.z = std::max(0, minCell.z);
+    maxCell.x = std::min(voxel->getWidth() - 1, maxCell.x);
+    maxCell.y = std::min(voxel->getHeight() - 1, maxCell.y);
+    maxCell.z = std::min(voxel->getDepth() - 1, maxCell.z);
+
+    return minCell.x <= maxCell.x && minCell.y <= maxCell.y && minCell.z <= maxCell.z;
 }
 
 glm::vec3 closestPointOnSegment(const glm::vec3& point,
@@ -306,25 +388,12 @@ void addShapeVoxelContacts(Collider3D* dynamicCollider,
         return;
 
     VoxelShape* voxel = static_cast<VoxelShape*>(voxelCollider->getShape());
-    glm::ivec3 minCell = voxel->worldToCell(broadAabb.min);
-    glm::ivec3 maxCell = voxel->worldToCell(broadAabb.max);
-
-    minCell.x = std::max(0, minCell.x);
-    minCell.y = std::max(0, minCell.y);
-    minCell.z = std::max(0, minCell.z);
-    maxCell.x = std::min(voxel->getWidth() - 1, maxCell.x);
-    maxCell.y = std::min(voxel->getHeight() - 1, maxCell.y);
-    maxCell.z = std::min(voxel->getDepth() - 1, maxCell.z);
-
-    if (minCell.x > maxCell.x || minCell.y > maxCell.y || minCell.z > maxCell.z)
+    glm::ivec3 minCell;
+    glm::ivec3 maxCell;
+    if (!voxelCellRangeForAabb(voxel, voxelCollider, broadAabb, minCell, maxCell))
         return;
 
-    std::array<PhysicsContact, 6> contactsByDirection;
-    std::array<glm::vec3, 6> pointSums = {
-        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f),
-        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)
-    };
-    std::array<int, 6> pointCounts = {0, 0, 0, 0, 0, 0};
+    DirectionalContactAccumulator accumulator;
 
     for (int x = minCell.x; x <= maxCell.x; ++x) {
         for (int y = minCell.y; y <= maxCell.y; ++y) {
@@ -332,36 +401,21 @@ void addShapeVoxelContacts(Collider3D* dynamicCollider,
                 if (!voxel->isSolid(x, y, z))
                     continue;
 
-                OrientedBox cell = makeStaticAabbBox(voxelCollider, voxel->cellMin(x, y, z), voxel->cellMax(x, y, z));
+                OrientedBox cell = voxel->cellWorldBox(*voxelCollider, x, y, z);
                 ContactCandidate candidate;
                 if (!candidateFn(cell, candidate))
                     continue;
 
-                int slot = normalSlot(candidate.normal);
-                pointSums[slot] += candidate.point;
-                pointCounts[slot]++;
-
-                if (pointCounts[slot] == 1 || candidate.penetration > contactsByDirection[slot].penetration) {
-                    PhysicsContact contact;
-                    if (buildContact(dynamicCollider,
-                                     voxelCollider,
-                                     candidate.normal,
-                                     candidate.point,
-                                     candidate.penetration,
-                                     contact)) {
-                        contactsByDirection[slot] = contact;
-                    }
-                }
+                accumulator.add(dynamicCollider,
+                                voxelCollider,
+                                candidate.normal,
+                                candidate.point,
+                                candidate.penetration);
             }
         }
     }
 
-    for (size_t i = 0; i < contactsByDirection.size(); ++i) {
-        if (pointCounts[i] <= 0)
-            continue;
-        contactsByDirection[i].point = pointSums[i] / static_cast<float>(pointCounts[i]);
-        outContacts.push_back(contactsByDirection[i]);
-    }
+    accumulator.flush(outContacts);
 }
 
 void addBoxBoxContacts(Collider3D* colliderA,
@@ -426,25 +480,12 @@ void addBoxVoxelContacts(Collider3D* boxCollider,
         return;
 
     VoxelShape* voxel = static_cast<VoxelShape*>(voxelCollider->getShape());
-    glm::ivec3 minCell = voxel->worldToCell(broadAabb.min);
-    glm::ivec3 maxCell = voxel->worldToCell(broadAabb.max);
-
-    minCell.x = std::max(0, minCell.x);
-    minCell.y = std::max(0, minCell.y);
-    minCell.z = std::max(0, minCell.z);
-    maxCell.x = std::min(voxel->getWidth() - 1, maxCell.x);
-    maxCell.y = std::min(voxel->getHeight() - 1, maxCell.y);
-    maxCell.z = std::min(voxel->getDepth() - 1, maxCell.z);
-
-    if (minCell.x > maxCell.x || minCell.y > maxCell.y || minCell.z > maxCell.z)
+    glm::ivec3 minCell;
+    glm::ivec3 maxCell;
+    if (!voxelCellRangeForAabb(voxel, voxelCollider, broadAabb, minCell, maxCell))
         return;
 
-    std::array<PhysicsContact, 6> contactsByDirection;
-    std::array<glm::vec3, 6> pointSums = {
-        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f),
-        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)
-    };
-    std::array<int, 6> pointCounts = {0, 0, 0, 0, 0, 0};
+    DirectionalContactAccumulator accumulator;
 
     for (int x = minCell.x; x <= maxCell.x; ++x) {
         for (int y = minCell.y; y <= maxCell.y; ++y) {
@@ -452,43 +493,137 @@ void addBoxVoxelContacts(Collider3D* boxCollider,
                 if (!voxel->isSolid(x, y, z))
                     continue;
 
-                OrientedBox cell = makeStaticAabbBox(voxelCollider, voxel->cellMin(x, y, z), voxel->cellMax(x, y, z));
+                OrientedBox cell = voxel->cellWorldBox(*voxelCollider, x, y, z);
                 glm::vec3 normal;
                 float penetration = 0.0f;
                 if (!satContact(box, cell, normal, penetration))
                     continue;
 
-                int slot = normalSlot(normal);
-                std::vector<glm::vec3> points = contactPoints(box, cell);
-                pointSums[slot] += averagePoint(points);
-                pointCounts[slot]++;
-
-                if (pointCounts[slot] == 1 || penetration > contactsByDirection[slot].penetration) {
-                    PhysicsContact contact;
-                    contact.bodyA = boxCollider->rb;
-                    contact.colliderA = boxCollider;
-                    contact.colliderB = voxelCollider;
-                    contact.normal = normal;
-                    contact.penetration = penetration;
-                    contact.friction = combinedFriction(boxCollider->rb, nullptr);
-                    contactsByDirection[slot] = contact;
-                }
+                accumulator.add(boxCollider,
+                                voxelCollider,
+                                normal,
+                                averagePoint(contactPoints(box, cell)),
+                                penetration);
             }
         }
     }
 
-    for (size_t i = 0; i < contactsByDirection.size(); ++i) {
-        if (pointCounts[i] <= 0)
-            continue;
-        contactsByDirection[i].point = pointSums[i] / static_cast<float>(pointCounts[i]);
-        outContacts.push_back(contactsByDirection[i]);
-    }
+    accumulator.flush(outContacts);
 }
 
 void addVoxelBoxContacts(Collider3D* voxelCollider,
                          Collider3D* boxCollider,
                          std::vector<PhysicsContact>& outContacts) {
     addBoxVoxelContacts(boxCollider, voxelCollider, outContacts);
+}
+
+void addVoxelVoxelContacts(Collider3D* colliderA,
+                           Collider3D* colliderB,
+                           std::vector<PhysicsContact>& outContacts) {
+    if (!colliderA || !colliderB || (!colliderA->rb && !colliderB->rb))
+        return;
+
+    VoxelShape* voxelA = static_cast<VoxelShape*>(colliderA->getShape());
+    VoxelShape* voxelB = static_cast<VoxelShape*>(colliderB->getShape());
+    if (!voxelA || !voxelB)
+        return;
+
+    PhysicsAabb aabbA;
+    PhysicsAabb aabbB;
+    if (!colliderA->computeAabb(aabbA) || !colliderB->computeAabb(aabbB))
+        return;
+    if (!aabbOverlaps(aabbA, aabbB))
+        return;
+
+    int solidA = voxelA->solidCellCount();
+    int solidB = voxelB->solidCellCount();
+    if (solidA <= 0 || solidB <= 0)
+        return;
+
+    bool iterateA = solidA <= solidB;
+    VoxelShape* outerVoxel = iterateA ? voxelA : voxelB;
+    VoxelShape* innerVoxel = iterateA ? voxelB : voxelA;
+    Collider3D* outerCollider = iterateA ? colliderA : colliderB;
+    Collider3D* innerCollider = iterateA ? colliderB : colliderA;
+
+    std::vector<PhysicsContact> manifoldContacts;
+
+    outerVoxel->forEachSolidCell([&](int outerX, int outerY, int outerZ) {
+        PhysicsAabb outerCellAabb;
+        if (!outerVoxel->cellWorldAabb(*outerCollider, outerX, outerY, outerZ, outerCellAabb))
+            return;
+
+        glm::ivec3 minCell;
+        glm::ivec3 maxCell;
+        if (!voxelCellRangeForAabb(innerVoxel, innerCollider, outerCellAabb, minCell, maxCell))
+            return;
+
+        OrientedBox outerBox = outerVoxel->cellWorldBox(*outerCollider, outerX, outerY, outerZ);
+        for (int x = minCell.x; x <= maxCell.x; ++x) {
+            for (int y = minCell.y; y <= maxCell.y; ++y) {
+                for (int z = minCell.z; z <= maxCell.z; ++z) {
+                    if (!innerVoxel->isSolid(x, y, z))
+                        continue;
+
+                    OrientedBox innerBox = innerVoxel->cellWorldBox(*innerCollider, x, y, z);
+                    glm::vec3 normal;
+                    float penetration = 0.0f;
+
+                    if (iterateA) {
+                        if (!satContact(outerBox, innerBox, normal, penetration))
+                            continue;
+                        PhysicsContact contact;
+                        if (buildContact(colliderA,
+                                         colliderB,
+                                         normal,
+                                         averagePoint(contactPoints(outerBox, innerBox)),
+                                         penetration,
+                                         contact)) {
+                            manifoldContacts.push_back(contact);
+                        }
+                    } else {
+                        if (!satContact(innerBox, outerBox, normal, penetration))
+                            continue;
+                        PhysicsContact contact;
+                        if (buildContact(colliderA,
+                                         colliderB,
+                                         normal,
+                                         averagePoint(contactPoints(innerBox, outerBox)),
+                                         penetration,
+                                         contact)) {
+                            manifoldContacts.push_back(contact);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    constexpr size_t maxVoxelManifoldContacts = 6;
+    constexpr float minContactPointSeparation2 = 0.08f * 0.08f;
+    std::sort(manifoldContacts.begin(), manifoldContacts.end(), [](const PhysicsContact& a, const PhysicsContact& b) {
+        return a.penetration > b.penetration;
+    });
+
+    std::vector<PhysicsContact> reducedContacts;
+    reducedContacts.reserve(std::min(manifoldContacts.size(), maxVoxelManifoldContacts));
+    for (const PhysicsContact& contact : manifoldContacts) {
+        bool duplicate = false;
+        for (const PhysicsContact& kept : reducedContacts) {
+            if (normalSlot(contact.normal) == normalSlot(kept.normal)
+                && glm::length2(contact.point - kept.point) < minContactPointSeparation2) {
+                duplicate = true;
+                break;
+            }
+        }
+
+        if (!duplicate)
+            reducedContacts.push_back(contact);
+        if (reducedContacts.size() >= maxVoxelManifoldContacts)
+            break;
+    }
+
+    outContacts.insert(outContacts.end(), reducedContacts.begin(), reducedContacts.end());
 }
 
 void addSphereSphereContacts(Collider3D* colliderA,
@@ -660,11 +795,19 @@ NarrowPhase::NarrowPhase() {
     dispatcher.registerCollision(CUBE, CUBE, addBoxBoxContacts);
     dispatcher.registerCollision(CUBE, VOXEL, addBoxVoxelContacts);
     dispatcher.registerCollision(VOXEL, CUBE, addVoxelBoxContacts);
+    dispatcher.registerCollision(VOXEL, VOXEL, addVoxelVoxelContacts);
+    dispatcher.registerCollision(CUBE, TERRAIN_VOXEL, addBoxVoxelContacts);
+    dispatcher.registerCollision(TERRAIN_VOXEL, CUBE, addVoxelBoxContacts);
+    dispatcher.registerCollision(VOXEL, TERRAIN_VOXEL, addVoxelVoxelContacts);
+    dispatcher.registerCollision(TERRAIN_VOXEL, VOXEL, addVoxelVoxelContacts);
+    dispatcher.registerCollision(TERRAIN_VOXEL, TERRAIN_VOXEL, addVoxelVoxelContacts);
     dispatcher.registerCollision(SPHERE, SPHERE, addSphereSphereContacts);
     dispatcher.registerCollision(SPHERE, CUBE, addSphereBoxContacts);
     dispatcher.registerCollision(CUBE, SPHERE, addBoxSphereContacts);
     dispatcher.registerCollision(SPHERE, VOXEL, addSphereVoxelContacts);
     dispatcher.registerCollision(VOXEL, SPHERE, addVoxelSphereContacts);
+    dispatcher.registerCollision(SPHERE, TERRAIN_VOXEL, addSphereVoxelContacts);
+    dispatcher.registerCollision(TERRAIN_VOXEL, SPHERE, addVoxelSphereContacts);
     dispatcher.registerCollision(CAPSULE, SPHERE, addCapsuleSphereContacts);
     dispatcher.registerCollision(SPHERE, CAPSULE, addSphereCapsuleContacts);
     dispatcher.registerCollision(CAPSULE, CAPSULE, addCapsuleCapsuleContacts);
@@ -672,6 +815,8 @@ NarrowPhase::NarrowPhase() {
     dispatcher.registerCollision(CUBE, CAPSULE, addBoxCapsuleContacts);
     dispatcher.registerCollision(CAPSULE, VOXEL, addCapsuleVoxelContacts);
     dispatcher.registerCollision(VOXEL, CAPSULE, addVoxelCapsuleContacts);
+    dispatcher.registerCollision(CAPSULE, TERRAIN_VOXEL, addCapsuleVoxelContacts);
+    dispatcher.registerCollision(TERRAIN_VOXEL, CAPSULE, addVoxelCapsuleContacts);
 }
 
 void NarrowPhase::generateContacts(const std::vector<CollisionPair>& pairs,

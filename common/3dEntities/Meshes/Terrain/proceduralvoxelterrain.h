@@ -6,7 +6,7 @@
 #include <common/Utilities/hash.h>
 
 class Collider3D;
-class VoxelShape;
+class TerrainVoxelShape;
 
 class ProceduralVoxelTerrain : public Terrain
 {
@@ -41,6 +41,6 @@ private:
     float frequency;
     std::vector<unsigned short int> chunkData = std::vector<unsigned short int>();
     void printSlice(int z);
-    VoxelShape* shape = nullptr;
+    TerrainVoxelShape* shape = nullptr;
     Collider3D* collision = nullptr;
 };

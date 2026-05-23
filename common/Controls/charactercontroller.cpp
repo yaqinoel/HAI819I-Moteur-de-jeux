@@ -1,4 +1,5 @@
 #include "charactercontroller.h"
+#include <Scenes/DynamicVoxel.h>
 #include <Scenes/PhysicsCube.h>
 #include <Scenes/Cube.h>
 #include <common/3dEntities/Meshes/Terrain/proceduralvoxelterrain.h>
@@ -156,6 +157,31 @@ void CharacterController::process(float deltaTime){
         instantiate(cube);
         remove_one_in_inventory();
     }
+    if (scene->inputPressed("action5")){
+        const float projectileSpawnDistance = 3.0f;
+        const float projectileHalfExtent = 1.1f;
+        const float projectileSpawnPadding = 0.15f;
+        const float projectileMinSpawnDistance = projectileHalfExtent + projectileSpawnPadding;
+
+        float spawnDistance = projectileSpawnDistance;
+        RayIntersection spawnRaycast = scene->raycast(
+            cam->getGlobalPosition(),
+            cameraForward,
+            projectileSpawnDistance + projectileHalfExtent + projectileSpawnPadding,
+            1ULL
+            );
+        if (spawnRaycast.intersectionExists) {
+            spawnDistance = spawnRaycast.t - projectileHalfExtent - projectileSpawnPadding;
+        }
+
+        if (spawnDistance >= projectileMinSpawnDistance) {
+            RigidBody3D* voxel = makeDynamicVoxelIsland(projectileMaterial);
+            voxel->setGlobalPosition(cam->getGlobalPosition() + cameraForward * spawnDistance);
+            voxel->setForward(cameraForwardxz);
+            voxel->velocity = cameraForward * 18.0f + UP * 6.0f;
+            instantiate(voxel);
+        }
+    }
 
     glm::vec3 ray_start = cam->getGlobalPosition();
     glm::vec3 camera_forward = cam->forward();
@@ -204,7 +230,7 @@ void CharacterController::lateProcess(float deltaTime){
 
     glm::quat colliderRot = selectedCollider->getGlobalRotation();
     glm::vec3 worldVoxelCenter = selectedCollider->getGlobalPosition() + (colliderRot * selectedLocalCenter);
-    drawCube(scene, worldVoxelCenter, colliderRot);
+        drawCube(scene, worldVoxelCenter, colliderRot);
 }
 
 

@@ -26,6 +26,7 @@ void Node3d::unInverseDirty() const{
 }
 
 glm::mat4 Node3d::getInverseGlobalMatrix() const{
+    if(dirty)unDirty();
     if(inverseDirty)unInverseDirty();
     return inverseGlobalMatrix;
 }

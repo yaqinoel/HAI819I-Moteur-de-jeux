@@ -1,5 +1,6 @@
 #include "rigidbody3d.h"
 #include "collider3d.h"
+#include <cmath>
 
 RigidBody3D::RigidBody3D()
 {
@@ -105,8 +106,16 @@ void RigidBody3D::addCollider(Collider3D* c){
     colliders.push_back(c);
     c->rb = this;
     mass += c->mass;
-    inertia += c->getInertia() + c->mass * glm::length2(c->getGlobalPosition()- getGlobalPosition());
-    if(inertia != glm::mat3(0)) inverseInertia = glm::inverse(inertia);
+    glm::vec3 colliderCenterOfMass = glm::vec3(c->getGlobalMatrix() * glm::vec4(c->getShape()->getLocalCenterOfMass(), 1.0f));
+    glm::vec3 offset = colliderCenterOfMass - getGlobalPosition();
+    glm::mat3 parallelAxis = c->mass * (glm::dot(offset, offset) * glm::mat3(1.0f) - glm::outerProduct(offset, offset));
+    inertia += c->getInertia() + parallelAxis;
+
+    float determinant = glm::determinant(inertia);
+    if(std::abs(determinant) > 1e-8f)
+        inverseInertia = glm::inverse(inertia);
+    else
+        inverseInertia = glm::mat3(0.0f);
 }
 
 void RigidBody3D::applyImpulse(glm::vec3 impulse, glm::vec3 worldPoint){

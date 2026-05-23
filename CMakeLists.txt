@@ -163,6 +163,7 @@ add_executable(Main
         common/Utilities/InputManager.h
         common/Controls/hoveringcontroller.h common/Controls/hoveringcontroller.cpp
         common/Physics/Shapes/voxelshape.h common/Physics/Shapes/voxelshape.cpp
+        common/Physics/Shapes/terrainvoxelshape.h common/Physics/Shapes/terrainvoxelshape.cpp
         Scenes/FirstPersonCharacter.h
         Shaders/vertex_shader_line.glsl
         Shaders/fragment_shader_line.glsl

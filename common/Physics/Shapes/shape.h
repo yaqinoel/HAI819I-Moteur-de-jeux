@@ -17,6 +17,7 @@ enum ShapeType{
     SPHERE,
     CAPSULE,
     VOXEL,
+    TERRAIN_VOXEL,
     SHAPE_COUNT
 };
 
@@ -35,6 +36,7 @@ public:
     virtual void setMesh(std::vector<Vertex> &ver, std::vector<Triangle> &tri){}
     virtual std::vector<glm::vec3> getVertices(){return vertices;}
     virtual std::vector<glm::ivec3> getTriangles(){return triangles;}
+    virtual glm::vec3 getLocalCenterOfMass() const { return glm::vec3(0.0f); }
 
     void setMass(float m){inertia*= m/mass;mass = m; }
     float getMass(){return mass;}
