@@ -118,6 +118,13 @@ void ContactSolver::solveVelocities(std::vector<PhysicsContact>& contacts) const
         glm::vec3 relativeVelocity = pointVelocity(contact.bodyA, contact.point) - pointVelocity(contact.bodyB, contact.point);
         float normalSpeed = glm::dot(relativeVelocity, contact.normal);
 
+        // Damp micro-bounces: if normal speed is very small, scale it down
+        // to prevent oscillation on face-to-face contact
+        constexpr float kMicroBounceThreshold = 0.15f;
+        constexpr float kMicroBounceDamping = 0.3f;
+        if (std::abs(normalSpeed) < kMicroBounceThreshold && contact.penetration < 0.05f)
+            normalSpeed *= kMicroBounceDamping;
+
         float effectiveMass = contactEffectiveMass(contact.bodyA, contact.bodyB, contact.point, contact.normal);
         if (effectiveMass > 1e-6f) {
             float restitutionSpeed = 0.0f;

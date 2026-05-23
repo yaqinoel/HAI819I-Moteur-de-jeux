@@ -35,42 +35,86 @@ bool buildContact(Collider3D* colliderA,
                   float penetration,
                   PhysicsContact& outContact);
 
-class DirectionalContactAccumulator {
+class ManifoldAccumulator {
 public:
     void add(Collider3D* colliderA,
              Collider3D* colliderB,
              const glm::vec3& normalFromBToA,
              const glm::vec3& point,
              float penetration) {
-        int slot = normalSlot(normalFromBToA);
         PhysicsContact contact;
         if (!buildContact(colliderA, colliderB, normalFromBToA, point, penetration, contact))
             return;
 
-        pointSums[slot] += point;
-        pointCounts[slot]++;
-
-        if (pointCounts[slot] == 1 || penetration > contactsByDirection[slot].penetration) {
-            contactsByDirection[slot] = contact;
-        }
+        int slot = normalSlot(normalFromBToA);
+        auto& group = groups[slot];
+        group.push_back(contact);
     }
 
     void flush(std::vector<PhysicsContact>& outContacts) {
-        for (size_t i = 0; i < contactsByDirection.size(); ++i) {
-            if (pointCounts[i] <= 0)
+        for (int slot = 0; slot < 6; ++slot) {
+            auto& group = groups[slot];
+            if (group.empty())
                 continue;
-            contactsByDirection[i].point = pointSums[i] / static_cast<float>(pointCounts[i]);
-            outContacts.push_back(contactsByDirection[i]);
+
+            // Find the deepest penetration contact for normal/penetration reference
+            PhysicsContact* deepest = &group[0];
+            for (auto& c : group) {
+                if (c.penetration > deepest->penetration)
+                    deepest = &c;
+            }
+
+            if (group.size() <= kMaxManifoldPoints) {
+                for (auto& c : group) {
+                    // Use the deepest contact's normal and penetration, but keep individual points
+                    c.normal = deepest->normal;
+                    outContacts.push_back(c);
+                }
+            } else {
+                // Reduce to kMaxManifoldPoints using farthest-point spread heuristic
+                std::vector<PhysicsContact> selected;
+                selected.reserve(kMaxManifoldPoints);
+
+                // Start with the deepest penetration contact
+                selected.push_back(*deepest);
+
+                while (selected.size() < kMaxManifoldPoints && selected.size() < group.size()) {
+                    float bestDist2 = -1.0f;
+                    size_t bestIdx = 0;
+                    for (size_t i = 0; i < group.size(); ++i) {
+                        bool alreadySelected = false;
+                        float minDist2 = std::numeric_limits<float>::infinity();
+                        for (auto& sel : selected) {
+                            float d2 = glm::length2(group[i].point - sel.point);
+                            if (d2 < 1e-6f) {
+                                alreadySelected = true;
+                                break;
+                            }
+                            minDist2 = std::min(minDist2, d2);
+                        }
+                        if (alreadySelected)
+                            continue;
+                        if (minDist2 > bestDist2) {
+                            bestDist2 = minDist2;
+                            bestIdx = i;
+                        }
+                    }
+                    if (bestDist2 <= 0.0f)
+                        break;
+                    selected.push_back(group[bestIdx]);
+                }
+
+                for (auto& c : selected) {
+                    c.normal = deepest->normal;
+                    outContacts.push_back(c);
+                }
+            }
         }
     }
 
 private:
-    std::array<PhysicsContact, 6> contactsByDirection;
-    std::array<glm::vec3, 6> pointSums = {
-        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f),
-        glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)
-    };
-    std::array<int, 6> pointCounts = {0, 0, 0, 0, 0, 0};
+    static constexpr size_t kMaxManifoldPoints = 4;
+    std::array<std::vector<PhysicsContact>, 6> groups;
 };
 
 bool buildContact(Collider3D* colliderA,
@@ -393,7 +437,7 @@ void addShapeVoxelContacts(Collider3D* dynamicCollider,
     if (!voxelCellRangeForAabb(voxel, voxelCollider, broadAabb, minCell, maxCell))
         return;
 
-    DirectionalContactAccumulator accumulator;
+    ManifoldAccumulator accumulator;
 
     for (int x = minCell.x; x <= maxCell.x; ++x) {
         for (int y = minCell.y; y <= maxCell.y; ++y) {
@@ -485,7 +529,7 @@ void addBoxVoxelContacts(Collider3D* boxCollider,
     if (!voxelCellRangeForAabb(voxel, voxelCollider, broadAabb, minCell, maxCell))
         return;
 
-    DirectionalContactAccumulator accumulator;
+    ManifoldAccumulator accumulator;
 
     for (int x = minCell.x; x <= maxCell.x; ++x) {
         for (int y = minCell.y; y <= maxCell.y; ++y) {

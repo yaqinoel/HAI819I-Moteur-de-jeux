@@ -50,8 +50,23 @@ void stabilizeBody(RigidBody3D* body) {
     else if (body->isOnGround() && angularSpeed < kRestingAngularSpeed)
         body->angularVelocity = glm::vec3(0.0f);
 
-    if (body->isOnGround() && std::abs(body->velocity.y) < kRestingVerticalSpeed)
-        body->velocity.y = 0.0f;
+    if (body->isOnGround()) {
+        // Damp linear velocity on ground to reduce sliding/jitter
+        constexpr float kGroundLinearDamping = 0.92f;
+        body->velocity.x *= kGroundLinearDamping;
+        body->velocity.z *= kGroundLinearDamping;
+
+        if (std::abs(body->velocity.y) < kRestingVerticalSpeed)
+            body->velocity.y = 0.0f;
+
+        // Zero out very small horizontal velocities
+        constexpr float kRestingHorizontalSpeed = 0.06f;
+        float horizontalSpeed2 = body->velocity.x * body->velocity.x + body->velocity.z * body->velocity.z;
+        if (horizontalSpeed2 < kRestingHorizontalSpeed * kRestingHorizontalSpeed) {
+            body->velocity.x = 0.0f;
+            body->velocity.z = 0.0f;
+        }
+    }
 }
 
 void updateSleepState(RigidBody3D* body, float dt) {
