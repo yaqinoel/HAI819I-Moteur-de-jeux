@@ -33,6 +33,7 @@ inline RigidBody3D* makeDynamicVoxelIsland(Material* material = nullptr) {
     Collider3D* collider = new Collider3D();
     collider->name = "dynamic voxel island collider";
     collider->setShape(shape);
+    collider->mass = 24.0f;
     collider->setLocalPosition(-shapeCenter);
     body->addChild(collider);
     body->addCollider(collider);

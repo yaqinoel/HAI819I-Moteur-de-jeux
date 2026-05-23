@@ -105,6 +105,11 @@ void RigidBody3D::setLocalPosition(const glm::vec3 pos){
 void RigidBody3D::addCollider(Collider3D* c){
     colliders.push_back(c);
     c->rb = this;
+
+    // Sync shape mass to collider mass so inertia tensor is correctly scaled
+    if (c->getShape())
+        c->getShape()->setMass(c->mass);
+
     mass += c->mass;
     glm::vec3 colliderCenterOfMass = glm::vec3(c->getGlobalMatrix() * glm::vec4(c->getShape()->getLocalCenterOfMass(), 1.0f));
     glm::vec3 offset = colliderCenterOfMass - getGlobalPosition();

@@ -22,6 +22,12 @@ float combinedFriction(RigidBody3D* a, RigidBody3D* b) {
     return a ? std::max(0.0f, a->friction) : 0.0f;
 }
 
+float combinedRestitution(RigidBody3D* a, RigidBody3D* b) {
+    float ra = a ? std::max(0.0f, a->restitution) : 0.0f;
+    float rb = b ? std::max(0.0f, b->restitution) : 0.0f;
+    return std::max(ra, rb);
+}
+
 struct ContactCandidate {
     glm::vec3 normal = glm::vec3(0.0f);
     glm::vec3 point = glm::vec3(0.0f);
@@ -147,6 +153,7 @@ bool buildContact(Collider3D* colliderA,
         outContact.colliderB = colliderB;
         outContact.normal = normal;
         outContact.friction = combinedFriction(bodyA, bodyB);
+        outContact.restitution = combinedRestitution(bodyA, bodyB);
         return true;
     }
 
@@ -155,6 +162,7 @@ bool buildContact(Collider3D* colliderA,
     outContact.colliderB = colliderA;
     outContact.normal = -normal;
     outContact.friction = combinedFriction(bodyB, nullptr);
+    outContact.restitution = combinedRestitution(bodyB, nullptr);
     return true;
 }
 

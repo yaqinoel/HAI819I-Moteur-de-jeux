@@ -37,6 +37,7 @@ public:
     glm::vec3 angularVelocity = glm::vec3(0);
     float mass = 0;
     float friction = 0.5f;
+    float restitution = 0.3f;
     bool canSleep = true;
     float sleepTimer = 0.0f;
     glm::mat3 inertia=glm::mat3(0);
