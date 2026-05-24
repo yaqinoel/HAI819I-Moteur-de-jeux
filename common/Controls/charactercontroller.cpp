@@ -150,36 +150,13 @@ void CharacterController::process(float deltaTime){
             return;
         }
 
-        RigidBody3D* cube = makePhysicsCube(projectileMaterial);
-        cube->setGlobalPosition(cam->getGlobalPosition() + cameraForward * spawnDistance);
-        cube->setForward(cameraForwardxz);
-        cube->velocity = cameraForward * 20.0f + UP * 7.0f;
-        instantiate(cube);
-        remove_one_in_inventory();
-    }
-    if (scene->inputPressed("action5")){
-        const float projectileSpawnDistance = 3.0f;
-        const float projectileHalfExtent = 1.1f;
-        const float projectileSpawnPadding = 0.15f;
-        const float projectileMinSpawnDistance = projectileHalfExtent + projectileSpawnPadding;
-
-        float spawnDistance = projectileSpawnDistance;
-        RayIntersection spawnRaycast = scene->raycast(
-            cam->getGlobalPosition(),
-            cameraForward,
-            projectileSpawnDistance + projectileHalfExtent + projectileSpawnPadding,
-            1ULL
-            );
-        if (spawnRaycast.intersectionExists) {
-            spawnDistance = spawnRaycast.t - projectileHalfExtent - projectileSpawnPadding;
-        }
-
         if (spawnDistance >= projectileMinSpawnDistance) {
-            RigidBody3D* voxel = makeDynamicVoxelIsland(projectileMaterial);
+            RigidBody3D* voxel = makeDynamicVoxel(inventory[current_inventory_case_selected][0], scene->worldMaterial);
             voxel->setGlobalPosition(cam->getGlobalPosition() + cameraForward * spawnDistance);
             voxel->setForward(cameraForwardxz);
-            voxel->velocity = cameraForward * 18.0f + UP * 6.0f;
+            voxel->velocity = cameraForward * 8.0f + UP * 3.0f;
             instantiate(voxel);
+            remove_one_in_inventory();
         }
     }
 
@@ -197,25 +174,51 @@ void CharacterController::process(float deltaTime){
         localHit += glm::inverse(colliderRot) * (camera_forward * 0.01f);
         selectedLocalCenter = glm::round(localHit);
         selectedCollider = collider;
-        if (scene->inputPressed("action1")){
-            ProceduralVoxelTerrain* voxel = dynamic_cast<ProceduralVoxelTerrain*>(collider->getParent());
-            if (voxel)
-            {
-                glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter);
-                add_in_inventory(glm::vec2(voxel->removeTile(worldVoxelCenter), 1));
+        ShapeType shape_type = collider->getShape()->type;
+        if(shape_type == TERRAIN_VOXEL){
+            if (scene->inputPressed("action1")){
+                ProceduralVoxelTerrain* voxel = dynamic_cast<ProceduralVoxelTerrain*>(collider->getParent());
+                if (voxel)
+                {
+                    glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter);
+                    add_in_inventory(glm::vec2(voxel->removeTile(worldVoxelCenter), 1));
+                }
+            }
+            if (scene->inputPressed("action2") && inventory[current_inventory_case_selected][1] > 0){
+                ProceduralVoxelTerrain* voxel = dynamic_cast<ProceduralVoxelTerrain*>(collider->getParent());
+                if (voxel)
+                {
+                    glm::vec3 localHit_out = localHit - glm::inverse(colliderRot) * (camera_forward * 0.01f)*2.0f;
+                    glm::vec3 selectedLocalCenter_out = glm::round(localHit_out);
+                    glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter_out);
+                    auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.99f)); // with all
+                    if (hits.empty()) {
+                        voxel->addTile(worldVoxelCenter, remove_one_in_inventory());
+                    }
+                }
             }
         }
-        if (scene->inputPressed("action2") && inventory[current_inventory_case_selected][1] > 0){
-            ProceduralVoxelTerrain* voxel = dynamic_cast<ProceduralVoxelTerrain*>(collider->getParent());
-            if (voxel)
-            {
-                glm::vec3 localHit_out = localHit - glm::inverse(colliderRot) * (camera_forward * 0.01f)*2.0f;
-                glm::vec3 selectedLocalCenter_out = glm::round(localHit_out);
-                glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter_out);
-                // auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.99f),1ULL); // without character
-                auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.99f)); // with all
-                if (hits.empty()) {
-                    voxel->addTile(worldVoxelCenter, remove_one_in_inventory());
+        if(shape_type == VOXEL){
+            if (scene->inputPressed("action1")){
+                DynamicVoxel* voxel = dynamic_cast<DynamicVoxel*>(collider->getParent());
+                if (voxel)
+                {
+                    glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter);
+                    add_in_inventory(glm::vec2(voxel->removeTile(worldVoxelCenter), 1));
+                    selectedCollider = nullptr;
+                }
+            }
+            if (scene->inputPressed("action2") && inventory[current_inventory_case_selected][1] > 0){
+                DynamicVoxel* voxel = dynamic_cast<DynamicVoxel*>(collider->getParent());
+                if (voxel)
+                {
+                    glm::vec3 localHit_out = localHit - glm::inverse(colliderRot) * (camera_forward * 0.01f)*2.0f;
+                    glm::vec3 selectedLocalCenter_out = glm::round(localHit_out);
+                    glm::vec3 worldVoxelCenter = colliderPos + (colliderRot * selectedLocalCenter_out);
+                    auto hits = scene->cubeOverlapTest(worldVoxelCenter,colliderRot,glm::vec3(0.95f));
+                    if (hits.empty()) {
+                        voxel->addTile(worldVoxelCenter, remove_one_in_inventory());
+                    }
                 }
             }
         }

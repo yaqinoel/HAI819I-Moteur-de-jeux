@@ -1,19 +1,22 @@
 #pragma once
-#include "terrain.h"
+
 
 #include <unordered_map>
 
 #include <common/Utilities/hash.h>
 
+#include <common/3dEntities/Mesh.hpp>
+
+#include <common/Physics/Shapes/voxelshape.h>
+
 class Collider3D;
 class TerrainVoxelShape;
 
-class ProceduralVoxelTerrain : public Terrain
+class DynamicVoxel : public Mesh
 {
 public:
-    ProceduralVoxelTerrain();
-    ProceduralVoxelTerrain(int posX, int posY, int resX = 128, int resY = 128, float sizeX = 16, float sizeY = 16, float sizeZ = 16, std::unordered_map<glm::ivec3, int, IVec3Hash> *edited = nullptr);
-    void InitData();
+    DynamicVoxel();
+    DynamicVoxel(glm::vec3 position, glm::vec3 size, RigidBody3D *parent);
     void InitMesh();
     void ResetMesh();
     glm::ivec2 texSize = glm::ivec2(1, 1);
@@ -22,11 +25,11 @@ public:
     void setData(int x, int y, int z, unsigned short int v);
     int removeTile(glm::vec3 world_position);
     void addTile(glm::vec3 world_position, int v);
-    ProceduralVoxelTerrain * neighbourX;
-    ProceduralVoxelTerrain * neighbour_X;
-    ProceduralVoxelTerrain * neighbourZ;
-    ProceduralVoxelTerrain * neighbour_Z;
-    std::unordered_map<glm::ivec3, int, IVec3Hash> *edited;
+    void addX(bool atStart);
+    void addY(bool atStart);
+    void addZ(bool atStart);
+    RigidBody3D *parent;
+    void setVoxelData(std::vector<unsigned short int> d){voxelData = d;}
 
 
 private:
@@ -36,10 +39,9 @@ private:
     void CreateLeftSquare(int x, int y, int z);
     void CreateFrontSquare(int x, int y, int z);
     void CreateBackSquare(int x, int y, int z);
-    int resolution = 0;
-    float frequency;
-    std::vector<unsigned short int> chunkData = std::vector<unsigned short int>();
-    void printSlice(int z);
-    TerrainVoxelShape* shape = nullptr;
+    int sizeX, sizeY, sizeZ;
+    std::vector<unsigned short int> voxelData = std::vector<unsigned short int>();
+    VoxelShape* shape = nullptr;
     Collider3D* collision = nullptr;
+    int voxel_nbr = 0;
 };

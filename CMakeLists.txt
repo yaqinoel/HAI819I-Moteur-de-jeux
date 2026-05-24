@@ -160,6 +160,7 @@ add_executable(Main
         Scenes/MainCharacter.h
         Scenes/HoveringCharacter.h
         Scenes/PhysicsCube.h
+        Scenes/DynamicVoxel.h
         common/Utilities/InputManager.h
         common/Controls/hoveringcontroller.h common/Controls/hoveringcontroller.cpp
         common/Physics/Shapes/voxelshape.h common/Physics/Shapes/voxelshape.cpp
@@ -170,6 +171,9 @@ add_executable(Main
         common/Utilities/hash.h
         common/GUI/gui.h common/GUI/gui.cpp
         textrenderer.h
+        common/3dEntities/Meshes/dynamicvoxel.h common/3dEntities/Meshes/dynamicvoxel.cpp
+
+
 
 
 

@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <common/Utilities/InputManager.h>
 #include <common/Physics/physicsworld.h>
+#include <common/Materials/pbrmaterial.h>
 #include "Utilities/rayintersection.h"
 
 class Node;
@@ -46,6 +47,7 @@ public:
     bool inputReleased(std::string input){return inputManager->inputs[input]->justReleased;}
     constexpr static float fixedDeltaTime = 0.03f;
     bool gameExited = false;
+    PBRMaterial* worldMaterial;
 private:
     std::vector<Mesh*> meshes = std::vector<Mesh*>();
     std::vector<Light*> lights = std::vector<Light*>();

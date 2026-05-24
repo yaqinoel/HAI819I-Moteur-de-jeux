@@ -28,6 +28,7 @@ Scene* makePBRInfiniteTerrain(RenderSystem* renderer) {
     Texture blockAlbedo("../Resources/Textures/Environement/BlocTextures.png");
     blockAlbedo.setPixelArt(true);
     terrainMat->addTexture("albedoMap", blockAlbedo);
+    scene->worldMaterial = terrainMat;
 
     PBRMaterial* projectileMat = new PBRMaterial(pbrShader, glm::vec3(1.0f), 0.0f, 0.98f, 0.85f);
     Texture projectileAlbedo("../Resources/Textures/Environement/grassCubeTexSharp.png");

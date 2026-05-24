@@ -1,11 +1,10 @@
-#include "proceduralvoxelterrain.h"
+#include "dynamicvoxel.h"
 
 #include <common/Physics/Shapes/terrainvoxelshape.h>
+#include <common/Physics/rigidbody3d.h>
 
-ProceduralVoxelTerrain::ProceduralVoxelTerrain()
+DynamicVoxel::DynamicVoxel()
 {
-    collision = new Collider3D();
-    instantiate(collision, this);
     texSize = glm::ivec2(3, 2);
     texCoord.insert({1, glm::vec2(0, 0)});//grass
     texCoord.insert({2, glm::vec2(1, 0)});//dirt
@@ -14,130 +13,138 @@ ProceduralVoxelTerrain::ProceduralVoxelTerrain()
     texCoord.insert({5, glm::vec2(2, 0)});//wood
     texCoord.insert({6, glm::vec2(2, 1)});//leaves
 }
-ProceduralVoxelTerrain::ProceduralVoxelTerrain(int posX, int posY, int resX, int resY, float sizeX, float sizeY, float sizeZ, std::unordered_map<glm::ivec3, int, IVec3Hash> *edited) : ProceduralVoxelTerrain()
-{
-    this->edited = edited;
-    this->resX = resX;
-    this->resY = resY;
-    this->sizeX = sizeX;
-    this->sizeY = sizeY;
-    this->sizeZ = sizeZ;
-    setLocalPosition(glm::vec3(posX, getLocalPosition().y, posY));
+
+
+DynamicVoxel::DynamicVoxel(glm::vec3 position, glm::vec3 size, RigidBody3D *parent) : DynamicVoxel(){
+    this->sizeX = size.x;
+    this->sizeY = size.y;
+    this->sizeZ = size.z;
+    this->parent = parent;
+    parent->setGlobalPosition(position);
 }
 
+void DynamicVoxel::addX(bool atStart) {
+    int newSizeX = sizeX + 1;
+    std::vector<unsigned short int> newData(newSizeX * sizeY * sizeZ, 0);
 
-unsigned short int ProceduralVoxelTerrain::getData(int x, int y, int z){
-    return chunkData[x*resolution*resolution+y*resolution+z];
-}
-
-
-void ProceduralVoxelTerrain::setData(int x, int y, int z, unsigned short int v){
-    chunkData[x*resolution*resolution+y*resolution+z] = v;
-}
-
-void ProceduralVoxelTerrain::InitData() {
-    glm::ivec3 pos = glm::vec3(getLocalPosition().x, 0, getLocalPosition().z);
-
-    resolution = resX+2;
-    frequency = 1.0 / sizeX;
-    chunkData.resize(resolution*resolution*resolution);
-    for (int x = 0; x < resolution; x++) {
-        for (int z = 0; z < resolution; z++) {
-            float worldX = x-1 + pos.x;
-            float worldZ = z-1 + pos.z;
-            int height = roundf(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency)) * sizeY);
-            int rockHeight = height-3+floor(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency*2.0f)) * 4.5);
-            for (int y = 0; y < resolution; y++) {
-                glm::vec4 global = getGlobalMatrix() * glm::vec4(x, y, z, 1.0);
-                glm::ivec3 iglobal = glm::ivec3(global[0], global[1], global[2]);
-                if(edited->find(iglobal) != edited->end()) {
-                    setData(x, y, z, (*edited)[iglobal]);
-                }
-                else{
-                    setData(x, y, z, 0);
-                    if(rockHeight >= y){
-                        setData(x, y, z, 3);
-                    }
-                    else if(height >= y-1){
-                        if((height >= y)){
-                            setData(x, y, z, 2);
-                        }
-                        else{
-                            setData(x, y, z, 1);
-                        }
-                    }
-                }
+    for (int x = 0; x < sizeX; x++)
+        for (int y = 0; y < sizeY; y++)
+            for (int z = 0; z < sizeZ; z++) {
+                int destX = atStart ? x + 1 : x;
+                newData[destX * (sizeY * sizeZ) + y * sizeZ + z] = voxelData[x * (sizeY * sizeZ) + y * sizeZ + z];
+                std::cout << "shifting " << destX * (sizeY * sizeZ) + y * sizeZ + z << " " << x * (sizeY * sizeZ) + y * sizeZ + z << std::endl;
             }
+
+    voxelData = std::move(newData);
+    sizeX = newSizeX;
+    if(atStart){
+        glm::vec3 localPos = getLocalPosition();
+        setLocalPosition(glm::vec3(localPos.x-1, localPos.y,localPos.z ));
+    }
+}
+
+void DynamicVoxel::addY(bool atStart) {
+    int newSizeY = sizeY + 1;
+    std::vector<unsigned short int> newData(sizeX * newSizeY * sizeZ, 0);
+
+    for (int x = 0; x < sizeX; x++)
+        for (int y = 0; y < sizeY; y++)
+            for (int z = 0; z < sizeZ; z++) {
+                int destY = atStart ? y + 1 : y;
+                newData[x * (newSizeY * sizeZ) + destY * sizeZ + z] = voxelData[x * (sizeY * sizeZ) + y * sizeZ + z];
+            }
+
+    voxelData = std::move(newData);
+    sizeY = newSizeY;
+    if(atStart){
+        glm::vec3 localPos = getLocalPosition();
+        setLocalPosition(glm::vec3(localPos.x, localPos.y-1,localPos.z ));
+    }
+}
+
+void DynamicVoxel::addZ(bool atStart) {
+    int newSizeZ = sizeZ + 1;
+    std::vector<unsigned short int> newData(sizeX * sizeY * newSizeZ, 0);
+
+
+    for (int x = 0; x < sizeX; x++)
+        for (int y = 0; y < sizeY; y++)
+            for (int z = 0; z < sizeZ; z++) {
+                int destZ = atStart ? z + 1 : z;
+                newData[x * sizeY * newSizeZ + y * newSizeZ + destZ] = voxelData[x * sizeY * sizeZ + y * sizeZ + z];
+            }
+
+    voxelData = std::move(newData);
+    sizeZ = newSizeZ;
+    if(atStart){
+        glm::vec3 localPos = getLocalPosition();
+        setLocalPosition(glm::vec3(localPos.x, localPos.y,localPos.z -1));
+    }
+}
+
+unsigned short int DynamicVoxel::getData(int x, int y, int z){
+    return voxelData[x*sizeY*sizeZ+y*sizeZ+z];
+}
+
+
+void DynamicVoxel::setData(int x, int y, int z, unsigned short int v){
+    if(v > 0){
+        if(x < 0) {
+            addX(true);
+            voxelData[(x+1)*sizeY*sizeZ+y*sizeZ+z] = v;
+        }
+        else if(y < 0) {
+            addY(true);
+            voxelData[x*sizeY*sizeZ+(y+1)*sizeZ+z] = v;
+        }
+        else if(z < 0) {
+            addZ(true);
+            voxelData[x*sizeY*sizeZ+y*sizeZ+z+1] = v;
+        }
+        else if(x >= sizeX) {
+            addX(false);
+            voxelData[x*sizeY*sizeZ+y*sizeZ+z] = v;
+        }
+        else if(y >= sizeY) {
+            addY(false);
+            voxelData[x*sizeY*sizeZ+y*sizeZ+z] = v;
+        }
+        else if(z >= sizeZ) {
+            addZ(false);
+            voxelData[x*sizeY*sizeZ+y*sizeZ+z] = v;
+        }
+        else{
+            voxelData[x*sizeY*sizeZ+y*sizeZ+z] = v;
         }
     }
-}
-
-int voxel_conversion(int v){
-    switch(v){
-        case 1: return 2; break;
-        default: return v;
+    else{
+        voxelData[x*sizeY*sizeZ+y*sizeZ+z] = v;
     }
+    shape->InitMesh(sizeX, sizeY, sizeZ, voxelData);
 }
 
-
-int ProceduralVoxelTerrain::removeTile(glm::vec3 world_position){
+int DynamicVoxel::removeTile(glm::vec3 world_position){
     glm::vec4 local = getInverseGlobalMatrix() * glm::vec4(world_position, 1.0);
-    glm::ivec3 ilocal = glm::ivec3(local[0], local[1], local[2]);
+    glm::ivec3 ilocal = glm::ivec3(round(local[0]), round(local[1]), round(local[2]));
     int val = getData(ilocal.x, ilocal.y, ilocal.z);
-    shape->set(ilocal.x, ilocal.y, ilocal.z, 0);
-    (*edited)[world_position] = 0;
-    InitData();
+    setData(ilocal.x, ilocal.y, ilocal.z, 0);
     ResetMesh();
     synchronize();
-    if(ilocal.x == 1){
-        neighbour_X->InitData();
-        neighbour_X->ResetMesh();
-        neighbour_X->synchronize();
+    if(voxel_nbr <= 0) {
+        parent->erase();
     }
-    if(ilocal.x == sizeX){
-        neighbourX->InitData();
-        neighbourX->ResetMesh();
-        neighbourX->synchronize();
-    }
-    if(ilocal.z == 1){
-        neighbour_Z->InitData();
-        neighbour_Z->ResetMesh();
-        neighbour_Z->synchronize();
-    }
-    if(ilocal.z == sizeZ){
-        neighbourZ->InitData();
-        neighbourZ->ResetMesh();
-        neighbourZ->synchronize();
-    }
-    return voxel_conversion(val);
+    return val;
 }
 
-void ProceduralVoxelTerrain::addTile(glm::vec3 world_position, int v){
+void DynamicVoxel::addTile(glm::vec3 world_position, int v){
     glm::vec4 local = getInverseGlobalMatrix() * glm::vec4(world_position, 1.0);
-    glm::ivec3 ilocal = glm::ivec3(local[0], local[1], local[2]);
-    if(ilocal.x == 0){
-        neighbour_X->addTile(world_position, v);
-
-    }
-    else if(ilocal.x == sizeX+1){
-        neighbourX->addTile(world_position, v);
-    }
-    else if(ilocal.z == 0){
-        neighbour_Z->addTile(world_position, v);
-    }
-    else if(ilocal.z == sizeZ+1){
-        neighbourZ->addTile(world_position, v);
-    }
-    else{
-        shape->set(ilocal.x, ilocal.y, ilocal.z, v);
-        (*edited)[world_position] = v;
-        InitData();
-        ResetMesh();
-        synchronize();
-    }
+    glm::ivec3 ilocal = glm::ivec3(round(local[0]), round(local[1]), round(local[2]));
+    setData(ilocal.x, ilocal.y, ilocal.z, v);
+    ResetMesh();
+    synchronize();
 }
 
-void ProceduralVoxelTerrain::CreateTopSquare(int x, int y, int z) {
+void DynamicVoxel::CreateTopSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z - 0.5), UP, glm::vec2(0.625/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
@@ -147,7 +154,7 @@ void ProceduralVoxelTerrain::CreateTopSquare(int x, int y, int z) {
     triangles.push_back(Triangle(i, i+2, i+1));
     triangles.push_back(Triangle(i+1, i+2 , i+3));
 }
-void ProceduralVoxelTerrain::CreateBottomSquare(int x, int y, int z) {
+void DynamicVoxel::CreateBottomSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z - 0.5), DOWN, glm::vec2(0.375/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
@@ -157,7 +164,7 @@ void ProceduralVoxelTerrain::CreateBottomSquare(int x, int y, int z) {
     triangles.push_back(Triangle(i, i+1, i+2));
     triangles.push_back(Triangle(i+2, i+1, i+3));
 }
-void ProceduralVoxelTerrain::CreateRightSquare(int x, int y, int z) {
+void DynamicVoxel::CreateRightSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
     vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z - 0.5), RIGHT, glm::vec2(0.625/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
@@ -167,7 +174,7 @@ void ProceduralVoxelTerrain::CreateRightSquare(int x, int y, int z) {
     triangles.push_back(Triangle(i, i+1, i+2));
     triangles.push_back(Triangle(i, i+2, i+3));
 }
-void ProceduralVoxelTerrain::CreateLeftSquare(int x, int y, int z) {
+void DynamicVoxel::CreateLeftSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z - 0.5), LEFT, glm::vec2(0.625/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
@@ -178,7 +185,7 @@ void ProceduralVoxelTerrain::CreateLeftSquare(int x, int y, int z) {
     triangles.push_back(Triangle(i, i+3, i+2));
 }
 
-void ProceduralVoxelTerrain::CreateFrontSquare(int x, int y, int z) {
+void DynamicVoxel::CreateFrontSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z + 0.5), FORWARD, glm::vec2(0.625/texSize.x, 1.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
@@ -189,7 +196,7 @@ void ProceduralVoxelTerrain::CreateFrontSquare(int x, int y, int z) {
     triangles.push_back(Triangle(i+1, i+3, i+2));
 }
 
-void ProceduralVoxelTerrain::CreateBackSquare(int x, int y, int z) {
+void DynamicVoxel::CreateBackSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
     vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z - 0.5), BACKWARDS, glm::vec2(0.625/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
@@ -200,42 +207,41 @@ void ProceduralVoxelTerrain::CreateBackSquare(int x, int y, int z) {
     triangles.push_back(Triangle(i+1, i+2, i+3));
 }
 
-void ProceduralVoxelTerrain::ResetMesh() {
+void DynamicVoxel::ResetMesh() {
+    voxel_nbr = 0;
     vertices.clear();
     triangles.clear();
-    for (int x = 1; x < resolution-1; x++) {
-        for (int y = 1; y < resolution-1; y++) {
-            for (int z = 1; z < resolution-1; z++) {
+    for (int x = 0; x < sizeX; x++) {
+        for (int y = 0; y < sizeY; y++) {
+            for (int z = 0; z < sizeZ; z++) {
                 if (getData(x, y, z) != 0) {
-                    if (getData(x, y+1, z) == 0) CreateTopSquare(x, y, z);
-                    if (getData(x, y-1, z) == 0) CreateBottomSquare(x, y, z);
-                    if (getData(x+1, y, z) == 0) CreateRightSquare(x, y, z);
-                    if (getData(x-1, y, z) == 0) CreateLeftSquare(x, y, z);
-                    if (getData(x, y, z+1) == 0) CreateFrontSquare(x, y, z);
-                    if (getData(x, y, z-1) == 0) CreateBackSquare(x, y, z);
+                    if (y+1 >= sizeY  ||  getData(x, y+1, z) == 0) CreateTopSquare(x, y, z);
+                    if (y-1 < 0       ||  getData(x, y-1, z) == 0) CreateBottomSquare(x, y, z);
+                    if (x+1 >= sizeX  ||  getData(x+1, y, z) == 0) CreateRightSquare(x, y, z);
+                    if (x-1 < 0       ||  getData(x-1, y, z) == 0) CreateLeftSquare(x, y, z);
+                    if (z+1 >= sizeZ  ||  getData(x, y, z+1) == 0) CreateFrontSquare(x, y, z);
+                    if (z-1 < 0       ||  getData(x, y, z-1) == 0) CreateBackSquare(x, y, z);
+                    voxel_nbr ++;
                 }
             }
         }
     }
 }
 
-void ProceduralVoxelTerrain::printSlice(int z){
-    for(int y = resX-1; y >= 0; y --){
-        for(int x = 0; x < resX; x ++){
-            std::cout << getData(x, y, z);
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
 
-void ProceduralVoxelTerrain::InitMesh(){
-    InitData();
-    //printSlice(6);
+void DynamicVoxel::InitMesh(){
     ResetMesh();
+    shape = new VoxelShape();
+    shape->InitMesh(sizeX, sizeY, sizeZ, voxelData);
+    parent->addChild(this);
 
-    shape = new TerrainVoxelShape();
-    shape->InitMeshFromTerrain(resolution, resolution, resolution, chunkData);
+    if(collision != nullptr) collision->erase();
+    collision = new Collider3D();
+    collision->name = "dynamic voxel collider";
     collision->setShape(shape);
-    collision->name = "collision mesh for position ("+std::to_string(getLocalPosition().x)+","+std::to_string(getLocalPosition().z)+")";
+    collision->mass = 1000 * shape->solidCellCount();
+    glm::vec3 shapeCenter = shape->getLocalCenterOfMass();
+    collision->setLocalPosition(-shapeCenter);
+    addChild(collision);
+    parent->addCollider(collision);
 }

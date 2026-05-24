@@ -4,18 +4,18 @@
 #include <common/3dEntities/Meshes/lod.h>
 #include <common/3dEntities/Meshes/Terrain/proceduralvoxelterrain.h>
 
-Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
-    LOD* lod = new LOD();
-    lod->name = "terrain("+std::to_string(x) + ","+std::to_string(y)+")";
-    lod->getLocalPosition() = glm::vec3(x*size, 0, y*size);
-    for(int i = 0; i < 5; i ++){
-        Terrain* terrain = new ProceduralTerrain(x*size, y*size, 64/pow(2, i), 64/pow(2, i), size, size, 20);
-        terrain->setMaterial(terrainMat);
-        lod->addLOD(terrain, 40*i);
-        terrain->name = "lod "+std::to_string(i);
-    }
-    return lod;
-}
+// Mesh* MakeChunk(int x, int y, int size, Material* const terrainMat){
+//     LOD* lod = new LOD();
+//     lod->name = "terrain("+std::to_string(x) + ","+std::to_string(y)+")";
+//     lod->getLocalPosition() = glm::vec3(x*size, 0, y*size);
+//     for(int i = 0; i < 5; i ++){
+//         Terrain* terrain = new ProceduralTerrain(x*size, y*size, 64/pow(2, i), 64/pow(2, i), size, size, 20);
+//         terrain->setMaterial(terrainMat);
+//         lod->addLOD(terrain, 40*i);
+//         terrain->name = "lod "+std::to_string(i);
+//     }
+//     return lod;
+// }
 
 ProceduralVoxelTerrain* TerrainManager::MakeVoxelChunk(int x, int y){
     ProceduralVoxelTerrain* terrain = new ProceduralVoxelTerrain(x*chunkSize, y*chunkSize, chunkSize, chunkSize, chunkSize, chunkSize, chunkSize, edited);
@@ -24,18 +24,6 @@ ProceduralVoxelTerrain* TerrainManager::MakeVoxelChunk(int x, int y){
         terrain->name = "pbr voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
         return terrain;
     }
-
-    Material* mat = new Material(glm::vec3(1, 0.0f, 0.0f));
-    if (terrainMat && terrainMat->shader) {
-        mat->shader = terrainMat->shader;
-    }
-    Texture tex = Texture("../Resources/Textures/Environement/BlocTextures.png");
-    tex.setPixelArt(true);
-    mat->addTexture("texture0", tex);
-    mat->setLit(0);
-    //terrain->meshDisplay = false;
-    terrain->setMaterial(mat);
-    terrain->name = "voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
     return terrain;
 }
 

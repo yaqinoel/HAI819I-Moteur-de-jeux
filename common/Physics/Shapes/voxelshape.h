@@ -28,6 +28,7 @@ public:
     int getHeight() const { return height; }
     int getDepth() const { return depth; }
     float getVoxelSize() const { return voxelSize; }
+    virtual void set(int x, int y, int z, uint8_t v) { setCell(x, y, z, v); }
 
 protected:
     std::vector<uint8_t> voxels;
