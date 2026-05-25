@@ -175,32 +175,47 @@ TerrainMaterial* MaterialLibrary::createClassicTerrain() {
 }
 
 PBRMaterial* MaterialLibrary::createRustIron() {
-    return createPBRTextureSet("Rust Iron", "../Resources/Textures/RustIron", 1.0f, 0.5f, 1.0f);
+    return createPBRTextureSet("Rust Iron", "../Resources/Textures/RustIron_pixel16", 1.0f, 0.5f, 1.0f, true);
 }
 
 PBRMaterial* MaterialLibrary::createGold() {
-    return createPBRTextureSet("Gold", "../Resources/Textures/gold", 1.0f, 0.35f, 1.0f);
+    return createPBRTextureSet("Gold", "../Resources/Textures/gold_pixel16", 1.0f, 0.35f, 1.0f, true);
 }
 
 PBRMaterial* MaterialLibrary::createPBRGrass() {
-    return createPBRTextureSet("PBR Grass", "../Resources/Textures/grass", 0.0f, 0.85f, 1.0f);
+    return createPBRTextureSet("PBR Grass", "../Resources/Textures/grass_pixel16", 0.0f, 0.85f, 1.0f, true);
 }
 
 PBRMaterial* MaterialLibrary::createPlastic() {
-    return createPBRTextureSet("Plastic", "../Resources/Textures/plastic", 0.0f, 0.55f, 1.0f);
+    return createPBRTextureSet("Plastic", "../Resources/Textures/plastic_pixel16", 0.0f, 0.55f, 1.0f, true);
 }
 
 PBRMaterial* MaterialLibrary::createWall() {
-    return createPBRTextureSet("Wall", "../Resources/Textures/wall", 0.0f, 0.75f, 1.0f);
+    return createPBRTextureSet("Wall", "../Resources/Textures/wall_pixel16", 0.0f, 0.75f, 1.0f, true);
 }
 
-PBRMaterial* MaterialLibrary::createPBRTextureSet(const std::string& name, const std::string& folder, float metallic, float roughness, float ao) {
+PBRMaterial* MaterialLibrary::createPBRTextureSet(const std::string& name, const std::string& folder, float metallic, float roughness, float ao, bool pixelArt) {
     PBRMaterial* material = new PBRMaterial(getPBRShader(), glm::vec3(1.0f), metallic, roughness, ao);
-    material->addTexture("albedoMap", Texture(folder + "/albedo.png"));
-    material->addTexture("normalMap", Texture(folder + "/normal.png"));
-    material->addTexture("metallicMap", Texture(folder + "/metallic.png"));
-    material->addTexture("roughnessMap", Texture(folder + "/roughness.png"));
-    material->addTexture("aoMap", Texture(folder + "/ao.png"));
+
+    Texture albedo(folder + "/albedo.png");
+    Texture normal(folder + "/normal.png");
+    Texture metallicMap(folder + "/metallic.png");
+    Texture roughnessMap(folder + "/roughness.png");
+    Texture aoMap(folder + "/ao.png");
+
+    if (pixelArt) {
+        albedo.setPixelArt(true);
+        normal.setPixelArt(true);
+        metallicMap.setPixelArt(true);
+        roughnessMap.setPixelArt(true);
+        aoMap.setPixelArt(true);
+    }
+
+    material->addTexture("albedoMap", albedo);
+    material->addTexture("normalMap", normal);
+    material->addTexture("metallicMap", metallicMap);
+    material->addTexture("roughnessMap", roughnessMap);
+    material->addTexture("aoMap", aoMap);
     return static_cast<PBRMaterial*>(remember(name, material));
 }
 

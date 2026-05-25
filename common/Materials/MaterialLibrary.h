@@ -48,7 +48,7 @@ public:
     PBRMaterial* createPBRGrass();
     PBRMaterial* createPlastic();
     PBRMaterial* createWall();
-    PBRMaterial* createPBRTextureSet(const std::string& name, const std::string& folder, float metallic, float roughness, float ao);
+    PBRMaterial* createPBRTextureSet(const std::string& name, const std::string& folder, float metallic, float roughness, float ao, bool pixelArt = false);
     PBRMaterial* createPBR(glm::vec3 albedo, float metallic, float roughness, float ao);
     PBRMaterial* clonePBR(const PBRMaterial* source);
 
