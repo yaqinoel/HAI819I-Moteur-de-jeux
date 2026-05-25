@@ -20,10 +20,11 @@ void main()
 {
     TexCoords = aTexCoords;
     WorldPos = vec3(model * vec4(aPos, 1.0));
-    Normal = mat3(model) * aNormal;   
+    mat3 normalMatrix = mat3(transpose(inverse(model)));
+    Normal = normalMatrix * aNormal;
 
-    vec3 T = normalize(mat3(model) * aTangent);
-    vec3 N = normalize(mat3(model) * aNormal);
+    vec3 T = normalize(normalMatrix * aTangent);
+    vec3 N = normalize(normalMatrix * aNormal);
     T = normalize(T - dot(T, N) * N);
     vec3 B = cross(N, T);
 

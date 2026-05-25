@@ -160,20 +160,22 @@ void ProceduralVoxelTerrain::CreateBottomSquare(int x, int y, int z) {
 void ProceduralVoxelTerrain::CreateRightSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
-    vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z - 0.5), RIGHT, glm::vec2(0.625/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z + 0.5), RIGHT, glm::vec2(0.625/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z + 0.5), RIGHT, glm::vec2(0.375/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z - 0.5), RIGHT, glm::vec2(0.375/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    const glm::vec3 normal(1.0f, 0.0f, 0.0f);
+    vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z - 0.5), normal, glm::vec2(0.625/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    vertices.push_back(Vertex(glm::vec3(x + 0.5, y + 0.5, z + 0.5), normal, glm::vec2(0.625/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z + 0.5), normal, glm::vec2(0.375/texSize.x, 0.75/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    vertices.push_back(Vertex(glm::vec3(x + 0.5, y - 0.5, z - 0.5), normal, glm::vec2(0.375/texSize.x, 0.5/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     triangles.push_back(Triangle(i, i+1, i+2));
     triangles.push_back(Triangle(i, i+2, i+3));
 }
 void ProceduralVoxelTerrain::CreateLeftSquare(int x, int y, int z) {
     int i = vertices.size();
     int type = getData(x, y, z);
-    vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z - 0.5), LEFT, glm::vec2(0.625/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z + 0.5), LEFT, glm::vec2(0.625/texSize.x, 0.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z + 0.5), LEFT, glm::vec2(0.375/texSize.x, 0.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
-    vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z - 0.5), LEFT, glm::vec2(0.375/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    const glm::vec3 normal(-1.0f, 0.0f, 0.0f);
+    vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z - 0.5), normal, glm::vec2(0.625/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    vertices.push_back(Vertex(glm::vec3(x - 0.5, y + 0.5, z + 0.5), normal, glm::vec2(0.625/texSize.x, 0.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z + 0.5), normal, glm::vec2(0.375/texSize.x, 0.0/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
+    vertices.push_back(Vertex(glm::vec3(x - 0.5, y - 0.5, z - 0.5), normal, glm::vec2(0.375/texSize.x, 0.25/texSize.y)+glm::vec2(texCoord[type].x/(float)texSize.x,texCoord[type].y/(float)texSize.y)));
     triangles.push_back(Triangle(i, i+2, i+1));
     triangles.push_back(Triangle(i, i+3, i+2));
 }

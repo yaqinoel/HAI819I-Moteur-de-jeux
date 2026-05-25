@@ -84,9 +84,7 @@ void Node::instantiate(Node* node, Node* parent){
     }
 }
 void Node::markDirty() {
-    if(!dirty){
-        dirty = true;
-        for (Node* child : children)
-            child->markDirty();
-    }
+    dirty = true;
+    for (Node* child : children)
+        child->markDirty();
 }
