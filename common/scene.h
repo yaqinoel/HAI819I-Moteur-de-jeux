@@ -19,6 +19,7 @@ class RigidBody3D;
 class Collider3D;
 class Light;
 class IBLEnvironment;
+class MaterialLibrary;
 
 class Scene
 {
@@ -41,6 +42,7 @@ public:
     void ping(){std::cout << "scene ping" << std::endl;}
     Camera* mainCamera = nullptr;
     IBLEnvironment* iblEnvironment = nullptr;
+    MaterialLibrary* materialLibrary = nullptr;
     InputManager* inputManager = new InputManager();
     bool inputHeld(std::string input){return inputManager->inputs[input]->currentlyHeld;}
     bool inputPressed(std::string input){return inputManager->inputs[input]->justPressed;}
@@ -48,7 +50,6 @@ public:
     constexpr static float fixedDeltaTime = 0.03f;
     bool gameExited = false;
     PBRMaterial* worldMaterial;
-    PBRMaterial* pbrCubeTestMaterial;
 private:
     std::vector<Mesh*> meshes = std::vector<Mesh*>();
     std::vector<Light*> lights = std::vector<Light*>();

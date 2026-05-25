@@ -141,6 +141,7 @@ add_executable(Main
         common/Utilities/Geometry.h
 
         common/Controls/charactercontroller.cpp common/Controls/charactercontroller.h
+        common/Materials/MaterialLibrary.h common/Materials/MaterialLibrary.cpp
         common/Materials/terrainmaterial.h common/Materials/terrainmaterial.cpp
         common/scene.h common/scene.cpp
 

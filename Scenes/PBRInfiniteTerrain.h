@@ -4,17 +4,17 @@
 #include <common/Controls/cameracontrols.h>
 #include <common/3dEntities/Lights/DirectionalLight.hpp>
 #include <common/3dEntities/terrainmanager.h>
+#include <common/Materials/MaterialLibrary.h>
 #include <common/Materials/pbrmaterial.h>
-#include <common/Materials/texture.h>
 #include <common/Render/IBLEnvironment.hpp>
 #include <common/Render/RenderSystem.hpp>
-#include <common/Render/Shader.hpp>
 #include <common/scene.h>
 
 Scene* makePBRInfiniteTerrain(RenderSystem* renderer) {
     Node* root = new Node3d();
     Scene* scene = new Scene(root);
     scene->iblEnvironment = new IBLEnvironment("../Resources/Textures/HDR/skybox_square_sun.hdr");
+    scene->materialLibrary = new MaterialLibrary(renderer);
 
     CameraControls* cam = new CameraControls(4.0f, 3.0f, 70.0f, 0.1f, 1000.0f, glm::vec3(0, 9, -10));
     cam->name = "camera";
@@ -23,25 +23,15 @@ Scene* makePBRInfiniteTerrain(RenderSystem* renderer) {
 
     root->name = "pbr infinite terrain root";
 
-    Shader* pbrShader = renderer->getOrCreateShader("../Shaders/vertex_shader_pbr.glsl", "../Shaders/fragment_shader_pbr.glsl");
-    PBRMaterial* terrainMat = new PBRMaterial(pbrShader, glm::vec3(0.45f, 0.55f, 0.38f), 0.0f, 0.98f, 0.85f);
-    Texture blockAlbedo("../Resources/Textures/Environement/BlocTextures.png");
-    blockAlbedo.setPixelArt(true);
-    terrainMat->addTexture("albedoMap", blockAlbedo);
+    PBRMaterial* terrainMat = scene->materialLibrary->getSharedPBRBlockTerrain();
     scene->worldMaterial = terrainMat;
 
-    PBRMaterial* projectileMat = new PBRMaterial(pbrShader, glm::vec3(1.0f), 0.0f, 0.98f, 0.85f);
-    Texture projectileAlbedo("../Resources/Textures/Environement/grassCubeTexSharp.png");
-    projectileAlbedo.setPixelArt(true);
-    projectileMat->addTexture("albedoMap", projectileAlbedo);
-
-    PBRMaterial* pbrCubeTestMaterial = new PBRMaterial(pbrShader, glm::vec3(0.0f), 0.0f, 0.98f, 0.85f);
-    pbrCubeTestMaterial->addTexture("albedoMap", Texture("../Resources/Textures/plastic/albedo.png"));
-    pbrCubeTestMaterial->addTexture("normalMap", Texture("../Resources/Textures/plastic/normal.png"));
-    pbrCubeTestMaterial->addTexture("metallicMap", Texture("../Resources/Textures/plastic/metallic.png"));
-    pbrCubeTestMaterial->addTexture("roughnessMap", Texture("../Resources/Textures/plastic/roughness.png"));
-    pbrCubeTestMaterial->addTexture("aoMap", Texture("../Resources/Textures/plastic/ao.png"));
-    scene->pbrCubeTestMaterial = pbrCubeTestMaterial;
+    PBRMaterial* projectileMat = scene->materialLibrary->getSharedPBRGrassCube();
+    scene->materialLibrary->getSharedRustIron();
+    scene->materialLibrary->getSharedGold();
+    scene->materialLibrary->getSharedPlastic();
+    scene->materialLibrary->getSharedPBRGrass();
+    scene->materialLibrary->getSharedWall();
 
     TerrainManager* tm = new TerrainManager();
     tm->terrainMat = terrainMat;

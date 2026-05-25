@@ -5,6 +5,7 @@
 #include "Physics/rigidbody3d.h"
 #include "Physics/collider3d.h"
 #include "3dEntities/Lights/Light.hpp"
+#include "Materials/MaterialLibrary.h"
 #include "Render/IBLEnvironment.hpp"
 #include "shader.hpp"
 #include <ctime>
@@ -27,6 +28,7 @@ Scene::Scene(Node* node)
 
 Scene::~Scene() {
     delete iblEnvironment;
+    delete materialLibrary;
 }
 
 void Scene::instantiate(Node* node, Node* parent){

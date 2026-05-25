@@ -30,4 +30,5 @@ private:
     Collider3D* selectedCollider = nullptr;
     glm::vec3 selectedLocalCenter = glm::vec3(0.0f);
     bool jumpPressed = false;
+    void shootPBRPhysicsCube(Material* material);
 };

@@ -3,6 +3,7 @@
 #include <Scenes/PhysicsCube.h>
 #include <Scenes/Cube.h>
 #include <common/3dEntities/Meshes/Terrain/proceduralvoxelterrain.h>
+#include <common/Materials/MaterialLibrary.h>
 
 CharacterController::CharacterController() {
     canSleep = false;
@@ -75,6 +76,37 @@ int CharacterController::remove_one_in_inventory(){
     inventory[current_inventory_case_selected][1]--;
     if(inventory[current_inventory_case_selected][1] <= 0) inventory[current_inventory_case_selected] = glm::ivec2(0, 0);
     return v;
+}
+
+void CharacterController::shootPBRPhysicsCube(Material* material) {
+    if (!material || !cam) return;
+
+    glm::vec3 cameraForward = cam->forward();
+    const float projectileSpawnDistance = 3.0f;
+    const float projectileHalfExtent = 1.1f;
+    const float projectileSpawnPadding = 0.15f;
+    const float projectileMinSpawnDistance = projectileHalfExtent + projectileSpawnPadding;
+
+    float spawnDistance = projectileSpawnDistance;
+    RayIntersection spawnRaycast = scene->raycast(
+        cam->getGlobalPosition(),
+        cameraForward,
+        projectileSpawnDistance + projectileHalfExtent + projectileSpawnPadding,
+        1ULL
+    );
+    if (spawnRaycast.intersectionExists) {
+        spawnDistance = spawnRaycast.t - projectileHalfExtent - projectileSpawnPadding;
+    }
+
+    if (spawnDistance < projectileMinSpawnDistance) {
+        return;
+    }
+
+    RigidBody3D* voxel = makePBRPhysicsCube(material);
+    voxel->setGlobalPosition(cam->getGlobalPosition() + cameraForward * spawnDistance);
+    voxel->setForward(cameraForwardxz);
+    voxel->velocity = cameraForward * 18.0f + UP * 6.0f;
+    instantiate(voxel);
 }
 
 void CharacterController::process(float deltaTime){
@@ -186,29 +218,21 @@ void CharacterController::process(float deltaTime){
         }
     }
 
-    if (scene->inputPressed("testPBRCube")){
-        const float projectileSpawnDistance = 3.0f;
-        const float projectileHalfExtent = 1.1f;
-        const float projectileSpawnPadding = 0.15f;
-        const float projectileMinSpawnDistance = projectileHalfExtent + projectileSpawnPadding;
-
-        float spawnDistance = projectileSpawnDistance;
-        RayIntersection spawnRaycast = scene->raycast(
-            cam->getGlobalPosition(),
-            cameraForward,
-            projectileSpawnDistance + projectileHalfExtent + projectileSpawnPadding,
-            1ULL
-            );
-        if (spawnRaycast.intersectionExists) {
-            spawnDistance = spawnRaycast.t - projectileHalfExtent - projectileSpawnPadding;
+    if (scene->materialLibrary) {
+        if (scene->inputPressed("fireRustIron")) {
+            shootPBRPhysicsCube(scene->materialLibrary->getSharedRustIron());
         }
-
-        if (spawnDistance >= projectileMinSpawnDistance) {
-            RigidBody3D* voxel = makePBRPhysicsCube(scene->pbrCubeTestMaterial);
-            voxel->setGlobalPosition(cam->getGlobalPosition() + cameraForward * spawnDistance);
-            voxel->setForward(cameraForwardxz);
-            voxel->velocity = cameraForward * 18.0f + UP * 6.0f;
-            instantiate(voxel);
+        if (scene->inputPressed("fireGold")) {
+            shootPBRPhysicsCube(scene->materialLibrary->getSharedGold());
+        }
+        if (scene->inputPressed("firePlastic")) {
+            shootPBRPhysicsCube(scene->materialLibrary->getSharedPlastic());
+        }
+        if (scene->inputPressed("fireGrass")) {
+            shootPBRPhysicsCube(scene->materialLibrary->getSharedPBRGrass());
+        }
+        if (scene->inputPressed("fireWall")) {
+            shootPBRPhysicsCube(scene->materialLibrary->getSharedWall());
         }
     }
 
