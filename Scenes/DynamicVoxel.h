@@ -51,6 +51,20 @@ inline RigidBody3D* makeDynamicVoxelT(Material* material = nullptr) {
     }, 1000.0f, material);
 }
 
+inline RigidBody3D* makeDynamicHugeVoxel(Material* material = nullptr) {
+    return makeDynamicVoxel(9, 3, 1, {
+        1,0,0,
+        1,0,0,
+        1,1,1,
+        1,0,0,
+        1,0,0,
+        1,0,0,
+        1,0,0,
+        1,0,0,
+        1,0,0,
+    }, 1000.0f, material);
+}
+
 inline RigidBody3D* makeDynamicVoxelIsland(Material* material = nullptr) {
-    return makeDynamicVoxelT(material);
+    return makeDynamicHugeVoxel(material);
 }
