@@ -48,6 +48,7 @@ public:
     constexpr static float fixedDeltaTime = 0.03f;
     bool gameExited = false;
     PBRMaterial* worldMaterial;
+    PBRMaterial* pbrCubeTestMaterial;
 private:
     std::vector<Mesh*> meshes = std::vector<Mesh*>();
     std::vector<Light*> lights = std::vector<Light*>();

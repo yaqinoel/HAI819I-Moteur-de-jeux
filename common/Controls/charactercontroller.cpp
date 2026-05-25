@@ -186,6 +186,32 @@ void CharacterController::process(float deltaTime){
         }
     }
 
+    if (scene->inputPressed("testPBRCube")){
+        const float projectileSpawnDistance = 3.0f;
+        const float projectileHalfExtent = 1.1f;
+        const float projectileSpawnPadding = 0.15f;
+        const float projectileMinSpawnDistance = projectileHalfExtent + projectileSpawnPadding;
+
+        float spawnDistance = projectileSpawnDistance;
+        RayIntersection spawnRaycast = scene->raycast(
+            cam->getGlobalPosition(),
+            cameraForward,
+            projectileSpawnDistance + projectileHalfExtent + projectileSpawnPadding,
+            1ULL
+            );
+        if (spawnRaycast.intersectionExists) {
+            spawnDistance = spawnRaycast.t - projectileHalfExtent - projectileSpawnPadding;
+        }
+
+        if (spawnDistance >= projectileMinSpawnDistance) {
+            RigidBody3D* voxel = makePBRPhysicsCube(scene->pbrCubeTestMaterial);
+            voxel->setGlobalPosition(cam->getGlobalPosition() + cameraForward * spawnDistance);
+            voxel->setForward(cameraForwardxz);
+            voxel->velocity = cameraForward * 18.0f + UP * 6.0f;
+            instantiate(voxel);
+        }
+    }
+
     glm::vec3 ray_start = cam->getGlobalPosition();
     glm::vec3 camera_forward = cam->forward();
     float ray_length = 4.0;

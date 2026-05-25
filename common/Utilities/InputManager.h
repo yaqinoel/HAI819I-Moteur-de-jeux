@@ -38,6 +38,7 @@ public:
         inputs.insert({"action2", new InputState(GLFW_MOUSE_BUTTON_RIGHT, true)});
         inputs.insert({"action3", new InputState(GLFW_KEY_E)});
         inputs.insert({"testBigVoxel", new InputState(GLFW_KEY_V)});
+        inputs.insert({"testPBRCube", new InputState(GLFW_KEY_P)});
         inputs.insert({"jump", new InputState(GLFW_KEY_SPACE)});
         inputs.insert({"down", new InputState(GLFW_KEY_LEFT_SHIFT)});
         inputs.insert({"left", new InputState(GLFW_KEY_A)});
