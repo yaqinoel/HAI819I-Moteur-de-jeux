@@ -41,26 +41,27 @@ void stabilizeBody(RigidBody3D* body) {
     if (!body || body->mass <= 0.0f)
         return;
 
-    float angularDamping = body->isOnGround() ? kGroundAngularDamping : kAirAngularDamping;
+    const SleepSettings& settings = body->sleepSettings;
+    float angularDamping = body->isOnGround() ? settings.groundAngularDamping : settings.airAngularDamping;
     body->angularVelocity *= angularDamping;
 
     float angularSpeed = glm::length(body->angularVelocity);
-    if (angularSpeed > kMaxAngularSpeed)
-        body->angularVelocity = body->angularVelocity * (kMaxAngularSpeed / angularSpeed);
-    else if (body->isOnGround() && angularSpeed < kRestingAngularSpeed)
+    if (angularSpeed > settings.maxAngularSpeed)
+        body->angularVelocity = body->angularVelocity * (settings.maxAngularSpeed / angularSpeed);
+    else if (body->isOnGround() && angularSpeed < settings.restingAngularSpeed)
         body->angularVelocity = glm::vec3(0.0f);
 
     if (body->isOnGround()) {
         float absVy = std::abs(body->velocity.y);
-        if (absVy < kRestingVerticalSpeed)
+        if (absVy < settings.restingVerticalSpeed)
             body->velocity.y = 0.0f;
         else if (absVy < 0.3f)
             body->velocity.y *= 0.5f;
 
         float linearSpeed2 = glm::length2(body->velocity);
         float angularSpeed2 = glm::length2(body->angularVelocity);
-        if (linearSpeed2 < kRestingSettleLinearSpeed * kRestingSettleLinearSpeed
-            && angularSpeed2 < kRestingSettleAngularSpeed * kRestingSettleAngularSpeed) {
+        if (linearSpeed2 < settings.settleLinearSpeed * settings.settleLinearSpeed
+            && angularSpeed2 < settings.settleAngularSpeed * settings.settleAngularSpeed) {
             body->velocity = glm::vec3(0.0f);
             body->angularVelocity = glm::vec3(0.0f);
             return;
@@ -68,9 +69,8 @@ void stabilizeBody(RigidBody3D* body) {
 
         // Only damp horizontal velocity when body is nearly at rest
         if (linearSpeed2 < 1.0f) {
-            constexpr float kGroundLinearDamping = 0.85f;
-            body->velocity.x *= kGroundLinearDamping;
-            body->velocity.z *= kGroundLinearDamping;
+            body->velocity.x *= settings.groundLinearDamping;
+            body->velocity.z *= settings.groundLinearDamping;
         }
     }
 }
@@ -82,11 +82,12 @@ void updateSleepState(RigidBody3D* body, float dt) {
         return;
     }
 
-    bool slowLinear = glm::length2(body->velocity) < kSleepLinearSpeed * kSleepLinearSpeed;
-    bool slowAngular = glm::length2(body->angularVelocity) < kSleepAngularSpeed * kSleepAngularSpeed;
+    const SleepSettings& settings = body->sleepSettings;
+    bool slowLinear = glm::length2(body->velocity) < settings.sleepLinearSpeed * settings.sleepLinearSpeed;
+    bool slowAngular = glm::length2(body->angularVelocity) < settings.sleepAngularSpeed * settings.sleepAngularSpeed;
     if (body->isOnGround() && slowLinear && slowAngular) {
         body->sleepTimer += dt;
-        if (body->sleepTimer >= kSleepDelay)
+        if (body->sleepTimer >= settings.sleepDelay)
             body->sleep();
     } else {
         body->sleepTimer = 0.0f;

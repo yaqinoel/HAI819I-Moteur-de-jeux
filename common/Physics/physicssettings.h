@@ -7,6 +7,7 @@ constexpr float kContactEpsilon = 1e-3f;
 constexpr float kAngularImpulseScale = 1.0f;
 constexpr float kAirAngularDamping = 0.995f;
 constexpr float kGroundAngularDamping = 0.95f;
+constexpr float kGroundLinearDamping = 0.85f;
 constexpr float kMaxAngularSpeed = 20.0f;
 constexpr float kRestingVerticalSpeed = 0.1f;
 constexpr float kRestingAngularSpeed = 0.1f;

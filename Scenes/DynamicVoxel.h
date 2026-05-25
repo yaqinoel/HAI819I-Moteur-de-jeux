@@ -13,6 +13,10 @@ inline RigidBody3D* makeDynamicVoxel(int width, int height, int depth, const std
     RigidBody3D* body = new RigidBody3D();
     body->name = "dynamic voxel rigidbody";
     body->gravity = glm::vec3(0.0f, -20.0f, 0.0f);
+    body->sleepSettings.restingAngularSpeed = 0.03f;
+    body->sleepSettings.settleAngularSpeed = 0.08f;
+    body->sleepSettings.sleepAngularSpeed = 0.08f;
+    body->sleepSettings.sleepDelay = 0.35f;
 
     DynamicVoxel *mesh = new DynamicVoxel(glm::vec3(0), glm::vec3(width, height, depth), body);
     mesh->setMaterial(material);

@@ -621,7 +621,7 @@ void addVoxelVoxelContacts(Collider3D* colliderA,
     Collider3D* outerCollider = iterateA ? colliderA : colliderB;
     Collider3D* innerCollider = iterateA ? colliderB : colliderA;
 
-    std::vector<PhysicsContact> manifoldContacts;
+    ManifoldAccumulator accumulator;
 
     outerVoxel->forEachSolidCell([&](int outerX, int outerY, int outerZ) {
         PhysicsAabb outerCellAabb;
@@ -647,58 +647,32 @@ void addVoxelVoxelContacts(Collider3D* colliderA,
                     if (iterateA) {
                         if (!satContact(outerBox, innerBox, normal, penetration))
                             continue;
-                        PhysicsContact contact;
-                        if (buildContact(colliderA,
-                                         colliderB,
-                                         normal,
-                                         averagePoint(contactPoints(outerBox, innerBox)),
-                                         penetration,
-                                         contact)) {
-                            manifoldContacts.push_back(contact);
-                        }
+                        if (!isExposedVoxelContact(outerVoxel, outerX, outerY, outerZ, -normal)
+                            || !isExposedVoxelContact(innerVoxel, x, y, z, normal))
+                            continue;
+                        accumulator.add(colliderA,
+                                        colliderB,
+                                        normal,
+                                        averagePoint(contactPoints(outerBox, innerBox)),
+                                        penetration);
                     } else {
                         if (!satContact(innerBox, outerBox, normal, penetration))
                             continue;
-                        PhysicsContact contact;
-                        if (buildContact(colliderA,
-                                         colliderB,
-                                         normal,
-                                         averagePoint(contactPoints(innerBox, outerBox)),
-                                         penetration,
-                                         contact)) {
-                            manifoldContacts.push_back(contact);
-                        }
+                        if (!isExposedVoxelContact(innerVoxel, x, y, z, -normal)
+                            || !isExposedVoxelContact(outerVoxel, outerX, outerY, outerZ, normal))
+                            continue;
+                        accumulator.add(colliderA,
+                                        colliderB,
+                                        normal,
+                                        averagePoint(contactPoints(innerBox, outerBox)),
+                                        penetration);
                     }
                 }
             }
         }
     });
 
-    constexpr size_t maxVoxelManifoldContacts = 6;
-    constexpr float minContactPointSeparation2 = 0.08f * 0.08f;
-    std::sort(manifoldContacts.begin(), manifoldContacts.end(), [](const PhysicsContact& a, const PhysicsContact& b) {
-        return a.penetration > b.penetration;
-    });
-
-    std::vector<PhysicsContact> reducedContacts;
-    reducedContacts.reserve(std::min(manifoldContacts.size(), maxVoxelManifoldContacts));
-    for (const PhysicsContact& contact : manifoldContacts) {
-        bool duplicate = false;
-        for (const PhysicsContact& kept : reducedContacts) {
-            if (normalSlot(contact.normal) == normalSlot(kept.normal)
-                && glm::length2(contact.point - kept.point) < minContactPointSeparation2) {
-                duplicate = true;
-                break;
-            }
-        }
-
-        if (!duplicate)
-            reducedContacts.push_back(contact);
-        if (reducedContacts.size() >= maxVoxelManifoldContacts)
-            break;
-    }
-
-    outContacts.insert(outContacts.end(), reducedContacts.begin(), reducedContacts.end());
+    accumulator.flush(outContacts);
 }
 
 void addSphereSphereContacts(Collider3D* colliderA,

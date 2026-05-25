@@ -236,14 +236,17 @@ void DynamicVoxel::InitMesh(){
     shape = new VoxelShape();
     shape->InitMesh(sizeX, sizeY, sizeZ, voxelData);
     parent->addChild(this);
+    glm::vec3 shapeCenter = shape->getLocalCenterOfMass();
+    glm::vec3 shapeOriginOffset(shape->getVoxelSize());
+    glm::vec3 visualCenter = shapeCenter - shapeOriginOffset;
+    setLocalPosition(-visualCenter);
 
     if(collision != nullptr) collision->erase();
     collision = new Collider3D();
     collision->name = "dynamic voxel collider";
     collision->setShape(shape);
     collision->mass = 1000 * shape->solidCellCount();
-    glm::vec3 shapeCenter = shape->getLocalCenterOfMass();
-    collision->setLocalPosition(-shapeCenter);
     addChild(collision);
+    collision->setLocalPosition(-shapeOriginOffset);
     parent->addCollider(collision);
 }

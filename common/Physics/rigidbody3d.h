@@ -2,8 +2,23 @@
 
 #include <vector>
 #include "../3dEntities/node3d.h"
+#include "physicssettings.h"
 
 class Collider3D;
+
+struct SleepSettings {
+    float airAngularDamping = PhysicsSettings::kAirAngularDamping;
+    float groundAngularDamping = PhysicsSettings::kGroundAngularDamping;
+    float groundLinearDamping = PhysicsSettings::kGroundLinearDamping;
+    float maxAngularSpeed = PhysicsSettings::kMaxAngularSpeed;
+    float restingVerticalSpeed = PhysicsSettings::kRestingVerticalSpeed;
+    float restingAngularSpeed = PhysicsSettings::kRestingAngularSpeed;
+    float settleLinearSpeed = PhysicsSettings::kRestingSettleLinearSpeed;
+    float settleAngularSpeed = PhysicsSettings::kRestingSettleAngularSpeed;
+    float sleepLinearSpeed = PhysicsSettings::kSleepLinearSpeed;
+    float sleepAngularSpeed = PhysicsSettings::kSleepAngularSpeed;
+    float sleepDelay = PhysicsSettings::kSleepDelay;
+};
 
 class RigidBody3D: public Node3d
 {
@@ -40,6 +55,7 @@ public:
     float restitution = 0.3f;
     bool canSleep = true;
     float sleepTimer = 0.0f;
+    SleepSettings sleepSettings;
     glm::mat3 inertia=glm::mat3(0);
     glm::mat3 inverseInertia=glm::mat3(0);
     std::vector<Collider3D*> colliders = std::vector<Collider3D*>();
