@@ -14,7 +14,7 @@
 Scene* makePBRInfiniteTerrain(RenderSystem* renderer) {
     Node* root = new Node3d();
     Scene* scene = new Scene(root);
-    scene->iblEnvironment = new IBLEnvironment("../Resources/Textures/HDR/minecraft_style_day.hdr");
+    scene->iblEnvironment = new IBLEnvironment("../Resources/Textures/HDR/skybox_square_sun.hdr");
 
     CameraControls* cam = new CameraControls(4.0f, 3.0f, 70.0f, 0.1f, 1000.0f, glm::vec3(0, 9, -10));
     cam->name = "camera";
