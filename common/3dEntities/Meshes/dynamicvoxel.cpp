@@ -1,5 +1,6 @@
 #include "dynamicvoxel.h"
 
+#include <cmath>
 #include <common/Physics/Shapes/terrainvoxelshape.h>
 #include <common/Physics/rigidbody3d.h>
 
@@ -120,7 +121,8 @@ void DynamicVoxel::setData(int x, int y, int z, unsigned short int v){
     else{
         voxelData[x*sizeY*sizeZ+y*sizeZ+z] = v;
     }
-    shape->InitMesh(sizeX, sizeY, sizeZ, voxelData);
+    if (shape)
+        shape->InitMesh(sizeX, sizeY, sizeZ, voxelData);
 }
 
 int DynamicVoxel::removeTile(glm::vec3 world_position){
@@ -129,6 +131,7 @@ int DynamicVoxel::removeTile(glm::vec3 world_position){
     int val = getData(ilocal.x, ilocal.y, ilocal.z);
     setData(ilocal.x, ilocal.y, ilocal.z, 0);
     ResetMesh();
+    refreshPhysicsFromVoxelData(true);
     synchronize();
     if(voxel_nbr <= 0) {
         parent->erase();
@@ -141,6 +144,7 @@ void DynamicVoxel::addTile(glm::vec3 world_position, int v){
     glm::ivec3 ilocal = glm::ivec3(round(local[0]), round(local[1]), round(local[2]));
     setData(ilocal.x, ilocal.y, ilocal.z, v);
     ResetMesh();
+    refreshPhysicsFromVoxelData(true);
     synchronize();
 }
 
@@ -234,19 +238,45 @@ void DynamicVoxel::ResetMesh() {
 void DynamicVoxel::InitMesh(){
     ResetMesh();
     shape = new VoxelShape();
-    shape->InitMesh(sizeX, sizeY, sizeZ, voxelData);
     parent->addChild(this);
-    glm::vec3 shapeCenter = shape->getLocalCenterOfMass();
-    glm::vec3 shapeOriginOffset(shape->getVoxelSize());
-    glm::vec3 visualCenter = shapeCenter - shapeOriginOffset;
-    setLocalPosition(-visualCenter);
 
     if(collision != nullptr) collision->erase();
     collision = new Collider3D();
     collision->name = "dynamic voxel collider";
     collision->setShape(shape);
-    collision->mass = 1000 * shape->solidCellCount();
     addChild(collision);
-    collision->setLocalPosition(-shapeOriginOffset);
     parent->addCollider(collision);
+    refreshPhysicsFromVoxelData(false);
+}
+
+void DynamicVoxel::refreshPhysicsFromVoxelData(bool preserveVoxelWorldTransform) {
+    if (!shape || !collision || !parent)
+        return;
+
+    glm::mat4 voxelWorld = getGlobalMatrix();
+    glm::quat bodyRotation = parent->getGlobalRotation();
+    glm::vec3 oldVelocity = parent->velocity;
+    glm::vec3 oldAngularVelocity = parent->angularVelocity;
+
+    if (!std::isfinite(massPerCell) || massPerCell <= 0.0f)
+        massPerCell = 1000.0f;
+
+    shape->InitMesh(sizeX, sizeY, sizeZ, voxelData);
+    collision->mass = massPerCell * shape->solidCellCount();
+
+    glm::vec3 shapeOriginOffset(shape->getVoxelSize());
+    glm::vec3 visualCenter = shape->getLocalCenterOfMass() - shapeOriginOffset;
+
+    if (preserveVoxelWorldTransform) {
+        glm::vec3 newBodyPosition = glm::vec3(voxelWorld * glm::vec4(visualCenter, 1.0f));
+        parent->setGlobalPosition(newBodyPosition);
+        parent->setGlobalRotation(bodyRotation);
+    }
+
+    setLocalPosition(-visualCenter);
+    collision->setLocalPosition(-shapeOriginOffset);
+    parent->recomputeMassProperties();
+    parent->velocity = oldVelocity;
+    parent->angularVelocity = oldAngularVelocity;
+    parent->wakeUp();
 }

@@ -105,16 +105,27 @@ void RigidBody3D::setLocalPosition(const glm::vec3 pos){
 void RigidBody3D::addCollider(Collider3D* c){
     colliders.push_back(c);
     c->rb = this;
+    recomputeMassProperties();
+}
 
-    // Sync shape mass to collider mass so inertia tensor is correctly scaled
-    if (c->getShape())
+void RigidBody3D::recomputeMassProperties(){
+    mass = 0.0f;
+    inertia = glm::mat3(0.0f);
+    inverseInertia = glm::mat3(0.0f);
+
+    for (Collider3D* c : colliders) {
+        if (!c || !c->getShape())
+            continue;
+
+        c->rb = this;
         c->getShape()->setMass(c->mass);
 
-    mass += c->mass;
-    glm::vec3 colliderCenterOfMass = glm::vec3(c->getGlobalMatrix() * glm::vec4(c->getShape()->getLocalCenterOfMass(), 1.0f));
-    glm::vec3 offset = colliderCenterOfMass - getGlobalPosition();
-    glm::mat3 parallelAxis = c->mass * (glm::dot(offset, offset) * glm::mat3(1.0f) - glm::outerProduct(offset, offset));
-    inertia += c->getInertia() + parallelAxis;
+        mass += c->mass;
+        glm::vec3 colliderCenterOfMass = glm::vec3(c->getGlobalMatrix() * glm::vec4(c->getShape()->getLocalCenterOfMass(), 1.0f));
+        glm::vec3 offset = colliderCenterOfMass - getGlobalPosition();
+        glm::mat3 parallelAxis = c->mass * (glm::dot(offset, offset) * glm::mat3(1.0f) - glm::outerProduct(offset, offset));
+        inertia += c->getInertia() + parallelAxis;
+    }
 
     float determinant = glm::determinant(inertia);
     if(std::abs(determinant) > 1e-8f)

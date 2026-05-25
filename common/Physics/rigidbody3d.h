@@ -7,6 +7,16 @@
 class Collider3D;
 
 struct SleepSettings {
+    static SleepSettings Default() { return SleepSettings(); }
+    static SleepSettings DynamicVoxel() {
+        SleepSettings settings;
+        settings.restingAngularSpeed = 0.03f;
+        settings.settleAngularSpeed = 0.08f;
+        settings.sleepAngularSpeed = 0.08f;
+        settings.sleepDelay = 0.35f;
+        return settings;
+    }
+
     float airAngularDamping = PhysicsSettings::kAirAngularDamping;
     float groundAngularDamping = PhysicsSettings::kGroundAngularDamping;
     float groundLinearDamping = PhysicsSettings::kGroundLinearDamping;
@@ -46,6 +56,7 @@ public:
     void setGlobalPosition(const glm::vec3 &globPos) override;
     void setGlobalRotation(const glm::quat &globRot) override;
     void addCollider(Collider3D* c);
+    void recomputeMassProperties();
     glm::vec3 getMomentum(){return velocity * mass;}
     float getKineticEnergy(){return 0.5f*mass*glm::dot(velocity,velocity);}
     glm::vec3 velocity = glm::vec3(0);

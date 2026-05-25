@@ -30,9 +30,11 @@ public:
     void addZ(bool atStart);
     RigidBody3D *parent;
     void setVoxelData(std::vector<unsigned short int> d){voxelData = d;}
+    void setMassPerCell(float mass){massPerCell = mass;}
 
 
 private:
+    void refreshPhysicsFromVoxelData(bool preserveVoxelWorldTransform);
     void CreateTopSquare(int x, int y, int z);
     void CreateBottomSquare(int x, int y, int z);
     void CreateRightSquare(int x, int y, int z);
@@ -44,4 +46,5 @@ private:
     VoxelShape* shape = nullptr;
     Collider3D* collision = nullptr;
     int voxel_nbr = 0;
+    float massPerCell = 1000.0f;
 };

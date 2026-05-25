@@ -232,6 +232,14 @@ bool isExposedVoxelContact(VoxelShape* voxel, int x, int y, int z, const glm::ve
     return !voxel->isSolid(x + step.x, y + step.y, z + step.z);
 }
 
+bool acceptsVoxelFaceContact(VoxelShape* voxel, int x, int y, int z, const glm::vec3& normal) {
+    if (!voxel)
+        return false;
+    if (voxel->type != TERRAIN_VOXEL)
+        return true;
+    return isExposedVoxelContact(voxel, x, y, z, normal);
+}
+
 glm::vec3 closestPointOnSegment(const glm::vec3& point,
                                 const glm::vec3& segmentA,
                                 const glm::vec3& segmentB) {
@@ -476,7 +484,7 @@ void addShapeVoxelContacts(Collider3D* dynamicCollider,
                 ContactCandidate candidate;
                 if (!candidateFn(cell, candidate))
                     continue;
-                if (!isExposedVoxelContact(voxel, x, y, z, candidate.normal))
+                if (!acceptsVoxelFaceContact(voxel, x, y, z, candidate.normal))
                     continue;
 
                 accumulator.add(dynamicCollider,
@@ -571,7 +579,7 @@ void addBoxVoxelContacts(Collider3D* boxCollider,
                 float penetration = 0.0f;
                 if (!satContact(box, cell, normal, penetration))
                     continue;
-                if (!isExposedVoxelContact(voxel, x, y, z, normal))
+                if (!acceptsVoxelFaceContact(voxel, x, y, z, normal))
                     continue;
 
                 accumulator.add(boxCollider,
@@ -647,8 +655,8 @@ void addVoxelVoxelContacts(Collider3D* colliderA,
                     if (iterateA) {
                         if (!satContact(outerBox, innerBox, normal, penetration))
                             continue;
-                        if (!isExposedVoxelContact(outerVoxel, outerX, outerY, outerZ, -normal)
-                            || !isExposedVoxelContact(innerVoxel, x, y, z, normal))
+                        if (!acceptsVoxelFaceContact(outerVoxel, outerX, outerY, outerZ, -normal)
+                            || !acceptsVoxelFaceContact(innerVoxel, x, y, z, normal))
                             continue;
                         accumulator.add(colliderA,
                                         colliderB,
@@ -658,8 +666,8 @@ void addVoxelVoxelContacts(Collider3D* colliderA,
                     } else {
                         if (!satContact(innerBox, outerBox, normal, penetration))
                             continue;
-                        if (!isExposedVoxelContact(innerVoxel, x, y, z, -normal)
-                            || !isExposedVoxelContact(outerVoxel, outerX, outerY, outerZ, normal))
+                        if (!acceptsVoxelFaceContact(innerVoxel, x, y, z, -normal)
+                            || !acceptsVoxelFaceContact(outerVoxel, outerX, outerY, outerZ, normal))
                             continue;
                         accumulator.add(colliderA,
                                         colliderB,
