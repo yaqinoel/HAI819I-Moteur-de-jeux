@@ -36,11 +36,11 @@ Scene* makePBRInfiniteTerrain(RenderSystem* renderer) {
     projectileMat->addTexture("albedoMap", projectileAlbedo);
 
     PBRMaterial* pbrCubeTestMaterial = new PBRMaterial(pbrShader, glm::vec3(0.0f), 0.0f, 0.98f, 0.85f);
-    pbrCubeTestMaterial->addTexture("albedoMap", Texture("../Resources/Textures/RustIron/albedo.png"));
-    pbrCubeTestMaterial->addTexture("normalMap", Texture("../Resources/Textures/RustIron/normal.png"));
-    pbrCubeTestMaterial->addTexture("metallicMap", Texture("../Resources/Textures/RustIron/metallic.png"));
-    pbrCubeTestMaterial->addTexture("roughnessMap", Texture("../Resources/Textures/RustIron/roughness.png"));
-    pbrCubeTestMaterial->addTexture("aoMap", Texture("../Resources/Textures/RustIron/ao.png"));
+    pbrCubeTestMaterial->addTexture("albedoMap", Texture("../Resources/Textures/plastic/albedo.png"));
+    pbrCubeTestMaterial->addTexture("normalMap", Texture("../Resources/Textures/plastic/normal.png"));
+    pbrCubeTestMaterial->addTexture("metallicMap", Texture("../Resources/Textures/plastic/metallic.png"));
+    pbrCubeTestMaterial->addTexture("roughnessMap", Texture("../Resources/Textures/plastic/roughness.png"));
+    pbrCubeTestMaterial->addTexture("aoMap", Texture("../Resources/Textures/plastic/ao.png"));
     scene->pbrCubeTestMaterial = pbrCubeTestMaterial;
 
     TerrainManager* tm = new TerrainManager();

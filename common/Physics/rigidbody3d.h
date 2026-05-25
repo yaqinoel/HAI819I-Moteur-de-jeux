@@ -16,6 +16,16 @@ struct SleepSettings {
         settings.sleepDelay = 0.35f;
         return settings;
     }
+    static SleepSettings DynamicCube() {
+        SleepSettings settings;
+        settings.restingAngularSpeed = 0.04f;
+        settings.settleAngularSpeed = 0.10f;
+        settings.sleepAngularSpeed = 0.10f;
+        settings.sleepDelay = 0.30f;
+        settings.groundAngularDamping = 0.88f;
+        settings.groundLinearDamping = 0.75f;
+        return settings;
+    }
 
     float airAngularDamping = PhysicsSettings::kAirAngularDamping;
     float groundAngularDamping = PhysicsSettings::kGroundAngularDamping;

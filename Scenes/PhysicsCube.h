@@ -57,6 +57,7 @@ inline Mesh* makeFullFaceUVCube(Material* material = nullptr) {
 
 inline RigidBody3D* makePBRPhysicsCube(Material* material = nullptr) {
     RigidBody3D* physicsCube = new RigidBody3D();
+    physicsCube->sleepSettings = SleepSettings::DynamicCube();
     Node3d* child = makeFullFaceUVCube(material);
     physicsCube->addChild(child);
     physicsCube->gravity = glm::vec3(0, -20, 0);
