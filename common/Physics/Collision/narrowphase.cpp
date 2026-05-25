@@ -213,6 +213,25 @@ bool voxelCellRangeForAabb(VoxelShape* voxel,
     return minCell.x <= maxCell.x && minCell.y <= maxCell.y && minCell.z <= maxCell.z;
 }
 
+glm::ivec3 cellStepForNormal(const glm::vec3& normal) {
+    switch (normalSlot(normal)) {
+        case 0: return glm::ivec3(1, 0, 0);
+        case 1: return glm::ivec3(-1, 0, 0);
+        case 2: return glm::ivec3(0, 1, 0);
+        case 3: return glm::ivec3(0, -1, 0);
+        case 4: return glm::ivec3(0, 0, 1);
+        default: return glm::ivec3(0, 0, -1);
+    }
+}
+
+bool isExposedVoxelContact(VoxelShape* voxel, int x, int y, int z, const glm::vec3& normal) {
+    if (!voxel || glm::length2(normal) <= 1e-10f)
+        return false;
+
+    glm::ivec3 step = cellStepForNormal(normal);
+    return !voxel->isSolid(x + step.x, y + step.y, z + step.z);
+}
+
 glm::vec3 closestPointOnSegment(const glm::vec3& point,
                                 const glm::vec3& segmentA,
                                 const glm::vec3& segmentB) {
@@ -457,6 +476,8 @@ void addShapeVoxelContacts(Collider3D* dynamicCollider,
                 ContactCandidate candidate;
                 if (!candidateFn(cell, candidate))
                     continue;
+                if (!isExposedVoxelContact(voxel, x, y, z, candidate.normal))
+                    continue;
 
                 accumulator.add(dynamicCollider,
                                 voxelCollider,
@@ -549,6 +570,8 @@ void addBoxVoxelContacts(Collider3D* boxCollider,
                 glm::vec3 normal;
                 float penetration = 0.0f;
                 if (!satContact(box, cell, normal, penetration))
+                    continue;
+                if (!isExposedVoxelContact(voxel, x, y, z, normal))
                     continue;
 
                 accumulator.add(boxCollider,

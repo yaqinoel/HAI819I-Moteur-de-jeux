@@ -59,6 +59,14 @@ float contactEffectiveMass(RigidBody3D* a,
     return mass;
 }
 
+bool samePositionCorrectionGroup(const PhysicsContact& a, const PhysicsContact& b) {
+    return a.bodyA == b.bodyA
+        && a.bodyB == b.bodyB
+        && a.colliderA == b.colliderA
+        && a.colliderB == b.colliderB
+        && glm::dot(a.normal, b.normal) > 0.95f;
+}
+
 }
 
 glm::vec3 pointVelocity(RigidBody3D* body, const glm::vec3& point) {
@@ -81,8 +89,19 @@ void ContactSolver::warmStartContacts(std::vector<PhysicsContact>& contacts) con
 }
 
 void ContactSolver::solvePositions(const std::vector<PhysicsContact>& contacts) const {
-    for (const PhysicsContact& contact : contacts) {
+    for (size_t i = 0; i < contacts.size(); ++i) {
+        const PhysicsContact& contact = contacts[i];
         if (!contact.bodyA)
+            continue;
+
+        size_t deepestIndex = i;
+        for (size_t j = 0; j < contacts.size(); ++j) {
+            if (j == i || !samePositionCorrectionGroup(contact, contacts[j]))
+                continue;
+            if (contacts[j].penetration > contacts[deepestIndex].penetration)
+                deepestIndex = j;
+        }
+        if (deepestIndex != i)
             continue;
 
         float correctionDepth = std::max(contact.penetration - kPositionSlop, 0.0f) * kPositionCorrectionPercent;

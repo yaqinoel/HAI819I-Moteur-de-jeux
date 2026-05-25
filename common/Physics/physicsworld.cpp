@@ -57,10 +57,18 @@ void stabilizeBody(RigidBody3D* body) {
         else if (absVy < 0.3f)
             body->velocity.y *= 0.5f;
 
+        float linearSpeed2 = glm::length2(body->velocity);
+        float angularSpeed2 = glm::length2(body->angularVelocity);
+        if (linearSpeed2 < kRestingSettleLinearSpeed * kRestingSettleLinearSpeed
+            && angularSpeed2 < kRestingSettleAngularSpeed * kRestingSettleAngularSpeed) {
+            body->velocity = glm::vec3(0.0f);
+            body->angularVelocity = glm::vec3(0.0f);
+            return;
+        }
+
         // Only damp horizontal velocity when body is nearly at rest
-        float speed2 = glm::length2(body->velocity);
-        if (speed2 < 1.0f) {
-            constexpr float kGroundLinearDamping = 0.98f;
+        if (linearSpeed2 < 1.0f) {
+            constexpr float kGroundLinearDamping = 0.85f;
             body->velocity.x *= kGroundLinearDamping;
             body->velocity.z *= kGroundLinearDamping;
         }
@@ -263,7 +271,7 @@ void PhysicsWorld::wakeUnstableSleepingBodies(const std::vector<RigidBody3D*>& r
 
             if (upwardSupport) {
                 hasSupport = true;
-                if (otherBody && !otherBody->isSleeping() && (otherBody->canSleep || bodyIsMovingForWake(otherBody)))
+                if (bodyIsMovingForWake(otherBody))
                     supportIsUnstable = true;
             } else if (bodyIsMovingForWake(otherBody) && contact.penetration > kContactEpsilon) {
                 touchingMovingAwakeBody = true;
