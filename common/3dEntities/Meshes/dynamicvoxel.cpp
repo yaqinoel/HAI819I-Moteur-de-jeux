@@ -33,7 +33,6 @@ void DynamicVoxel::addX(bool atStart) {
             for (int z = 0; z < sizeZ; z++) {
                 int destX = atStart ? x + 1 : x;
                 newData[destX * (sizeY * sizeZ) + y * sizeZ + z] = voxelData[x * (sizeY * sizeZ) + y * sizeZ + z];
-                std::cout << "shifting " << destX * (sizeY * sizeZ) + y * sizeZ + z << " " << x * (sizeY * sizeZ) + y * sizeZ + z << std::endl;
             }
 
     voxelData = std::move(newData);
