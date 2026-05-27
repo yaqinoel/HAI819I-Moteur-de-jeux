@@ -18,7 +18,7 @@
 // }
 
 ProceduralVoxelTerrain* TerrainManager::MakeVoxelChunk(int x, int y){
-    ProceduralVoxelTerrain* terrain = new ProceduralVoxelTerrain(x*chunkSize, y*chunkSize, chunkSize, chunkSize, chunkSize, chunkSize, chunkSize, edited);
+    ProceduralVoxelTerrain* terrain = new ProceduralVoxelTerrain(x*chunkSize, y*chunkSize, chunkSize, chunkSize, chunkSize, chunkSize*2, chunkSize, edited);
     if (usePBRChunks) {
         terrain->setMaterial(terrainMat);
         terrain->name = "pbr voxel terrain ("+std::to_string(x)+","+std::to_string(y)+")";
@@ -61,7 +61,7 @@ void TerrainManager::UpdateTerrain(glm::ivec3 newCamPosition){
     }
     for (auto it = chunks.begin(); it != chunks.end(); )
     {
-        glm::vec3 chunkWorldPos = glm::vec3(it->first) * chunkSize;
+        glm::vec3 chunkWorldPos = glm::vec3(it->first) * (chunkSize);
 
         if (glm::length(chunkWorldPos - glm::vec3(cam->getGlobalPosition().x,0, cam->getGlobalPosition().z)) > chunkSize * (chunkRenderDistance + 1))
         {

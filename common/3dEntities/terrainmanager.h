@@ -25,8 +25,8 @@ public:
     void UpdateTerrain(glm::ivec3 newCamPosition);
     void initTerrain();
     //Node* MakeChunk(int x, int y, int indexX, int indexY);
-    int chunkRenderDistance = 3;
-    float chunkSize = 30;
+    int chunkRenderDistance = 5;
+    float chunkSize = 20;
     Material* terrainMat;
     bool usePBRChunks = false;
     std::unordered_map<glm::ivec3, int, IVec3Hash> *edited = new std::unordered_map<glm::ivec3, int, IVec3Hash>();

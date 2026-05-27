@@ -128,7 +128,7 @@ void CharacterController::process(float deltaTime){
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
 
-    axialInputs = glm::vec2(0);
+    axialInputs = glm::vec3(0);
 
     glm::vec3 cameraForward = cam->forward();
     glm::vec3 planarCameraForward = glm::vec3(cameraForward.x, 0.0f, cameraForward.z);
@@ -156,10 +156,20 @@ void CharacterController::process(float deltaTime){
     if (scene->inputHeld("left")){
         axialInputs.y -= 1;
     }
-    if (scene->inputPressed("jump")){
-        if(velocity.y <= 0.01 && isOnGround()){
-            jumpPressed = true;
+    if (scene->inputPressed("fly")){
+        gravityEnabled = !gravityEnabled;
+    }
+    if (scene->inputHeld("jump")){
+        if(gravityEnabled){
+            if(velocity.y <= 0.01 && isOnGround()){
+                jumpPressed = true;
+            }
         }
+        else
+            axialInputs.z += 1;
+    }
+    if (scene->inputHeld("down")){
+        if(!gravityEnabled) axialInputs.z -= 1;
     }
     if (scene->inputPressed("action3") && inventory[current_inventory_case_selected][1] > 0){
         const float projectileSpawnDistance = 2.0f;
@@ -184,6 +194,8 @@ void CharacterController::process(float deltaTime){
 
         if (spawnDistance >= projectileMinSpawnDistance) {
             RigidBody3D* voxel = makeDynamicVoxel(inventory[current_inventory_case_selected][0], scene->worldMaterial);
+
+            // RigidBody3D* voxel = makePBRPhysicsCube(scene->worldMaterial);
             voxel->setGlobalPosition(cam->getGlobalPosition() + cameraForward * spawnDistance);
             voxel->setForward(cameraForwardxz);
             voxel->velocity = cameraForward * 8.0f + UP * 3.0f;
@@ -315,11 +327,14 @@ void CharacterController::lateProcess(float deltaTime){
 
 void CharacterController::physicsProcess(){
     RigidBody3D::physicsProcess();
-    if(paused)return;
-    glm::vec3 planarVelocity = (axialInputs.x * cameraForwardxz + axialInputs.y * cam->right());
+    if(paused){
+        velocity *= gravityEnabled;
+        return;
+    }
+    glm::vec3 planarVelocity = (axialInputs.x * cameraForwardxz + axialInputs.y * cam->right() + axialInputs.z * UP);
     if(planarVelocity != glm::vec3(0)) planarVelocity = glm::normalize(planarVelocity)*speed;
-
-    velocity = planarVelocity+glm::vec3(0, velocity.y, 0);
+    if(gravityEnabled) velocity = planarVelocity+glm::vec3(0, velocity.y, 0);
+    else velocity = planarVelocity;
 
     if(jumpPressed){
         velocity.y = jumpStrength;

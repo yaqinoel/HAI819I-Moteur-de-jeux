@@ -75,6 +75,7 @@ public:
     void Draw();
     static std::string nbr_to_string(int i);
     static std::string type_to_string(int i);
+    bool hide_gui = false;
 private:
     void update_inventory();
     CharacterController *player;

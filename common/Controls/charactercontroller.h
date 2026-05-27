@@ -25,10 +25,11 @@ public:
 private:
     float speed = 5.0f;
     float jumpStrength = 7.0f;
-    glm::vec2 axialInputs = glm::vec2(0);
+    glm::vec3 axialInputs = glm::vec3(0);
     glm::vec3 cameraForwardxz = glm::vec3(1, 0, 0);
     Collider3D* selectedCollider = nullptr;
     glm::vec3 selectedLocalCenter = glm::vec3(0.0f);
     bool jumpPressed = false;
     void shootPBRPhysicsCube(Material* material);
+    bool gravityEnabled = true;
 };

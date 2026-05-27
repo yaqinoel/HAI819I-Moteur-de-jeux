@@ -20,7 +20,7 @@ public:
     std::map<int, glm::ivec2> texCoord = std::map<int, glm::ivec2>();
     unsigned short int getData(int x, int y, int z);
     void setData(int x, int y, int z, unsigned short int v);
-    int removeTile(glm::vec3 world_position);
+    int removeTile(glm::vec3 world_position, bool first_call = true);
     void addTile(glm::vec3 world_position, int v);
     ProceduralVoxelTerrain * neighbourX;
     ProceduralVoxelTerrain * neighbour_X;
@@ -30,15 +30,17 @@ public:
 
 
 private:
+    void makeTree(glm::ivec3 coordinates);
     void CreateTopSquare(int x, int y, int z);
     void CreateBottomSquare(int x, int y, int z);
     void CreateRightSquare(int x, int y, int z);
     void CreateLeftSquare(int x, int y, int z);
     void CreateFrontSquare(int x, int y, int z);
     void CreateBackSquare(int x, int y, int z);
-    int resolution = 0;
-    float frequency;
+    glm::ivec3 resolution = glm::ivec3(0);
+    float frequency = 1.0/30.0;
     std::vector<unsigned short int> chunkData = std::vector<unsigned short int>();
+    std::vector<int> heightData = std::vector<int>();
     void printSlice(int z);
     TerrainVoxelShape* shape = nullptr;
     Collider3D* collision = nullptr;

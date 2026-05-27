@@ -41,7 +41,7 @@ Scene* makePBRInfiniteTerrain(RenderSystem* renderer) {
     scene->instantiate(tm);
 
     CharacterController* character = makeFPSController();
-    character->setGlobalPosition(glm::vec3(3, 18, 10));
+    character->setGlobalPosition(glm::vec3(-18, 37, -18));
     character->projectileMaterial = projectileMat;
     cam->pivot = character;
     character->cam = cam;

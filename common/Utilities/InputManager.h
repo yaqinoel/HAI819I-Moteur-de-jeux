@@ -50,6 +50,8 @@ public:
         inputs.insert({"backwards", new InputState(GLFW_KEY_S)});
         inputs.insert({"forward", new InputState(GLFW_KEY_W)});
         inputs.insert({"action4", new InputState(GLFW_KEY_Q)});
+        inputs.insert({"fly", new InputState(GLFW_KEY_F)});
+        inputs.insert({"hideUI", new InputState(GLFW_KEY_H)});
         inputs.insert({"escape", new InputState(GLFW_KEY_ESCAPE)});
         inputs.insert({"wheelUp", new InputState(INPUT_MOUSE_WHEEL_UP)});
         inputs.insert({"wheelDown", new InputState(INPUT_MOUSE_WHEEL_DOWN)});

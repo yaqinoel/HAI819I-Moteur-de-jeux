@@ -138,19 +138,30 @@ void GUI::update_inventory(){
 }
 
 void GUI::Draw(){
+    if (scene->inputPressed("hideUI")){
+        hide_gui = !hide_gui;
+    }
     update_inventory();
     for(gui_element *e : inventory_selected){
         e->visible = false;
     }
     inventory_selected[player->current_inventory_case_selected]->visible = true;
     main_menu->visible = player->paused;
-    for(gui_element *e : elements){
-        if(e->visible){
-            e->Draw();
-            e->TestHovered(window);
-            if(e->IsClicked(window) and e->onClick) e->onClick();
+    if(hide_gui){
+        if(main_menu->visible){
+            main_menu->Draw();
+            main_menu->TestHovered(window);
+            if(main_menu->IsClicked(window) and main_menu->onClick) main_menu->onClick();
         }
     }
+    else
+        for(gui_element *e : elements){
+            if(e->visible){
+                e->Draw();
+                e->TestHovered(window);
+                if(e->IsClicked(window) and e->onClick) e->onClick();
+            }
+        }
 }
 
 void gui_element::SetupMesh()

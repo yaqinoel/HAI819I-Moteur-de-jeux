@@ -27,42 +27,58 @@ ProceduralVoxelTerrain::ProceduralVoxelTerrain(int posX, int posY, int resX, int
 
 
 unsigned short int ProceduralVoxelTerrain::getData(int x, int y, int z){
-    return chunkData[x*resolution*resolution+y*resolution+z];
+    return chunkData[x*resolution.y*resolution.z+y*resolution.z+z];
 }
 
 
 void ProceduralVoxelTerrain::setData(int x, int y, int z, unsigned short int v){
-    chunkData[x*resolution*resolution+y*resolution+z] = v;
+    chunkData[x*resolution.y*resolution.z+y*resolution.z+z] = v;
+}
+
+void ProceduralVoxelTerrain::makeTree(glm::ivec3 coordinates){
+    int h = 4+rand()%3;
+    for(int i = 0; i < h; i ++){
+        if(getData(coordinates.x, coordinates.y + i, coordinates.z) > 1 || h+i > resolution.y) return;
+        setData(coordinates.x, coordinates.y+i, coordinates.z, 5);
+    }
+    for(int i = -2; i <=2; i ++){
+        for(int j = -2; j <= 2; j ++){
+            glm::ivec3 pos = glm::ivec3(coordinates + glm::ivec3(i, h-1, j));
+            if(pos.x < 0 || pos.x > resolution.x || pos.z < 0 || pos.z > resolution.y)continue;
+            if(getData(pos.x, pos.y, pos.z) > 0) continue;
+            setData(pos.x, pos.y+h, pos.z, 5);
+        }
+    }
 }
 
 void ProceduralVoxelTerrain::InitData() {
     glm::ivec3 pos = glm::vec3(getLocalPosition().x, 0, getLocalPosition().z);
+    resolution = glm::ivec3(sizeX+2, sizeY+2, sizeZ+2);
+    chunkData.resize(resolution.x*resolution.y*resolution.z);
+    heightData.resize(resolution.x*resolution.z);
 
-    resolution = resX+2;
-    frequency = 1.0 / sizeX;
-    chunkData.resize(resolution*resolution*resolution);
-    for (int x = 0; x < resolution; x++) {
-        for (int z = 0; z < resolution; z++) {
+    // Pass 1: generate terrain
+    for (int x = 0; x < resolution.x; x++) {
+        for (int z = 0; z < resolution.z; z++) {
             float worldX = x-1 + pos.x;
             float worldZ = z-1 + pos.z;
-            int height = roundf(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency)) * sizeY);
+            int height = sizeY*0.5+roundf(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency)) * sizeY*0.5);
             int rockHeight = height-3+floor(fabs(glm::perlin(glm::vec2(worldX, worldZ) * frequency*2.0f)) * 4.5);
-            for (int y = 0; y < resolution; y++) {
+            heightData[x*resolution.z + z] = height;
+            for (int y = 0; y < resolution.y; y++) {
                 glm::vec4 global = getGlobalMatrix() * glm::vec4(x, y, z, 1.0);
                 glm::ivec3 iglobal = glm::ivec3(global[0], global[1], global[2]);
+
                 if(edited->find(iglobal) != edited->end()) {
                     setData(x, y, z, (*edited)[iglobal]);
-                }
-                else{
+                } else {
                     setData(x, y, z, 0);
                     if(rockHeight >= y){
                         setData(x, y, z, 3);
-                    }
-                    else if(height >= y-1){
+                    } else if(height >= y-1){
                         if((height >= y)){
                             setData(x, y, z, 2);
-                        }
-                        else{
+                        } else {
                             setData(x, y, z, 1);
                         }
                     }
@@ -80,34 +96,28 @@ int voxel_conversion(int v){
 }
 
 
-int ProceduralVoxelTerrain::removeTile(glm::vec3 world_position){
+int ProceduralVoxelTerrain::removeTile(glm::vec3 world_position, bool first_call){
     glm::vec4 local = getInverseGlobalMatrix() * glm::vec4(world_position, 1.0);
     glm::ivec3 ilocal = glm::ivec3(local[0], local[1], local[2]);
     int val = getData(ilocal.x, ilocal.y, ilocal.z);
     shape->set(ilocal.x, ilocal.y, ilocal.z, 0);
     (*edited)[world_position] = 0;
-    InitData();
+    setData(ilocal[0], ilocal[1], ilocal[2], 0);
     ResetMesh();
     synchronize();
-    if(ilocal.x == 1){
-        neighbour_X->InitData();
-        neighbour_X->ResetMesh();
-        neighbour_X->synchronize();
-    }
-    if(ilocal.x == sizeX){
-        neighbourX->InitData();
-        neighbourX->ResetMesh();
-        neighbourX->synchronize();
-    }
-    if(ilocal.z == 1){
-        neighbour_Z->InitData();
-        neighbour_Z->ResetMesh();
-        neighbour_Z->synchronize();
-    }
-    if(ilocal.z == sizeZ){
-        neighbourZ->InitData();
-        neighbourZ->ResetMesh();
-        neighbourZ->synchronize();
+    if(first_call){
+        if(ilocal.x == 1){
+            neighbour_X->removeTile(world_position, false);
+        }
+        if(ilocal.x == sizeX){
+            neighbourX->removeTile(world_position, false);
+        }
+        if(ilocal.z == 1){
+            neighbour_Z->removeTile(world_position, false);
+        }
+        if(ilocal.z == sizeZ){
+            neighbourZ->removeTile(world_position, false);
+        }
     }
     return voxel_conversion(val);
 }
@@ -131,7 +141,7 @@ void ProceduralVoxelTerrain::addTile(glm::vec3 world_position, int v){
     else{
         shape->set(ilocal.x, ilocal.y, ilocal.z, v);
         (*edited)[world_position] = v;
-        InitData();
+        setData(ilocal[0], ilocal[1], ilocal[2], v);
         ResetMesh();
         synchronize();
     }
@@ -205,9 +215,9 @@ void ProceduralVoxelTerrain::CreateBackSquare(int x, int y, int z) {
 void ProceduralVoxelTerrain::ResetMesh() {
     vertices.clear();
     triangles.clear();
-    for (int x = 1; x < resolution-1; x++) {
-        for (int y = 1; y < resolution-1; y++) {
-            for (int z = 1; z < resolution-1; z++) {
+    for (int x = 1; x < resolution.x-1; x++) {
+        for (int y = 1; y < resolution.y-1; y++) {
+            for (int z = 1; z < resolution.z-1; z++) {
                 if (getData(x, y, z) != 0) {
                     if (getData(x, y+1, z) == 0) CreateTopSquare(x, y, z);
                     if (getData(x, y-1, z) == 0) CreateBottomSquare(x, y, z);
@@ -237,7 +247,7 @@ void ProceduralVoxelTerrain::InitMesh(){
     ResetMesh();
 
     shape = new TerrainVoxelShape();
-    shape->InitMeshFromTerrain(resolution, resolution, resolution, chunkData);
+    shape->InitMeshFromTerrain(resolution.x, resolution.y, resolution.z, chunkData);
     collision->setShape(shape);
     collision->name = "collision mesh for position ("+std::to_string(getLocalPosition().x)+","+std::to_string(getLocalPosition().z)+")";
 }

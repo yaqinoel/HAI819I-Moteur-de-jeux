@@ -10,42 +10,68 @@ CameraControls::CameraControls(float width, float height, float fov, float nearP
     setForward(glm::vec3(0, -1, 1));
 }
 
-void CameraControls::process(float deltaTime){
+void CameraControls::process(float deltaTime)
+{
     Camera::process(deltaTime);
+
     GLFWwindow* window = glfwGetCurrentContext();
 
-    //rotation
+    // =========================
+    // Mouse Input
+    // =========================
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
 
     static bool firstMouse = true;
-    if(firstMouse){
+
+    if (firstMouse)
+    {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;
     }
-    float xoffset = float(lastX - xpos);
+
+    float xoffset = float(xpos - lastX);
     float yoffset = float(lastY - ypos);
 
     lastX = xpos;
     lastY = ypos;
 
     float sensitivityFactor = sensitivity * deltaTime;
+
     xoffset *= sensitivityFactor;
     yoffset *= sensitivityFactor;
 
+    static float yaw = -90.0f;
+    static float pitch = 0.0f;
 
-    glm::vec3 f = forward();
-    glm::vec3 flatForward = glm::normalize(glm::vec3(f.x, 0, f.z));
-    glm::quat yaw = glm::angleAxis(glm::radians(xoffset), UP);
-    glm::vec3 pitchAxis = glm::normalize(glm::cross(flatForward, UP));
-    glm::quat pitch = glm::angleAxis(glm::radians(yoffset), pitchAxis);
-    glm::quat newRot = glm::normalize(pitch * yaw);
-    targetNode->setGlobalPosition(pivotOffset+ pivot->getGlobalPosition() +pivotDistance*(targetNode->getGlobalRotation()*BACKWARDS));
-    setGlobalPosition(targetNode->getGlobalPosition());//glm::mix(position, targetNode->position, std::min(1.0f, deltaTime*10.0f));
-    if(paused) return;
-    targetNode->setForward(newRot * forward());
-    setGlobalRotation(targetNode->getGlobalRotation());//glm::slerp(rotation, targetNode->rotation, std::min(1.0f, deltaTime*10.0f));
+    yaw += xoffset;
+    pitch += yoffset;
+
+    pitch = glm::clamp(pitch, -89.0f, 89.0f);
+
+    glm::vec3 direction;
+
+    direction.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+
+    direction.y = sin(glm::radians(pitch));
+
+    direction.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+
+    direction = glm::normalize(direction);
+
+    if (!paused)
+    {
+        targetNode->setForward(direction);
+    }
+
+    glm::vec3 targetPos = pivot->getGlobalPosition() + pivotOffset;
+    glm::vec3 backward = targetNode->getGlobalRotation() * BACKWARDS;
+
+    targetNode->setGlobalPosition(targetPos + backward * pivotDistance );
+
+    setGlobalPosition(targetNode->getGlobalPosition());
+    setGlobalRotation(targetNode->getGlobalRotation());
 }
 
 void CameraControls::CameraMovement(float deltaTime){
