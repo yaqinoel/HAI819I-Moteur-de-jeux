@@ -1,7 +1,6 @@
 #pragma once
 
 #include <common/scene.h>
-#include <common/3dEntities/Model.hpp>
 #include <common/Controls/cameracontrols.h>
 #include <common/Controls/freecamera.h>
 #include <common/3dEntities/Lights/DirectionalLight.hpp>
@@ -33,7 +32,6 @@ Scene* makePBRGridScene(RenderSystem* renderer) {
     // rustIronMat->addTexture("roughnessMap", Texture("../Resources/Textures/RustIron/roughness.png"));
     // rustIronMat->addTexture("aoMap", Texture("../Resources/Textures/RustIron/ao.png"));
     
-    // Model* baseSphere = new Model("../Resources/Models/obj/pbr_sphere.obj", true);
     Mesh* baseSphereMesh = new Mesh();
     baseSphereMesh->openOBJ("../Resources/Models/obj/pbr_sphere.obj");
 

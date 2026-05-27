@@ -50,8 +50,6 @@ include_directories(
         external/glfw-3.1.2/include/
         external/glm-0.9.7.1/
         external/glew-1.13.0/include/
-        external/assimp/include/
-        ${CMAKE_BINARY_DIR}/external/assimp/include/
         .
 )
 
@@ -62,7 +60,6 @@ set(ALL_LIBS
         glfw
         GLEW_1130
         embree
-        assimp
 )
 
 add_definitions(
@@ -92,7 +89,6 @@ add_executable(Main
         common/3dEntities/node3d.h common/3dEntities/node3d.cpp
         common/3dEntities/camera.h common/3dEntities/camera.cpp
         common/3dEntities/Mesh.hpp
-        common/3dEntities/Model.hpp common/3dEntities/Model.cpp
 
         common/3dEntities/Meshes/Terrain/proceduralterrain.h common/3dEntities/Meshes/Terrain/proceduralterrain.cpp
         common/3dEntities/Meshes/Terrain/heightmapterrain.h common/3dEntities/Meshes/Terrain/heightmapterrain.cpp
@@ -181,7 +177,6 @@ add_executable(Main
         Shaders/fragment_shader_line.glsl
         common/Utilities/hash.h
         common/GUI/gui.h common/GUI/gui.cpp
-        textrenderer.h
         common/3dEntities/Meshes/dynamicvoxel.h common/3dEntities/Meshes/dynamicvoxel.cpp
 
 

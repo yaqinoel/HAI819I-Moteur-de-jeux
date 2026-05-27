@@ -53,10 +53,3 @@ target_link_libraries(GLEW_1130
 	${OPENGL_LIBRARY}
 	${EXTRA_LIBS}
 )
-
-### Assimp ###
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "Disable Assimp tests" FORCE)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "Disable Assimp tools" FORCE)
-set(ASSIMP_INSTALL OFF CACHE BOOL "Disable Assimp installation" FORCE)
-set(ASSIMP_BUILD_ZLIB ON CACHE BOOL "Build zlib" FORCE)
-add_subdirectory(assimp)
